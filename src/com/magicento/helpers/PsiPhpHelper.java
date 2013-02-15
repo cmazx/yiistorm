@@ -3,7 +3,6 @@ package com.magicento.helpers;
 import com.intellij.ide.util.gotoByName.GotoClassModel2;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiWhiteSpace;
 import org.apache.commons.lang.ArrayUtils;
@@ -271,6 +270,7 @@ public class PsiPhpHelper {
         PsiElement[] children = psiElement.getChildren();
         if (children.length > 0) {
             for (PsiElement child : children) {
+                //  System.err.println(child.getNode().getElementType().toString() + " VVV " + child.getText());
                 if (isElementType(child, new String[]{type})) {
                     return child;
                 }
@@ -302,8 +302,7 @@ public class PsiPhpHelper {
         PsiElement siblingElement = psiElement.getPrevSibling();
         while (siblingElement != null && isNotElementType(siblingElement, types)) {
             siblingElement = siblingElement.getPrevSibling().getPrevSibling();
-            String siblingElementName = siblingElement.getText();
-            siblingElementName = siblingElementName;
+            System.err.println(siblingElement.getNode().getElementType().toString() + " <<< " + siblingElement.getText());
         }
         return siblingElement;
     }
@@ -325,7 +324,6 @@ public class PsiPhpHelper {
 
     public static PsiElement findFirstParentOfType(PsiElement psiElement, String[] types, String[] limitTypes) {
         if (psiElement != null) {
-            // PsiTreeUtil.getParentOfType(psiElement, XmlTag.class, false);
             PsiElement parentElement = psiElement.getParent();
             boolean isRequestingSecuredLimits = false;
             if (limitTypes != null && limitTypes.length > 0) {
@@ -340,11 +338,9 @@ public class PsiPhpHelper {
                 String[] securityLimits = {FILE, CLASS, GROUP_STATEMENT};
                 limitTypes = (String[]) ArrayUtils.addAll(limitTypes, securityLimits);
             }
-//        String[] result = Arrays.copyOf(first, first.length + second.length);
-//        System.arraycopy(second, 0, result, first.length, second.length);
 
             while (parentElement != null && isNotElementType(parentElement, types)) {
-                // System.err.println(parentElement.getNode().getElementType().toString() + " >>> " + parentElement.getText());
+                // System.err.println(parentElement.getNode().getElementType().toString() + " ^^^ " + parentElement.getText());
                 if (limitTypes != null) {
                     if (isElementType(parentElement, limitTypes))
                         return null;

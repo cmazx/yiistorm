@@ -7,8 +7,9 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
 import com.yiistorm.ReferenceProviders.ARRelationReferenceProvider;
-import com.yiistorm.ReferenceProviders.ControllerReferenceProvider;
-import com.yiistorm.helpers.YiiHelper;
+import com.yiistorm.ReferenceProviders.ControllerRenderViewReferenceProvider;
+import com.yiistorm.ReferenceProviders.ViewRenderViewReferenceProvider;
+import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class YiiPsiReferenceProvider extends PsiReferenceProvider {
@@ -37,12 +38,14 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
                 PsiFile file = element.getContainingFile();
                 String path = file.getVirtualFile().getPath();
                 projectPath = project.getBasePath().replace("\\", "/");
-                int ProviderType = YiiHelper.getYiiObjectType(path, element);
+                int ProviderType = YiiRefsHelper.getYiiObjectType(path, element);
                 switch (ProviderType) {
-                    case YiiHelper.YII_TYPE_CONTROLLER:
-                        return ControllerReferenceProvider.getReference(path, element);
-                    case YiiHelper.YII_TYPE_MODEL:
+                    case YiiRefsHelper.YII_TYPE_CONTROLLER_TO_VIEW_RENDER:
+                        return ControllerRenderViewReferenceProvider.getReference(path, element);
+                    case YiiRefsHelper.YII_TYPE_AR_RELATION:
                         return ARRelationReferenceProvider.getReference(path, element);
+                    case YiiRefsHelper.YII_TYPE_VIEW_TO_VIEW_RENDER:
+                        return ViewRenderViewReferenceProvider.getReference(path, element);
                 }
             } catch (Exception e) {
                 //System.err.println("error" + e.getMessage());

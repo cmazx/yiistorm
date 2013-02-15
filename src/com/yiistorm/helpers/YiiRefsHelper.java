@@ -15,10 +15,11 @@ import java.util.regex.PatternSyntaxException;
  * Time: 18:44
  * To change this template use File | Settings | File Templates.
  */
-public class YiiHelper {
-    public final static int YII_TYPE_CONTROLLER = 1;
-    public final static int YII_TYPE_MODEL = 2;
-    public final static int YII_TYPE_UNKNOWN = 3;
+public class YiiRefsHelper {
+    public final static int YII_TYPE_UNKNOWN = -1;
+    public final static int YII_TYPE_CONTROLLER_TO_VIEW_RENDER = 1;
+    public final static int YII_TYPE_AR_RELATION = 2;
+    public final static int YII_TYPE_VIEW_TO_VIEW_RENDER = 3;
 
 
     public static String getCurrentProtected(String path) {
@@ -45,15 +46,47 @@ public class YiiHelper {
             PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
             boolean extendsCActiveRecord = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CActiveRecord");
             if (extendsCActiveRecord) {
-                return YiiHelper.YII_TYPE_MODEL;
+                return YII_TYPE_AR_RELATION;
             }
         } catch (Exception ex) {
-            System.err.println("error");
         }
+
+        if (isYiiViewFile(el)) {
+            return YII_TYPE_VIEW_TO_VIEW_RENDER;
+        }
+
         if (path.contains("Controller.php")) {
-            return YiiHelper.YII_TYPE_CONTROLLER;
+            return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
         }
-        return YiiHelper.YII_TYPE_UNKNOWN;
+        return YII_TYPE_UNKNOWN;
+    }
+
+    public static boolean isYiiViewFile(PsiElement el) {
+        if (PsiPhpHelper.getClassElement(el) == null) {
+            PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+            if (parameter_list != null) {
+                String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
+                if (mrefchild.matches("^(renderPartial|render)$")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static String getViewParentPath(String path) {
+        try {
+            Pattern regex = Pattern.compile("(.+views)/.+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher regexMatcher = regex.matcher(path);
+            regexMatcher.matches();
+            regexMatcher.groupCount();
+            return regexMatcher.group(1);
+        } catch (PatternSyntaxException ex) {
+            System.err.println(ex.getMessage());
+            // Syntax error in the regular expression
+        }
+        return null;
     }
 
     public static String getRenderViewPath(String path) {

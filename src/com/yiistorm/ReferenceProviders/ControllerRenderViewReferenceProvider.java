@@ -2,10 +2,11 @@ package com.yiistorm.ReferenceProviders;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import com.yiistorm.ViewsReference;
 import com.yiistorm.YiiPsiReferenceProvider;
-import com.yiistorm.helpers.YiiHelper;
+import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -17,13 +18,13 @@ import java.lang.reflect.Method;
  * Time: 18:43
  * To change this template use File | Settings | File Templates.
  */
-public class ControllerReferenceProvider  {
+public class ControllerRenderViewReferenceProvider {
 
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {
             Class elementClass = element.getClass();
-            String viewPath = YiiHelper.getRenderViewPath(path).replace(YiiPsiReferenceProvider.projectPath, "");
-            String protectedPath = YiiHelper.getCurrentProtected(path);
+            String viewPath = YiiRefsHelper.getRenderViewPath(path).replace(YiiPsiReferenceProvider.projectPath, "");
+            String protectedPath = YiiRefsHelper.getCurrentProtected(path);
             protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "");
 
             Method method = elementClass.getMethod("getValueRange");
@@ -36,7 +37,7 @@ public class ControllerReferenceProvider  {
             String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
             int start = textRange.getStartOffset();
             int len = textRange.getLength();
-            String controllerName = YiiHelper.getControllerClassName(element);
+            String controllerName = YiiRefsHelper.getControllerClassName(element);
             if (uri.endsWith(".tpl") || uri.startsWith("smarty:") || !controllerName.matches("")) {
                 VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
                 VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);

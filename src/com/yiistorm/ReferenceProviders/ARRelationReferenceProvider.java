@@ -11,7 +11,7 @@ import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.ExtendedPsiPhpHelper;
-import com.yiistorm.helpers.YiiHelper;
+import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class ARRelationReferenceProvider {
         try {
 
             String viewPath = path.replace(YiiPsiReferenceProvider.projectPath, "");
-            String protectedPath = YiiHelper.getCurrentProtected(path);
+            String protectedPath = YiiRefsHelper.getCurrentProtected(path);
             protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "");
             if (ARRelationReferenceProvider.isARRelationClassName(element)) {
 
