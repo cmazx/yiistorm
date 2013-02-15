@@ -1,0 +1,35 @@
+<idea-plugin version="2">
+    <name>YiiStorm</name>
+    <description><![CDATA[
+        <p>Yii framework integration for PhpStorm.</p>
+        <br/>
+        <b>Provides:</b>
+        <ul>
+        <li>References from CController::render() call to view file (renderPartial supported).</li>
+        <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
+        </ul>
+    ]]></description>
+    <version>0.3</version>
+    <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
+    <idea-version since-build="8000"/>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+    <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <psi.referenceContributor implementation="MyPsiReferenceContributor"/>
+    <projectConfigurable  implementation="YiiStormSettingsPage"><loadForDefaultProject/></projectConfigurable >
+    <!-- Add your extensions here -->
+</extensions>
+</idea-plugin>
