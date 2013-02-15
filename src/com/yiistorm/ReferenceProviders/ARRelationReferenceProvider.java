@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiUtilCore;
 import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
@@ -12,7 +13,6 @@ import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.ExtendedPsiPhpHelper;
 import com.yiistorm.helpers.YiiHelper;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.psi.util.PsiUtilCore;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import java.util.List;
  * Time: 18:43
  * To change this template use File | Settings | File Templates.
  */
-public class ModelReferenceProvider {
+public class ARRelationReferenceProvider {
 
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {
@@ -32,14 +32,14 @@ public class ModelReferenceProvider {
             String viewPath = path.replace(YiiPsiReferenceProvider.projectPath, "");
             String protectedPath = YiiHelper.getCurrentProtected(path);
             protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "");
-            if (ModelReferenceProvider.isARRelationClassName(element)) {
+            if (ARRelationReferenceProvider.isARRelationClassName(element)) {
 
                 String str = element.getText();
                 TextRange textRange = CommonHelper.getTextRange(element, str);
                 if (textRange != null) {
                     VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
                     String className = element.getText();
-                    VirtualFile v = ModelReferenceProvider.getClassFile(className);
+                    VirtualFile v = ARRelationReferenceProvider.getClassFile(className);
                     VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
                     VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
                     if (appDir != null) {
@@ -57,6 +57,12 @@ public class ModelReferenceProvider {
         return PsiReference.EMPTY_ARRAY;
     }
 
+    /**
+     * Check what PsiElement is Array value in CActiveRecord relations array
+     *
+     * @param el
+     * @return
+     */
     protected static boolean isARRelationClassName(PsiElement el) {
         if (PsiPhpHelper.isElementType(el.getParent(), "Array value")) {
             PsiElement leftEl = PsiPhpHelper.findPrevSiblingOfType(el.getParent(), "Array value");
@@ -69,6 +75,12 @@ public class ModelReferenceProvider {
         return false;
     }
 
+    /**
+     * Search file by Class name
+     *
+     * @param className Name of class
+     * @return VirtualFile
+     */
     protected static VirtualFile getClassFile(String className) {
         String namespacedName = CommonHelper.prepareClassName(className);
         String cleanName = CommonHelper.getCleanClassName(className);
@@ -77,8 +89,8 @@ public class ModelReferenceProvider {
             for (PsiElement element : elements) {
                 String elementName = "";
                 PsiElement namespaceElement = ExtendedPsiPhpHelper.getNamespaceElement(element);
-                if(namespaceElement!=null){
-                    elementName = ExtendedPsiPhpHelper.getNamespaceFullName(namespaceElement)+"\\";
+                if (namespaceElement != null) {
+                    elementName = ExtendedPsiPhpHelper.getNamespaceFullName(namespaceElement) + "\\";
                 }
                 elementName += PsiPhpHelper.getClassIdentifierName(element);
                 PsiElement navElement = element.getNavigationElement();
