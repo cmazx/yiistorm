@@ -302,7 +302,7 @@ public class PsiPhpHelper {
         PsiElement siblingElement = psiElement.getPrevSibling();
         while (siblingElement != null && isNotElementType(siblingElement, types)) {
             siblingElement = siblingElement.getPrevSibling().getPrevSibling();
-            System.err.println(siblingElement.getNode().getElementType().toString() + " <<< " + siblingElement.getText());
+            //   System.err.println(siblingElement.getNode().getElementType().toString() + " <<< " + siblingElement.getText());
         }
         return siblingElement;
     }

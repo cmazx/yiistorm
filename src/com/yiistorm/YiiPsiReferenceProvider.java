@@ -6,9 +6,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
-import com.yiistorm.ReferenceProviders.ARRelationReferenceProvider;
-import com.yiistorm.ReferenceProviders.ControllerRenderViewReferenceProvider;
-import com.yiistorm.ReferenceProviders.ViewRenderViewReferenceProvider;
+import com.yiistorm.ReferenceProviders.*;
 import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +30,8 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
     @Override
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull final ProcessingContext context) {
         project = element.getProject();
-        if (element.getClass().getName().endsWith("StringLiteralExpressionImpl")) {
+        String elname = element.getClass().getName();
+        if (elname.endsWith("StringLiteralExpressionImpl")) {
 
             try {
                 PsiFile file = element.getContainingFile();
@@ -46,6 +45,10 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
                         return ARRelationReferenceProvider.getReference(path, element);
                     case YiiRefsHelper.YII_TYPE_VIEW_TO_VIEW_RENDER:
                         return ViewRenderViewReferenceProvider.getReference(path, element);
+                    case YiiRefsHelper.YII_TYPE_WIDGET_CALL:
+                        return WidgetCallReferenceProvider.getReference(path, element);
+                    case YiiRefsHelper.YII_TYPE_CACTION_TO_VIEW_RENDER:
+                        return CActionRenderViewReferenceProvider.getReference(path, element);
                 }
             } catch (Exception e) {
                 //System.err.println("error" + e.getMessage());

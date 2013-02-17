@@ -36,4 +36,24 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
         return (element.toString() == "Namespace" && element.getFirstChild() != null);
     }
 
+    public static boolean parentMethodNameMatch(PsiElement el, String regexp) {
+        PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+        if (parameter_list != null) {
+            String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
+            if (mrefchild.matches(regexp)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean parentClassNameMatch(PsiElement el, String regexp) {
+        PsiElement classEl = PsiPhpHelper.getClassElement(el);
+        if (classEl.toString().matches(regexp)) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

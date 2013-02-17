@@ -20,6 +20,8 @@ public class YiiRefsHelper {
     public final static int YII_TYPE_CONTROLLER_TO_VIEW_RENDER = 1;
     public final static int YII_TYPE_AR_RELATION = 2;
     public final static int YII_TYPE_VIEW_TO_VIEW_RENDER = 3;
+    public final static int YII_TYPE_WIDGET_CALL = 4;
+    public final static int YII_TYPE_CACTION_TO_VIEW_RENDER = 5;
 
 
     public static String getCurrentProtected(String path) {
@@ -42,26 +44,85 @@ public class YiiRefsHelper {
      * @return
      */
     public static int getYiiObjectType(String path, PsiElement el) {
+
+        if (isWidgetCall(el)) {
+            return YII_TYPE_WIDGET_CALL;
+        }
+
+        if (isCActionRenderView(el)) {
+            return YII_TYPE_CACTION_TO_VIEW_RENDER;
+        }
+
+        if (isExtendCActiveRecord(el)) {
+            return YII_TYPE_AR_RELATION;
+        }
+
+        if (isYiiViewToViewRenderCall(el)) {
+            return YII_TYPE_VIEW_TO_VIEW_RENDER;
+        }
+
+        if (isYiiControllerToViewRenderCall(path, el)) {
+            return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
+        }
+
+
+        return YII_TYPE_UNKNOWN;
+    }
+
+    public static boolean isExtendCActiveRecord(PsiElement el) {
         try {
             PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
             boolean extendsCActiveRecord = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CActiveRecord");
             if (extendsCActiveRecord) {
-                return YII_TYPE_AR_RELATION;
+                return true;
             }
         } catch (Exception ex) {
         }
-
-        if (isYiiViewFile(el)) {
-            return YII_TYPE_VIEW_TO_VIEW_RENDER;
-        }
-
-        if (path.contains("Controller.php")) {
-            return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
-        }
-        return YII_TYPE_UNKNOWN;
+        return false;
     }
 
-    public static boolean isYiiViewFile(PsiElement el) {
+    public static boolean isCActionRenderView(PsiElement el) {
+        try {
+            PsiElement classEl = PsiPhpHelper.getClassElement(el);
+            if (classEl != null) {
+                if (ExtendedPsiPhpHelper.parentMethodNameMatch(el, "^(renderPartial|render)$")) {
+                    boolean extendsCActiveRecord = PsiPhpHelper.isExtendsSuperclass(classEl, "CAction");
+                    if (extendsCActiveRecord) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+        }
+        return false;
+    }
+
+    public static boolean isWidgetCall(PsiElement el) {
+        PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+        String methodName = PsiPhpHelper.getMethodName(method);
+        if (methodName.matches("^widget$")) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isYiiControllerToViewRenderCall(String path, PsiElement el) {
+        if (path.contains("Controller.php")) {
+            PsiElement classEl = PsiPhpHelper.getClassElement(el);
+            if (classEl.toString().contains("Controller")) {
+                PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+                if (parameter_list != null) {
+                    String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
+                    if (mrefchild.matches("^(renderPartial|render)$")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isYiiViewToViewRenderCall(PsiElement el) {
         if (PsiPhpHelper.getClassElement(el) == null) {
             PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
             if (parameter_list != null) {
