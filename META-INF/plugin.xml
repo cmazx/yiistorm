@@ -5,31 +5,35 @@
         <br/>
         <b>Provides:</b>
         <ul>
-        <li>References from CController::render() call to view file (renderPartial supported).</li>
+        <li>CController::render() call references to view file (renderPartial supported).</li>
+        <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction (renderPartial supported).</li>
+        <li>CController::widget('path.to.widget') references to Widget class in current basepath.</li>
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
         </ul>
     ]]></description>
-    <version>0.3</version>
+    <version>0.4a</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
-  <application-components>
-    <!-- Add your application components here -->
-  </application-components>
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
 
-  <project-components>
-    <!-- Add your project components here -->
-  </project-components>
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
 
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
 
     <depends>com.intellij.modules.platform</depends>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <psi.referenceContributor implementation="MyPsiReferenceContributor"/>
-    <projectConfigurable  implementation="YiiStormSettingsPage"><loadForDefaultProject/></projectConfigurable >
-    <!-- Add your extensions here -->
-</extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <psi.referenceContributor implementation="MyPsiReferenceContributor"/>
+        <projectConfigurable implementation="YiiStormSettingsPage">
+            <loadForDefaultProject/>
+        </projectConfigurable>
+        <!-- Add your extensions here -->
+    </extensions>
 </idea-plugin>
