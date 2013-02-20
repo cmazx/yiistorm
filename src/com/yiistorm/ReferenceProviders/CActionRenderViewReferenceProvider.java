@@ -37,17 +37,30 @@ public class CActionRenderViewReferenceProvider {
                 String actionName = PsiPhpHelper.getClassName(element);
                 String cacheKey = actionName + "::render_" + elementName;
                 VirtualFile file = null;
-                if (!cacheFiles.containsKey(cacheKey)) {
+                if (true) {     //!cacheFiles.containsKey(cacheKey)
                     //System.err.println("take "+cacheKey+" from filesystem");
                     PsiElement controllerPsi = getControllersUsingAction(actionName);
                     String controllerName = PsiPhpHelper.getClassIdentifierName(controllerPsi);
                     VirtualFile controllerFile = controllerPsi.getNavigationElement().getContainingFile().getVirtualFile();
                     String controllerPath = controllerFile.getPath();
-                    String viewPath = controllerPath.replaceAll("/[a-zA-Z0-9_]+?.php",
-                            "/" + controllerName.replace("Controller", "") + "/" + elementName + ".php");
-                    viewPath = viewPath.replace("/controllers/", "/views/");
-                    viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
-                    file = baseDir.findFileByRelativePath(viewPath);
+                    if (elementName.matches("^/.+")) {
+                        String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
+                                "/views/" + elementName.replace("//", "") + ".php");
+                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                        file = baseDir.findFileByRelativePath(viewPath);
+                    } else if (elementName.matches("^//.+")) {
+                        String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
+                                "/views/" + elementName.replace("//", "") + ".php");
+                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                        file = baseDir.findFileByRelativePath(viewPath);
+                    } else {
+                        String viewPath = controllerPath.replaceAll("/[a-zA-Z0-9_]+?.php",
+                                "/" + controllerName.replace("Controller", "") + "/" + elementName + ".php");
+                        viewPath = viewPath.replace("/controllers/", "/views/");
+                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                        file = baseDir.findFileByRelativePath(viewPath);
+                    }
+
                     if (file == null) {
                         return PsiReference.EMPTY_ARRAY;
                     } else {
