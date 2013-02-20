@@ -27,17 +27,25 @@ public class WidgetCallReferenceProvider {
             String protectedPath = CommonHelper.searchCurrentProtected(inProtectedPath);
             String widgetPath = element.getText().replace("'", "");
             String widgetFilePath = "";
-
-            if (widgetPath.matches("^application.+")) {
+            if (widgetPath.matches("^components.+")) {
+                widgetFilePath = protectedPath + "/" + widgetPath.replace(".", "/") + ".php";
+            } else if (widgetPath.matches("^application.+")) {
                 widgetFilePath = widgetPath.replace(".", "/").replace("application", protectedPath) + ".php";
             } else {
                 if (!widgetPath.contains(".")) {
                     String currentFolder = inProtectedPath.replaceAll("[a-z0-9A-Z_]+?.php", "");
-                    VirtualFile fileTest = baseDir.findFileByRelativePath(currentFolder + widgetPath + ".php");
-                    if (fileTest == null) {
-                        fileTest = baseDir.findFileByRelativePath(currentFolder + "../" + widgetPath + ".php");
-                        if (fileTest != null) {
-                            widgetFilePath = currentFolder + "../" + widgetPath + ".php";
+                    VirtualFile existsNear = baseDir.findFileByRelativePath(currentFolder + widgetPath + ".php");
+                    if (existsNear == null) {
+                        VirtualFile existsInParentDir = baseDir.findFileByRelativePath(currentFolder + ".." + "/"
+                                + widgetPath + ".php");
+                        if (existsInParentDir != null) {
+                            widgetFilePath = currentFolder + ".." + "/" + widgetPath + ".php";
+                        } else {
+                            VirtualFile existsInProtectedComponents = baseDir.findFileByRelativePath(protectedPath
+                                    + "/" + "components" + "/" + widgetPath + ".php");
+                            if (existsInProtectedComponents != null) {
+                                widgetFilePath = protectedPath + "/" + "components" + "/" + widgetPath + ".php";
+                            }
                         }
                     } else {
                         widgetFilePath = currentFolder + widgetPath + ".php";
@@ -48,8 +56,6 @@ public class WidgetCallReferenceProvider {
 
 
             VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
-
-            widgetFilePath = widgetFilePath;
 
 
             String str = element.getText();

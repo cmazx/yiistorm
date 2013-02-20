@@ -58,6 +58,35 @@ public class CommonHelper {
         }
     }
 
+    public static String searchModulePath(String path) {
+        String protectedPath = getRegexMatch(path, "(.+)/controllers.*", 1);
+        if (protectedPath != null) {
+            return protectedPath;
+        }
+
+        protectedPath = getRegexMatch(path, "(.+)/views.*", 1);
+        if (protectedPath != null) {
+            return protectedPath;
+        }
+
+        protectedPath = getRegexMatch(path, "(.+)/components.*", 1);
+        if (protectedPath != null) {
+            return protectedPath;
+        }
+
+        protectedPath = getRegexMatch(path, "(.+)/models.*", 1);
+        if (protectedPath != null) {
+            return protectedPath;
+        }
+
+        protectedPath = getRegexMatch(path, "(.+)/modules.*", 1);
+        if (protectedPath != null) {
+            return protectedPath;
+        }
+
+        return null;
+    }
+
     public static String searchCurrentProtected(String path) {
         String protectedPath = getRegexMatch(path, "(.+?)/controllers.+", 1);
         if (protectedPath != null) {

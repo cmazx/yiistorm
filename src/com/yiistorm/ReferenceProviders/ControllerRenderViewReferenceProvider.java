@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.yiistorm.ViewsReference;
 import com.yiistorm.YiiPsiReferenceProvider;
+import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +26,7 @@ public class ControllerRenderViewReferenceProvider {
             Class elementClass = element.getClass();
             String viewPath = YiiRefsHelper.getRenderViewPath(path).replace(YiiPsiReferenceProvider.projectPath, "");
             String protectedPath = YiiRefsHelper.getCurrentProtected(path);
-            protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "");
+            protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "").replaceAll("/controllers/[a-zA-Z0-9_]+?.(php|tpl)+", "");
 
             Method method = elementClass.getMethod("getValueRange");
             Object obj = method.invoke(element);
@@ -41,6 +42,11 @@ public class ControllerRenderViewReferenceProvider {
             if (uri.endsWith(".tpl") || uri.startsWith("smarty:") || !controllerName.matches("")) {
                 VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
                 VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
+                if (uri.matches("^/.+") && viewPath.matches(".+modules.+")) {
+                    viewPath = CommonHelper.searchModulePath(viewPath);
+                    appDir = baseDir.findFileByRelativePath(viewPath);
+                }
+
                 VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
                 if (appDir != null) {
                     PsiReference ref = new ViewsReference(controllerName, uri, element,

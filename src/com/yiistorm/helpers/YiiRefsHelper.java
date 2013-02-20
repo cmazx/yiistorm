@@ -22,6 +22,7 @@ public class YiiRefsHelper {
     public final static int YII_TYPE_VIEW_TO_VIEW_RENDER = 3;
     public final static int YII_TYPE_WIDGET_CALL = 4;
     public final static int YII_TYPE_CACTION_TO_VIEW_RENDER = 5;
+    public final static int YII_TYPE_WIDGET_VIEW_RENDER = 6;
 
 
     public static String getCurrentProtected(String path) {
@@ -49,6 +50,10 @@ public class YiiRefsHelper {
             return YII_TYPE_WIDGET_CALL;
         }
 
+        if (isWidgetRenderView(path, el)) {
+            return YII_TYPE_WIDGET_VIEW_RENDER;
+        }
+
         if (isCActionRenderView(el)) {
             return YII_TYPE_CACTION_TO_VIEW_RENDER;
         }
@@ -64,7 +69,6 @@ public class YiiRefsHelper {
         if (isYiiControllerToViewRenderCall(path, el)) {
             return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
         }
-
 
         return YII_TYPE_UNKNOWN;
     }
@@ -93,6 +97,18 @@ public class YiiRefsHelper {
                 }
             }
         } catch (Exception ex) {
+        }
+        return false;
+    }
+
+
+    public static boolean isWidgetRenderView(String path, PsiElement el) {
+        if (!path.contains("Controller.php") && PsiPhpHelper.getClassElement(el) != null) {
+            PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+            String methodName = PsiPhpHelper.getMethodName(method);
+            if (methodName.matches("^(renderPartial|render)$")) {
+                return true;
+            }
         }
         return false;
     }

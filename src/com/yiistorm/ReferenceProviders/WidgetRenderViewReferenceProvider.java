@@ -7,7 +7,6 @@ import com.intellij.psi.PsiReference;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
-import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,14 +16,14 @@ import org.jetbrains.annotations.NotNull;
  * Time: 18:43
  * To change this template use File | Settings | File Templates.
  */
-public class ViewRenderViewReferenceProvider {
+public class WidgetRenderViewReferenceProvider {
 
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {
-            String viewPath = path.replace(YiiPsiReferenceProvider.projectPath, "").replaceAll("/[a-zA-Z0-9_]+?.(php|tpl)+", "");
-            String viewAbsolutePath = YiiRefsHelper.getViewParentPath(path.replace(YiiPsiReferenceProvider.projectPath, ""));
-            String protectedPath = YiiRefsHelper.getCurrentProtected(path);
-            protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "");
+            String currentPath = path.replace(YiiPsiReferenceProvider.projectPath, "").replaceAll("/[a-zA-Z0-9_]+?.(php|tpl)+$", "");
+            String protectedPath = CommonHelper.searchCurrentProtected(path).replace(YiiPsiReferenceProvider.projectPath, "");
+            String viewAbsolutePath = protectedPath + "/views";
+            String viewPath = currentPath + "/views";
 
             String str = element.getText();
             TextRange textRange = CommonHelper.getTextRange(element, str);
@@ -40,7 +39,7 @@ public class ViewRenderViewReferenceProvider {
             VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
             VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
 
-            String filepath = viewPath + "//" + uri;
+            String filepath = viewPath + "/" + uri;
             if (uri.matches("^//.+")) {
                 filepath = viewAbsolutePath + "/" + uri.replace("//", "");
             }

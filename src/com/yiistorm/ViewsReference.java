@@ -1,20 +1,12 @@
 package com.yiistorm;
 
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Queryable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import com.intellij.psi.PsiFile;
-
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
-import org.apache.xmlbeans.XmlToken;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ViewsReference implements PsiReference {
@@ -51,8 +43,6 @@ public class ViewsReference implements PsiReference {
     }
 
 
-
-
     public PsiElement handleElementRename(String newElementName)
             throws IncorrectOperationException {
         // TODO: Implement this method
@@ -84,12 +74,13 @@ public class ViewsReference implements PsiReference {
         String dir = "views/";
         Project project = element.getProject();
         VirtualFile targetFile;
-
-        if (!path.matches("^[/]{2}.+")) {
-            targetFile = appDir.findFileByRelativePath(controllerName + "/" + path + ".php");
-        } else {
+        if (path.matches("^//.+")) {
             String absolute_url = dir + path.replace("//", "") + ".php";
             targetFile = protectedPathDir.findFileByRelativePath(absolute_url);
+        } else if (path.matches("^/.+")) {
+            targetFile = appDir.findFileByRelativePath((path.endsWith(".tpl") ? path : path + ".php"));
+        } else {
+            targetFile = appDir.findFileByRelativePath(controllerName + "/" + (path.endsWith(".tpl") ? path : path + ".php"));
         }
 
         if (targetFile != null) {

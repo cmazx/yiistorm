@@ -49,6 +49,8 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
                         return WidgetCallReferenceProvider.getReference(path, element);
                     case YiiRefsHelper.YII_TYPE_CACTION_TO_VIEW_RENDER:
                         return CActionRenderViewReferenceProvider.getReference(path, element);
+                    case YiiRefsHelper.YII_TYPE_WIDGET_VIEW_RENDER:
+                        return WidgetRenderViewReferenceProvider.getReference(path, element);
                 }
             } catch (Exception e) {
                 //System.err.println("error" + e.getMessage());
