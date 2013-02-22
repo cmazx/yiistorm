@@ -1,18 +1,18 @@
+package com.yiistorm;
+
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
-
-import com.intellij.ide.util.PropertiesComponent;
-
 import java.awt.*;
 
 public class YiiStormSettingsPage implements Configurable {
 
     private JCheckBox enableYiiStorm;
-    private JTextField secretKeyTextField;
+    private JTextField themeNameField;
     Project project;
 
     public YiiStormSettingsPage(Project project) {
@@ -45,14 +45,14 @@ public class YiiStormSettingsPage implements Configurable {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
 
-        JLabel label2 = new JLabel("Secret key:");
+        JLabel themeNameLabel = new JLabel("Project theme name:");
 
-        secretKeyTextField = new JTextField(15);
-        label2.setLabelFor(secretKeyTextField);
-        panel3.add(label2);
-        panel3.add(secretKeyTextField);
+        themeNameField = new JTextField(15);
+        themeNameLabel.setLabelFor(themeNameField);
+        panel3.add(themeNameLabel);
+        panel3.add(themeNameField);
         panel3.add(Box.createHorizontalGlue());
-        secretKeyTextField.setMaximumSize(new Dimension(50,20));
+        themeNameField.setMaximumSize(new Dimension(50, 20));
 
         panel.add(panel1);
         panel.add(Box.createVerticalStrut(8));
@@ -63,7 +63,7 @@ public class YiiStormSettingsPage implements Configurable {
         panel.add(Box.createVerticalGlue());
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         enableYiiStorm.setSelected(properties.getBoolean("enableYiiStorm", true));
-        secretKeyTextField.setText(properties.getValue("yiiStormSecretKey", DefaultSettings.secretKey));
+        themeNameField.setText(properties.getValue("themeName", DefaultSettings.themeName));
 
         return panel;
     }
@@ -72,8 +72,7 @@ public class YiiStormSettingsPage implements Configurable {
     public void apply() throws ConfigurationException {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         properties.setValue("enableYiiStorm", String.valueOf(enableYiiStorm.isSelected()));
-        properties.setValue("yiiStormSecretKey", secretKeyTextField.getText());
-
+        properties.setValue("themeName", themeNameField.getText());
     }
 
     @Override

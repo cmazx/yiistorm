@@ -166,13 +166,19 @@ public class YiiRefsHelper {
         return null;
     }
 
-    public static String getRenderViewPath(String path) {
+    public static String getRenderViewPath(String path, String themeName) {
         try {
             Pattern regex = Pattern.compile("(.+?)controllers/(.+?)Controller\\.php", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher regexMatcher = regex.matcher(path);
             regexMatcher.matches();
             regexMatcher.groupCount();
-            return regexMatcher.group(1) + "views/";
+            if (themeName == null) {
+                themeName = "";
+            } else {
+                themeName = "themes/" + themeName.replaceAll("^/", "").replaceAll("/$", "").trim() + "/";
+            }
+
+            return regexMatcher.group(1) + themeName + "views/";
         } catch (PatternSyntaxException ex) {
             System.err.println(ex.getMessage());
             // Syntax error in the regular expression

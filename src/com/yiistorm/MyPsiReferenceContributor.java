@@ -1,8 +1,9 @@
+package com.yiistorm;
+
 import com.intellij.patterns.StandardPatterns;
-import com.intellij.psi.PsiReferenceRegistrar;
-import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiElement;
-import com.yiistorm.YiiPsiReferenceProvider;
+import com.intellij.psi.PsiReferenceContributor;
+import com.intellij.psi.PsiReferenceRegistrar;
 
 public class MyPsiReferenceContributor extends PsiReferenceContributor {
     @Override

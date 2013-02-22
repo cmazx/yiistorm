@@ -1,5 +1,6 @@
 package com.yiistorm;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -15,6 +16,7 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
     public static final PsiReferenceProvider[] EMPTY_ARRAY = new PsiReferenceProvider[0];
     public static String projectPath;
     public static Project project;
+    public static PropertiesComponent properties;
 
     public YiiPsiReferenceProvider() {
     }
@@ -31,6 +33,7 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull final ProcessingContext context) {
         project = element.getProject();
         String elname = element.getClass().getName();
+        properties = PropertiesComponent.getInstance(project);
         if (elname.endsWith("StringLiteralExpressionImpl")) {
 
             try {

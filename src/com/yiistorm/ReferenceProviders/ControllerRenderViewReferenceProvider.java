@@ -6,7 +6,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.yiistorm.ViewsReference;
 import com.yiistorm.YiiPsiReferenceProvider;
-import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +19,16 @@ import java.lang.reflect.Method;
  * To change this template use File | Settings | File Templates.
  */
 public class ControllerRenderViewReferenceProvider {
-
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {
+            String themeName = YiiPsiReferenceProvider.properties.getValue("themeName");
             Class elementClass = element.getClass();
-            String viewPath = YiiRefsHelper.getRenderViewPath(path).replace(YiiPsiReferenceProvider.projectPath, "");
             String protectedPath = YiiRefsHelper.getCurrentProtected(path);
+            path = path.replace(YiiPsiReferenceProvider.projectPath, "");
+
+            String viewPathTheme = YiiRefsHelper.getRenderViewPath(path, themeName);
+            String viewPath = YiiRefsHelper.getRenderViewPath(path, null);
+
             protectedPath = protectedPath.replace(YiiPsiReferenceProvider.projectPath, "").replaceAll("/controllers/[a-zA-Z0-9_]+?.(php|tpl)+", "");
 
             Method method = elementClass.getMethod("getValueRange");
@@ -39,13 +42,19 @@ public class ControllerRenderViewReferenceProvider {
             int start = textRange.getStartOffset();
             int len = textRange.getLength();
             String controllerName = YiiRefsHelper.getControllerClassName(element);
-            if (uri.endsWith(".tpl") || uri.startsWith("smarty:") || !controllerName.matches("")) {
+
+
+            if (uri.endsWith(".tpl") || !controllerName.matches("")) {
                 VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-                VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
-                if (uri.matches("^/.+") && viewPath.matches(".+modules.+")) {
-                    viewPath = CommonHelper.searchModulePath(viewPath);
-                    appDir = baseDir.findFileByRelativePath(viewPath);
+                String inThemeFullPath = viewPathTheme + controllerName + "/" + uri + (uri.endsWith(".tpl") ? "" : ".php");
+                if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {
+                    viewPath = viewPathTheme;
                 }
+                VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
+                /*if (uri.matches("^/.+") && viewPath.matches(".+modules.+")) {
+                    viewPath = CommonHelper.searchModulePath(viewPath)+"/views/";
+                    appDir = baseDir.findFileByRelativePath(viewPath);
+                }    */
 
                 VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
                 if (appDir != null) {

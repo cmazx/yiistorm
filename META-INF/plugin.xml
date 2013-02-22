@@ -11,7 +11,7 @@
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
         </ul>
     ]]></description>
-    <version>0.4a</version>
+    <version>0.4.1b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -21,17 +21,25 @@
 
     <project-components>
         <!-- Add your project components here -->
+        <component>
+            <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>
+        </component>
     </project-components>
 
     <actions>
         <!-- Add your actions here -->
+        <action id="YiiStormConfigAction" class="com.yiistorm.actions.YiiStormConfigAction" text="YiiStorm theme name"
+                description="YiiStorm config">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt Y"/>
+        </action>
     </actions>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor implementation="MyPsiReferenceContributor"/>
-        <projectConfigurable implementation="YiiStormSettingsPage">
+        <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
+        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
             <loadForDefaultProject/>
         </projectConfigurable>
         <!-- Add your extensions here -->
