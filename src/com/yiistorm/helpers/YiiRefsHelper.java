@@ -2,6 +2,7 @@ package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
 import com.magicento.helpers.PsiPhpHelper;
+import com.yiistorm.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
@@ -192,7 +193,7 @@ public class YiiRefsHelper {
      * @param element PsiElement obj
      * @return String Controller name
      */
-    public static String getControllerClassName(PsiElement element) {
+    public static String getRendererClassName(PsiElement element) {
         PsiElement prevEl = element.getParent();
         if (prevEl != null) {
             prevEl = prevEl.getParent();
@@ -239,6 +240,40 @@ public class YiiRefsHelper {
             }
         }
         return "";
+    }
+
+    public static String getControllerClassName(String path) {
+        path = path.replace(YiiPsiReferenceProvider.projectPath, "");
+        try {
+            Pattern regex = Pattern.compile(".+controllers/(.+?)Controller.php", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Matcher regexMatcher = regex.matcher(path);
+            regexMatcher.matches();
+            regexMatcher.groupCount();
+            String name = regexMatcher.group(1);
+            if (name.contains("/")) {//insubfolder
+                name = regexMatcher.group(1);
+                try {
+                    Pattern regex2 = Pattern.compile("(.+/)*([a-zA-Z0-9_]+)$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+                    Matcher regexMatcher2 = regex2.matcher(name);
+                    regexMatcher2.matches();
+                    regexMatcher2.groupCount();
+                    String subname = regexMatcher2.group(2);
+                    name = regexMatcher2.group(1) + subname.substring(0, 1).toLowerCase() + subname.substring(1);
+                } catch (PatternSyntaxException ex) {
+                    System.err.println(ex.getMessage());
+                    // Syntax error in the regular expression
+                }
+            } else {
+                name = name.substring(0, 1).toLowerCase() + name.substring(1);
+            }
+
+
+            return name;
+        } catch (PatternSyntaxException ex) {
+            System.err.println(ex.getMessage());
+            // Syntax error in the regular expression
+        }
+        return null;
     }
 
 }

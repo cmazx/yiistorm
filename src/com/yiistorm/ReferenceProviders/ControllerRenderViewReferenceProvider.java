@@ -41,10 +41,10 @@ public class ControllerRenderViewReferenceProvider {
             String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
             int start = textRange.getStartOffset();
             int len = textRange.getLength();
-            String controllerName = YiiRefsHelper.getControllerClassName(element);
+            String controllerName = YiiRefsHelper.getControllerClassName(path);
 
 
-            if (uri.endsWith(".tpl") || !controllerName.matches("")) {
+            if (controllerName != null) {
                 VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
                 String inThemeFullPath = viewPathTheme + controllerName + "/" + uri + (uri.endsWith(".tpl") ? "" : ".php");
                 if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {

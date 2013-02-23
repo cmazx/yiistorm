@@ -80,7 +80,8 @@ public class ViewsReference implements PsiReference {
         } else if (path.matches("^/.+")) {
             targetFile = appDir.findFileByRelativePath((path.endsWith(".tpl") ? path : path + ".php"));
         } else {
-            targetFile = appDir.findFileByRelativePath(controllerName + "/" + (path.endsWith(".tpl") ? path : path + ".php"));
+            path = controllerName + "/" + (path.endsWith(".tpl") ? path : path + ".php");
+            targetFile = appDir.findFileByRelativePath(path);
         }
 
         if (targetFile != null) {
