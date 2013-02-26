@@ -24,6 +24,7 @@ public class YiiRefsHelper {
     public final static int YII_TYPE_WIDGET_CALL = 4;
     public final static int YII_TYPE_CACTION_TO_VIEW_RENDER = 5;
     public final static int YII_TYPE_WIDGET_VIEW_RENDER = 6;
+    public final static int YII_TYPE_CONTROLLER_ACTIONS_CACTION = 7;
 
 
     public static String getCurrentProtected(String path) {
@@ -55,10 +56,6 @@ public class YiiRefsHelper {
             return YII_TYPE_WIDGET_VIEW_RENDER;
         }
 
-        if (isCActionRenderView(el)) {
-            return YII_TYPE_CACTION_TO_VIEW_RENDER;
-        }
-
         if (isExtendCActiveRecord(el)) {
             return YII_TYPE_AR_RELATION;
         }
@@ -69,6 +66,14 @@ public class YiiRefsHelper {
 
         if (isYiiControllerToViewRenderCall(path, el)) {
             return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
+        }
+
+        if (isYiiControllerCActionClassName(path, el)) {
+            return YII_TYPE_CONTROLLER_ACTIONS_CACTION;
+        }
+
+        if (isCActionRenderView(el)) {
+            return YII_TYPE_CACTION_TO_VIEW_RENDER;
         }
 
         return YII_TYPE_UNKNOWN;
@@ -104,21 +109,31 @@ public class YiiRefsHelper {
 
 
     public static boolean isWidgetRenderView(String path, PsiElement el) {
-        if (!path.contains("Controller.php") && PsiPhpHelper.getClassElement(el) != null) {
-            PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-            String methodName = PsiPhpHelper.getMethodName(method);
-            if (methodName.matches("^(renderPartial|render)$")) {
-                return true;
+        if (!path.contains("Controller.php")) {
+            PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
+            if (PsiClass != null) {
+                boolean extendsWidget = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CWidget");
+                if (!extendsWidget) {
+                    return false;
+                }
+                PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
+                String methodName = PsiPhpHelper.getMethodName(method);
+                if (methodName.matches("^(renderPartial|render)$")) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public static boolean isWidgetCall(PsiElement el) {
+
         PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-        String methodName = PsiPhpHelper.getMethodName(method);
-        if (methodName.matches("^widget$")) {
-            return true;
+        if (method != null) {
+            String methodName = PsiPhpHelper.getMethodName(method);
+            if (methodName.matches("^widget$")) {
+                return true;
+            }
         }
         return false;
     }
@@ -131,6 +146,23 @@ public class YiiRefsHelper {
                 if (parameter_list != null) {
                     String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
                     if (mrefchild.matches("^(renderPartial|render)$")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isYiiControllerCActionClassName(String path, PsiElement el) {
+        if (path.contains("Controller.php")) {
+            PsiElement classEl = PsiPhpHelper.getClassElement(el);
+            if (classEl.toString().contains("Controller")) {
+                PsiElement group_state = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.GROUP_STATEMENT);
+                PsiElement method_identifier = PsiPhpHelper.findPrevSiblingOfType(group_state, PsiPhpHelper.IDENTIFIER);
+                if (method_identifier != null) {
+                    String identifierName = method_identifier.getText();
+                    if (identifierName.matches("^actions$")) {
                         return true;
                     }
                 }

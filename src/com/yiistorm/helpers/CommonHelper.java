@@ -1,9 +1,15 @@
 package com.yiistorm.helpers;
 
+import com.intellij.codeInsight.TargetElementUtilBase;
 import com.intellij.ide.util.gotoByName.GotoClassModel2;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiUtilCore;
+import com.magicento.helpers.PsiPhpHelper;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -119,14 +125,40 @@ public class CommonHelper {
     public static ArrayList<String> searchClasses(String regex, Project project) {
         List<PsiElement> psiElements = new ArrayList<PsiElement>();
         GotoClassModel2 model = new GotoClassModel2(project);
-        Pattern p = Pattern.compile(regex);
+        Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         ArrayList classesNamesFounded = new ArrayList<String>();
-        for (String clazz : model.getNames(true)) {
+        String[] models = model.getNames(true);
+        for (String clazz : models) {
+
             if (p.matcher(clazz).find()) {
                 classesNamesFounded.add(clazz);
             }
         }
         return classesNamesFounded;
+    }
+
+    public static PsiElement getFileByClass(String actionClass, Project project) {
+        if (actionClass == null) {
+            return null;
+        }
+        List<PsiElement> elements = PsiPhpHelper.getPsiElementsFromClassName(actionClass, project);
+        if (elements.size() > 0) {
+            PsiElement element = elements.get(0);
+            PsiElement navElement = element.getNavigationElement();
+            navElement = TargetElementUtilBase.getInstance().getGotoDeclarationTarget(element, navElement);
+            if (navElement instanceof Navigatable) {
+                if (((Navigatable) navElement).canNavigate()) {
+                    ((Navigatable) navElement).navigate(true);
+                }
+            } else if (navElement != null) {
+                int navOffset = navElement.getTextOffset();
+                VirtualFile virtualFile = PsiUtilCore.getVirtualFile(navElement);
+                if (virtualFile != null) {
+                    new OpenFileDescriptor(project, virtualFile, navOffset).navigate(true);
+                }
+            }
+        }
+        return null;
     }
 
 

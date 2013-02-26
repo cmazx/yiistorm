@@ -37,7 +37,7 @@ public class CActionRenderViewReferenceProvider {
                 String actionName = PsiPhpHelper.getClassName(element);
                 String cacheKey = actionName + "::render_" + elementName;
                 VirtualFile file = null;
-                if (true) {     //!cacheFiles.containsKey(cacheKey)
+                if (!cacheFiles.containsKey(cacheKey)) {     //
                     //System.err.println("take "+cacheKey+" from filesystem");
                     PsiElement controllerPsi = getControllersUsingAction(actionName);
                     String controllerName = PsiPhpHelper.getClassIdentifierName(controllerPsi);
@@ -107,17 +107,19 @@ public class CActionRenderViewReferenceProvider {
 
         //GotoClassModel2 model = new GotoClassModel2(YiiPsiReferenceProvider.project);
         ArrayList<PsiElement> controllersUsingAction = new ArrayList<PsiElement>();
-        ArrayList<String> controllers = CommonHelper.searchClasses("BadCharController", YiiPsiReferenceProvider.project);
+        ArrayList<String> controllers = CommonHelper.searchClasses(".+Controller", YiiPsiReferenceProvider.project);
         for (String controllerClass : controllers) {
-
             List<PsiElement> elements = PsiPhpHelper.getPsiElementsFromClassName(controllerClass, YiiPsiReferenceProvider.project);
             if (elements.size() > 0) {
                 PsiElement controllerClassPsi = elements.get(0);
-                String controllerName = PsiPhpHelper.getClassName(controllerClassPsi);
+                String controllerName = PsiPhpHelper.getClassIdentifierName(controllerClassPsi);
                 List<PsiNamedElement> methods = PsiPhpHelper.getAllMethodsFromClass(controllerClassPsi, false);
                 CONTROLLER_FOR:
                 for (PsiNamedElement controllerMethod : methods) {
                     PsiElement gst = PsiPhpHelper.findFirstChildOfType(controllerMethod, PsiPhpHelper.GROUP_STATEMENT);
+                    if (gst == null) {
+                        continue;
+                    }
                     PsiElement mident = PsiPhpHelper.findPrevSiblingOfType(gst, PsiPhpHelper.IDENTIFIER);
                     //public function actions()
                     if (mident.getText().matches("actions")) {

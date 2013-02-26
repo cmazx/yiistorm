@@ -301,8 +301,8 @@ public class PsiPhpHelper {
     public static PsiElement findPrevSiblingOfType(PsiElement psiElement, String[] types) {
         PsiElement siblingElement = psiElement.getPrevSibling();
         while (siblingElement != null && isNotElementType(siblingElement, types)) {
-            siblingElement = siblingElement.getPrevSibling().getPrevSibling();
-            //   System.err.println(siblingElement.getNode().getElementType().toString() + " <<< " + siblingElement.getText());
+            siblingElement = siblingElement.getPrevSibling();
+            //     System.err.println(siblingElement.getNode().getElementType().toString() + " <<< " + siblingElement.getText());
         }
         return siblingElement;
     }
@@ -500,18 +500,24 @@ public class PsiPhpHelper {
 
     public static boolean isExtendsSuperclass(PsiElement child, String superclass) {
         String name = getClassIdentifierName(child).toString();
+        if (name == null) {
+            return false;
+        }
         if (name.replace("\\", "").equals(superclass)) {
             return true;
         }
         String parent = getExtendsClassNameForClass(child);
-        if (parent.replace("\\", "").equals(superclass)) {
-            return true;
-        }
+
         if (parent != null) {
+            if (parent.replace("\\", "").equals(superclass)) {
+                return true;
+            }
             List<PsiElement> classes = getPsiElementsFromClassName(parent.replaceAll("^\\\\", ""), child.getProject());
-            if (classes.size() > 0) {
-                for (PsiElement parentClass : classes) {
-                    return isExtendsSuperclass(parentClass, superclass);
+            if (classes != null) {
+                if (classes.size() > 0) {
+                    for (PsiElement parentClass : classes) {
+                        return isExtendsSuperclass(parentClass, superclass);
+                    }
                 }
             }
         }
