@@ -25,5 +25,6 @@ You can install plugin either directly from PhpStorm IDE settings or from
 Links
 -----
 
+- [Discussion in English](http://www.yiiframework.com/forum/index.php/topic/40955-yiistorm/).
 - [Discussion in Russian](http://yiiframework.ru/forum/viewtopic.php?f=17&t=10795).
 - [Plugin page at JetBrains website](http://plugins.jetbrains.com/plugin/?webide&pluginId=7182).
