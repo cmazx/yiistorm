@@ -52,7 +52,7 @@ public class YiiStormMigrateAction extends YiiStormActionAbstract {
                     if (line == null) {
                         break;
                     }
-                    lineAll += line;
+                    lineAll += line + "\n";
                 }
             }
             return lineAll;

@@ -1,5 +1,6 @@
 package com.yiistorm.forms;
 
+import com.intellij.ui.components.JBScrollPane;
 import com.yiistorm.actions.YiiStormMigrateAction;
 
 import javax.swing.*;
@@ -20,16 +21,19 @@ public class MigrationsForm extends JDialog {
     private JButton createMigration;
     private JButton applyMigration;
     private JButton closeButton;
+    private JBScrollPane scrollpane;
     private YiiStormMigrateAction currentAction;
     private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
     private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
     public MigrationsForm(YiiStormMigrateAction action) {
         final JDialog me = this;
+        setTitle("YiiStorm migrations");
         setCurrentAction(action);
         setContentPane(contentPane);
         setModal(true);
         setBounds(500, 500, 400, 200);
+        JScrollPane sp = new JBScrollPane(migrateLog);
 
         applyMigration.addActionListener(new ActionListener() {
             @Override
@@ -43,7 +47,6 @@ public class MigrationsForm extends JDialog {
                 } catch (Exception ex) {
 
                 }
-
             }
         });
 
