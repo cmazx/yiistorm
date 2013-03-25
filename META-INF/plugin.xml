@@ -33,6 +33,11 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt Y"/>
         </action>
+        <action id="YiiStormMigrateAction" class="com.yiistorm.actions.YiiStormMigrateAction" text="YiiStorm migrate"
+                description="YiiStorm migrate">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="alt U"/>
+        </action>
     </actions>
 
     <depends>com.intellij.modules.platform</depends>
