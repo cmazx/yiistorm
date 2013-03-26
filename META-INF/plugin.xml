@@ -9,9 +9,10 @@
         <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction (renderPartial supported).</li>
         <li>CController::widget('path.to.widget') references to Widget class in current basepath.</li>
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
+        <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.5b</version>
+    <version>0.6b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
