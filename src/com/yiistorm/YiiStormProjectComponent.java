@@ -32,7 +32,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     }
 
     public void initComponent() {
-        //init
+
     }
 
 
