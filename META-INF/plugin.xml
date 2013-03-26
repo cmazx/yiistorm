@@ -47,6 +47,8 @@
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
             <loadForDefaultProject/>
         </projectConfigurable>
+        <toolWindow id="Yii Migraions" secondary="true" anchor="bottom"
+                    factoryClass="com.yiistorm.forms.MigrationsForm"/>
         <!-- Add your extensions here -->
     </extensions>
 </idea-plugin>
