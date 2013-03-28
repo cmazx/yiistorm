@@ -41,12 +41,14 @@
         </action>
     </actions>
 
+    <depends>com.intellij.modules.platform</depends>
+
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
             <!--loadForDefaultProject/-->
         </projectConfigurable>
-        <toolWindow id="Yii Migraions" secondary="true" anchor="bottom"
+        <toolWindow id="Yii Migrations" secondary="true" anchor="bottom"
                     factoryClass="com.yiistorm.forms.MigrationsForm"/>
         <!-- Add your extensions here -->
     </extensions>
