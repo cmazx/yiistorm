@@ -141,13 +141,16 @@ public class MigrationsForm implements ToolWindowFactory {
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
         yiiFile = properties.getValue("yiicFile");
-        yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
-
+        setMigrateLogText("");
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
-
-        runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
+        if (yiiFile != null) {
+            yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
+            runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
+        } else {
+            setMigrateLogText("Set path to yiic in top menu: `Tools` / `Yiistorm config` and reopen the project");
+        }
     }
 
     public void runBackgroundTask(final int Action, Project project) {
