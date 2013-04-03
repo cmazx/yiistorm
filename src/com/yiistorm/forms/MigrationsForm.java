@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.yiistorm.elements.VerticalMenuBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,13 +28,15 @@ import java.util.regex.Pattern;
  * Time: 22:48
  * To change this template use File | Settings | File Templates.
  */
+
+
 public class MigrationsForm implements ToolWindowFactory {
     private JPanel contentPane;
     private JTextArea migrateLog;
     private JButton createMigration;
     private JBScrollPane scrollpane;
     private JTextField createMigrationName;
-    private JMenuBar actionMenuBar;
+    private VerticalMenuBar actionMenuBar;
     private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
     private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     private static String OS = System.getProperty("os.name").toLowerCase();
@@ -43,7 +46,7 @@ public class MigrationsForm implements ToolWindowFactory {
     private ArrayList<String> newMigrationsList = new ArrayList<String>();
     public boolean NewFormDisplayed = false;
     final JMenuItem createMenu = new JMenuItem("Create new");
-    JMenu actionMenu = new JMenu("Open migration");
+    JMenu actionMenu = new JMenu();
 
     public Project getProject() {
         return _project;
@@ -133,32 +136,6 @@ public class MigrationsForm implements ToolWindowFactory {
         yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
 
         updateNewMigrations(true);
-
-
-        /*createMigration.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (createMigrationName.getText().trim().length() > 0) {
-                    createMigration.setEnabled(false);
-
-                    createMigration.setText("...working...");
-                    migrateLog.setText("Creating new migration in process");
-                    String text = me.runCommand("migrate create " + createMigrationName.getText());
-                    migrateLog.setText("Creating migration '" + createMigrationName.getText() + "'\n" + text);
-                    createMigration.setEnabled(true);
-                    createMigration.setText("Create migration");
-                    createMigrationName.setText("");
-                    recreateMenus();
-                    openMigrationFile(newMigrationsList.get(newMigrationsList.size() - 1));
-                } else {
-                    migrateLog.setText("Fill migration name field before creating new migration.");
-                }
-            }
-        });    */
-
-
-        //recreateMenus();
-        updateNewMigrations(false);
         addMenus();
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -205,15 +182,12 @@ public class MigrationsForm implements ToolWindowFactory {
     public void addMenus() {
         final MigrationsForm me = this;
 
-        //update migrations list
-        //migrations list
-
-
+        actionMenu.setText("Actions");
         actionMenu.setBackground(Color.WHITE);
         actionMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         actionMenuBar.add(actionMenu);
         fillActionMenu();
-        JMenuItem updateMenu = new JMenuItem("Update migration list");
+        JMenuItem updateMenu = new JMenuItem("Update list");
         ActionListener updateListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
