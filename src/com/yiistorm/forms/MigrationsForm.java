@@ -2,10 +2,16 @@ package com.yiistorm.forms;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
+import com.intellij.openapi.progress.util.ProgressIndicatorBase;
+import com.intellij.openapi.project.DumbModeAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -31,6 +37,7 @@ import java.util.regex.Pattern;
 
 
 public class MigrationsForm implements ToolWindowFactory {
+    public static MigrationsForm toolw;
     private JPanel contentPane;
     private JTextArea migrateLog;
     private JButton createMigration;
@@ -129,18 +136,49 @@ public class MigrationsForm implements ToolWindowFactory {
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
 
         _project = project;
-        final MigrationsForm me = this;
+        toolw = this;
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
         yiiFile = properties.getValue("yiicFile");
         yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
 
-        updateNewMigrations(true);
-        addMenus();
+        //updateNewMigrations(true);
+
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
+
+        final Task.Backgroundable task = new Task.Backgroundable(project, "Yii migrations", true) {
+
+            @Override
+            public String getProcessId() {
+                return "Yii migrations";
+            }
+
+            @Override
+            public DumbModeAction getDumbModeAction() {
+                return DumbModeAction.CANCEL;
+            }
+
+            public void run(final ProgressIndicator indicator) {
+                final Task.Backgroundable this_task = this;
+                ((ProgressIndicatorEx) indicator).addStateDelegate(new ProgressIndicatorBase() {
+                    @Override
+                    public void cancel() {
+                        this_task.onCancel();
+                    }
+                });
+                MigrationsForm.toolw.updateNewMigrations(true);
+                MigrationsForm.toolw.addMenus();
+
+            }
+
+            public void onCancel() {
+            }
+        };
+        new BackgroundableProcessIndicator(task).start();
+        //new Task(new MyRunnable()).start();
     }
 
     public void recreateMenus() {
@@ -158,6 +196,7 @@ public class MigrationsForm implements ToolWindowFactory {
 
     public void fillActionMenu() {
         actionMenu.removeAll();
+
         if (newMigrationsList != null && newMigrationsList.size() > 0) {
             JMenu migrationsMenu = new JMenu("Open new migration");
             actionMenu.add(migrationsMenu);
@@ -173,6 +212,10 @@ public class MigrationsForm implements ToolWindowFactory {
                 });
 
             }
+        } else {
+            JMenuItem noMigration = new JMenuItem("Where no new migrations");
+            noMigration.setEnabled(false);
+            actionMenu.add(noMigration);
         }
     }
 
