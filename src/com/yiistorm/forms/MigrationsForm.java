@@ -1,6 +1,7 @@
 package com.yiistorm.forms;
 
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -107,11 +108,6 @@ public class MigrationsForm implements ToolWindowFactory {
     }
 
 
-    public void setText(String text) {
-        migrateLog.setText(text);
-    }
-
-
     public void updateNewMigrations(boolean writeLog) {  //yiic migrate new
         String text = "";
         if (yiiFile == null) {
@@ -131,9 +127,11 @@ public class MigrationsForm implements ToolWindowFactory {
             }
 
         }
+
         if (writeLog) {
-            migrateLog.setText(text);
+            setMigrateLogText(text);
         }
+
     }
 
     @Override
@@ -227,7 +225,7 @@ public class MigrationsForm implements ToolWindowFactory {
     }
 
     public void createMigrationByName(String name) {
-        this.setMigrateLogText(this.runCommand("migrate create " + name));
+        setMigrateLogText(this.runCommand("migrate create " + name));
     }
 
     public void recreateMenus() {
@@ -236,8 +234,13 @@ public class MigrationsForm implements ToolWindowFactory {
         runBackgroundTask(MigrationsForm.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION, _project);
     }
 
-    public void setMigrateLogText(String text) {
-        migrateLog.setText(text);
+    public void setMigrateLogText(final String text) {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                migrateLog.setText(text);
+            }
+        });
     }
 
     public ArrayList<String> getMigrationsList() {
@@ -245,33 +248,38 @@ public class MigrationsForm implements ToolWindowFactory {
     }
 
     public void fillActionMenu() {
-        actionMenu.removeAll();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                actionMenu.removeAll();
 
-        if (newMigrationsList != null && newMigrationsList.size() > 0) {
-            JMenu migrationsMenu = new JMenu("Open new migration");
-            actionMenu.add(migrationsMenu);
-            for (String migration : newMigrationsList) {
+                if (newMigrationsList != null && newMigrationsList.size() > 0) {
+                    JMenu migrationsMenu = new JMenu("Open new migration");
+                    actionMenu.add(migrationsMenu);
+                    for (String migration : newMigrationsList) {
 
-                final String migrationName = migration;
-                migrationsMenu.add(new JMenuItem(migrationName));
-                migrationsMenu.getItem(migrationsMenu.getItemCount() - 1).addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        openMigrationFile(migrationName);
+                        final String migrationName = migration;
+                        migrationsMenu.add(new JMenuItem(migrationName));
+                        migrationsMenu.getItem(migrationsMenu.getItemCount() - 1).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                openMigrationFile(migrationName);
+                            }
+                        });
+
                     }
-                });
-
+                } else {
+                    JMenuItem noMigration = new JMenuItem("Where no new migrations");
+                    noMigration.setEnabled(false);
+                    actionMenu.add(noMigration);
+                }
             }
-        } else {
-            JMenuItem noMigration = new JMenuItem("Where no new migrations");
-            noMigration.setEnabled(false);
-            actionMenu.add(noMigration);
-        }
+        });
     }
 
     public void applyMigrations() {
         String text = this.runCommand("migrate");
-        migrateLog.setText(text);
+        setMigrateLogText(text);
     }
 
     /**
@@ -279,48 +287,51 @@ public class MigrationsForm implements ToolWindowFactory {
      */
     public void addMenus() {
         final MigrationsForm me = this;
-
-        actionMenu.setText("Actions");
-        actionMenu.setBackground(Color.WHITE);
-        actionMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        actionMenuBar.add(actionMenu);
-        fillActionMenu();
-        JMenuItem updateMenu = new JMenuItem("Update list");
-        ActionListener updateListener = new ActionListener() {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                updateNewMigrations(true);
+            public void run() {
+                actionMenu.setText("Actions");
+                actionMenu.setBackground(Color.WHITE);
+                actionMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                actionMenuBar.add(actionMenu);
                 fillActionMenu();
-            }
-        };
-        updateMenu.addActionListener(updateListener);
-        updateMenu.setBackground(Color.WHITE);
-        updateMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        actionMenuBar.add(updateMenu);
+                JMenuItem updateMenu = new JMenuItem("Update list");
+                ActionListener updateListener = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        updateNewMigrations(true);
+                        fillActionMenu();
+                    }
+                };
+                updateMenu.addActionListener(updateListener);
+                updateMenu.setBackground(Color.WHITE);
+                updateMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                actionMenuBar.add(updateMenu);
 
-        //apply migrations
-        final JMenuItem applyAllMenu = new JMenuItem("Apply all");
-        applyAllMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                runBackgroundTask(MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
+                //apply migrations
+                final JMenuItem applyAllMenu = new JMenuItem("Apply all");
+                applyAllMenu.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        runBackgroundTask(MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
+                    }
+                });
+                applyAllMenu.setBackground(Color.WHITE);
+                applyAllMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                actionMenuBar.add(applyAllMenu);
+
+                //create migration
+                createMenu.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        showCreateForm();
+                    }
+                });
+                createMenu.setBackground(Color.WHITE);
+                createMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                actionMenuBar.add(createMenu);
             }
         });
-        applyAllMenu.setBackground(Color.WHITE);
-        applyAllMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        actionMenuBar.add(applyAllMenu);
-
-        //create migration
-        createMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showCreateForm();
-            }
-        });
-        createMenu.setBackground(Color.WHITE);
-        createMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        actionMenuBar.add(createMenu);
-
     }
 
     public void showCreateForm() {
@@ -333,15 +344,21 @@ public class MigrationsForm implements ToolWindowFactory {
         }
     }
 
-    public void openMigrationFile(String name) {
-        String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
-        _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/").refresh(false, true);
-        VirtualFile migrationFile = _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/" + name + ".php");
-        if (migrationFile != null) {
-            OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
-            if (of.canNavigate()) {
-                of.navigate(true);
+    public void openMigrationFile(final String name) {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
+                _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/").refresh(false, true);
+                VirtualFile migrationFile = _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/" + name + ".php");
+                if (migrationFile != null) {
+                    OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
+                    if (of.canNavigate()) {
+                        of.navigate(true);
+                    }
+                }
             }
-        }
+        });
+
     }
 }
