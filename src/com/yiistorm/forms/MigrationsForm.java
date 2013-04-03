@@ -34,7 +34,6 @@ public class MigrationsForm implements ToolWindowFactory {
     private JBScrollPane scrollpane;
     private JTextField createMigrationName;
     private JMenuBar actionMenuBar;
-    private JMenu actionMenu;
     private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
     private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     private static String OS = System.getProperty("os.name").toLowerCase();
@@ -44,6 +43,7 @@ public class MigrationsForm implements ToolWindowFactory {
     private ArrayList<String> newMigrationsList = new ArrayList<String>();
     public boolean NewFormDisplayed = false;
     final JMenuItem createMenu = new JMenuItem("Create new");
+    JMenu actionMenu = new JMenu("Open migration");
 
     public Project getProject() {
         return _project;
@@ -124,6 +124,7 @@ public class MigrationsForm implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
+
         _project = project;
         final MigrationsForm me = this;
 
@@ -156,7 +157,9 @@ public class MigrationsForm implements ToolWindowFactory {
         });    */
 
 
-        recreateMenus();
+        //recreateMenus();
+        updateNewMigrations(false);
+        addMenus();
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
@@ -164,9 +167,8 @@ public class MigrationsForm implements ToolWindowFactory {
     }
 
     public void recreateMenus() {
-        actionMenuBar.removeAll();
         updateNewMigrations(false);
-        addMenus();
+        fillActionMenu();
     }
 
     public void setMigrateLogText(String text) {
@@ -177,14 +179,8 @@ public class MigrationsForm implements ToolWindowFactory {
         return newMigrationsList;
     }
 
-    /**
-     * Add menu to contentPane
-     */
-    public void addMenus() {
-        final MigrationsForm me = this;
-        JMenu actionMenu = new JMenu("Open migration");
-        //update migrations list
-        //migrations list
+    public void fillActionMenu() {
+        actionMenu.removeAll();
         if (newMigrationsList != null && newMigrationsList.size() > 0) {
             JMenu migrationsMenu = new JMenu("Open new migration");
             actionMenu.add(migrationsMenu);
@@ -201,20 +197,31 @@ public class MigrationsForm implements ToolWindowFactory {
 
             }
         }
+    }
+
+    /**
+     * Add menu to contentPane
+     */
+    public void addMenus() {
+        final MigrationsForm me = this;
+
+        //update migrations list
+        //migrations list
+
 
         actionMenu.setBackground(Color.WHITE);
         actionMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         actionMenuBar.add(actionMenu);
-
+        fillActionMenu();
         JMenuItem updateMenu = new JMenuItem("Update migration list");
-        updateMenu.addActionListener(new ActionListener() {
+        ActionListener updateListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                actionMenuBar.removeAll();
                 updateNewMigrations(true);
-                addMenus();
+                fillActionMenu();
             }
-        });
+        };
+        updateMenu.addActionListener(updateListener);
         updateMenu.setBackground(Color.WHITE);
         updateMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         actionMenuBar.add(updateMenu);

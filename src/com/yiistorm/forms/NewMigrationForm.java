@@ -28,8 +28,8 @@ public class NewMigrationForm extends JDialog {
                     buttonOK.setText("...working...");
                     String text = panel.runCommand("migrate create " + migrationName.getText());
                     panel.setMigrateLogText(text);
-                    //panel.recreateMenus();
-                    //panel.openMigrationFile(panel.getMigrationsList().get(panel.getMigrationsList().size() - 1));
+                    panel.recreateMenus();
+                    panel.openMigrationFile(panel.getMigrationsList().get(panel.getMigrationsList().size() - 1));
                     panel.NewFormDisplayed = false;
                     onCancel();
                 } else {
