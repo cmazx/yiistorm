@@ -9,8 +9,13 @@ public class NewMigrationForm extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JTextField migrationName;
+    public String migrationNameValue = "";
     public boolean displayed = false;
     MigrationsForm panel;
+
+    public String getMigrationName() {
+        return migrationNameValue;
+    }
 
     public NewMigrationForm(MigrationsForm toolpanel) {
         panel = toolpanel;
@@ -24,12 +29,11 @@ public class NewMigrationForm extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 migrationName.setBackground(Color.WHITE);
                 if (migrationName.getText().trim().length() > 0) {
-                    buttonOK.setEnabled(false);
-                    buttonOK.setText("...working...");
-                    String text = panel.runCommand("migrate create " + migrationName.getText());
-                    panel.setMigrateLogText(text);
-                    panel.recreateMenus();
-                    panel.openMigrationFile(panel.getMigrationsList().get(panel.getMigrationsList().size() - 1));
+
+                    migrationNameValue = migrationName.getText().trim();
+
+                    panel.runBackgroundTask(MigrationsForm.CREATE_MIGRATION_BACKGROUND_ACTION, panel.getProject());
+
                     panel.NewFormDisplayed = false;
                     onCancel();
                 } else {

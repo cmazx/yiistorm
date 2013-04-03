@@ -4,7 +4,6 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorBase;
 import com.intellij.openapi.project.DumbModeAction;
 import com.intellij.openapi.project.Project;
@@ -37,6 +36,10 @@ import java.util.regex.Pattern;
 
 
 public class MigrationsForm implements ToolWindowFactory {
+    static final public int ADD_MENUS_BACKGROUND_ACTION = 0;
+    static final public int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
+    static final public int CREATE_MIGRATION_BACKGROUND_ACTION = 2;
+    static final public int APPLY_MIGRATIONS_BACKGROUND_ACTION = 3;
     public static MigrationsForm toolw;
     private JPanel contentPane;
     private JTextArea migrateLog;
@@ -54,6 +57,7 @@ public class MigrationsForm implements ToolWindowFactory {
     public boolean NewFormDisplayed = false;
     final JMenuItem createMenu = new JMenuItem("Create new");
     JMenu actionMenu = new JMenu();
+    NewMigrationForm newMigrationDialog;
 
     public Project getProject() {
         return _project;
@@ -142,14 +146,15 @@ public class MigrationsForm implements ToolWindowFactory {
         yiiFile = properties.getValue("yiicFile");
         yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
 
-        //updateNewMigrations(true);
-
-
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
 
-        final Task.Backgroundable task = new Task.Backgroundable(project, "Yii migrations", true) {
+        runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
+    }
+
+    public void runBackgroundTask(final int Action, Project project) {
+        final Task.Backgroundable task = new Task.Backgroundable(project, "Yii migrations", false) {
 
             @Override
             public String getProcessId() {
@@ -169,21 +174,66 @@ public class MigrationsForm implements ToolWindowFactory {
                         this_task.onCancel();
                     }
                 });
-                MigrationsForm.toolw.updateNewMigrations(true);
-                MigrationsForm.toolw.addMenus();
+                switch (Action) {
+                    case MigrationsForm.ADD_MENUS_BACKGROUND_ACTION:
+                        indicator.setText("Updating migrations list");
+                        indicator.setFraction(0.1);
+                        MigrationsForm.toolw.updateNewMigrations(true);
+                        indicator.setFraction(0.5);
+                        MigrationsForm.toolw.addMenus();
+                        indicator.setFraction(0.8);
+                        break;
+                    case MigrationsForm.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION:
+                        indicator.setText("Updating migrations list");
+                        indicator.setFraction(0.1);
+                        MigrationsForm.toolw.updateNewMigrations(true);
+                        indicator.setFraction(0.5);
+                        indicator.setText("Updating migrations menu");
+                        MigrationsForm.toolw.fillActionMenu();
+                        indicator.setFraction(0.8);
+                        break;
+                    case MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION:
+                        indicator.setText("Applying migrations list");
+                        indicator.setFraction(0.1);
+                        MigrationsForm.toolw.applyMigrations();
+                        indicator.setFraction(0.3);
+                        MigrationsForm.toolw.updateNewMigrations(false);
+                        indicator.setFraction(0.5);
+                        indicator.setText("Updating migrations menu");
+                        MigrationsForm.toolw.fillActionMenu();
+                        indicator.setFraction(0.8);
+                        break;
+                    case MigrationsForm.CREATE_MIGRATION_BACKGROUND_ACTION:
+                        indicator.setText("Creating migration: " + newMigrationDialog.getMigrationName());
+                        indicator.setFraction(0.1);
+                        MigrationsForm.toolw.createMigrationByName(newMigrationDialog.getMigrationName());
+                        indicator.setFraction(0.3);
+                        MigrationsForm.toolw.updateNewMigrations(false);
+                        ArrayList<String> migrationsList = MigrationsForm.toolw.getMigrationsList();
+                        MigrationsForm.toolw.openMigrationFile(migrationsList.get(migrationsList.size() - 1));
+                        indicator.setFraction(0.5);
+                        indicator.setText("Updating migrations menu");
+                        MigrationsForm.toolw.fillActionMenu();
+                        indicator.setFraction(0.8);
 
+                        break;
+                }
+
+                indicator.stop();
             }
 
-            public void onCancel() {
-            }
         };
-        new BackgroundableProcessIndicator(task).start();
-        //new Task(new MyRunnable()).start();
+        task.setCancelText("Stop processing").queue();
+    }
+
+    public void createMigrationByName(String name) {
+        this.setMigrateLogText(this.runCommand("migrate create " + name));
     }
 
     public void recreateMenus() {
-        updateNewMigrations(false);
-        fillActionMenu();
+        //updateNewMigrations(false);
+        //fillActionMenu();
+        runBackgroundTask(MigrationsForm.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION, _project);
     }
 
     public void setMigrateLogText(String text) {
@@ -219,6 +269,11 @@ public class MigrationsForm implements ToolWindowFactory {
         }
     }
 
+    public void applyMigrations() {
+        String text = this.runCommand("migrate");
+        migrateLog.setText(text);
+    }
+
     /**
      * Add menu to contentPane
      */
@@ -248,14 +303,7 @@ public class MigrationsForm implements ToolWindowFactory {
         applyAllMenu.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                migrateLog.setText("Migrate in progress");
-                applyAllMenu.setEnabled(false);
-                applyAllMenu.setText("...applying...");
-                String text = me.runCommand("migrate");
-                migrateLog.setText(text);
-                applyAllMenu.setEnabled(true);
-                applyAllMenu.setText("Apply all migrations");
-                recreateMenus();
+                runBackgroundTask(MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
             }
         });
         applyAllMenu.setBackground(Color.WHITE);
@@ -278,19 +326,22 @@ public class MigrationsForm implements ToolWindowFactory {
     public void showCreateForm() {
         final MigrationsForm migrForm = this;
         if (!NewFormDisplayed) {
-            NewMigrationForm dialog = new NewMigrationForm(migrForm);
+            newMigrationDialog = new NewMigrationForm(migrForm);
             NewFormDisplayed = true;
-            dialog.pack();
-            dialog.setVisible(true);
+            newMigrationDialog.pack();
+            newMigrationDialog.setVisible(true);
         }
     }
 
     public void openMigrationFile(String name) {
         String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
-        _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/").refresh(false, false);
+        _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/").refresh(false, true);
         VirtualFile migrationFile = _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/" + name + ".php");
         if (migrationFile != null) {
-            new OpenFileDescriptor(_project, migrationFile, 0).navigate(true);
+            OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
+            if (of.canNavigate()) {
+                of.navigate(true);
+            }
         }
     }
 }
