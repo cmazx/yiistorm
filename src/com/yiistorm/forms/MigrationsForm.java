@@ -107,7 +107,6 @@ public class MigrationsForm implements ToolWindowFactory {
 
     }
 
-
     public void updateNewMigrations(boolean writeLog) {  //yiic migrate new
         String text = "";
         if (yiiFile == null) {
@@ -226,12 +225,6 @@ public class MigrationsForm implements ToolWindowFactory {
 
     public void createMigrationByName(String name) {
         setMigrateLogText(this.runCommand("migrate create " + name));
-    }
-
-    public void recreateMenus() {
-        //updateNewMigrations(false);
-        //fillActionMenu();
-        runBackgroundTask(MigrationsForm.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION, _project);
     }
 
     public void setMigrateLogText(final String text) {

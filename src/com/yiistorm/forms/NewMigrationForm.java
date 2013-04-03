@@ -49,15 +49,12 @@ public class NewMigrationForm extends JDialog {
             }
         });
 
-// call onCancel() when cross is clicked
-        //setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
         });
 
-// call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -66,10 +63,7 @@ public class NewMigrationForm extends JDialog {
     }
 
     private void onCancel() {
-// add your code here if necessary
         dispose();
-        // panel.NewFormDisplayed=false;
-
     }
 
 
