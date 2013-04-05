@@ -12,7 +12,7 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.7.3b</version>
+    <version>0.7.4b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -29,11 +29,11 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="YiiStormConfigAction" class="com.yiistorm.actions.YiiStormConfigAction" text="YiiStorm config"
+        <!--action id="YiiStormConfigAction" class="com.yiistorm.actions.YiiStormConfigAction" text="YiiStorm config"
                 description="YiiStorm config">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt Y"/>
-        </action>
+        </action-->
     </actions>
 
     <depends>com.intellij.modules.platform</depends>

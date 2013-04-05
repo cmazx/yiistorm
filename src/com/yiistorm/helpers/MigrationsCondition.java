@@ -21,4 +21,9 @@ public class MigrationsCondition implements Condition {
         }
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    public static boolean makeCondition(Project p) {
+        MigrationsCondition condition = new MigrationsCondition();
+        return condition.value(p);
+    }
 }
