@@ -64,14 +64,19 @@ public class MigrationsForm implements ToolWindowFactory {
         return _project;
     }
 
+    public String getCommandPrepend() {
+        if (isWindows()) {
+            return "cmd /c ";
+        } else {
+            return "";
+        }
+    }
+
     public String runCommand(String migrateCommand) {
         try {
 
             Process p = null;
-            String prependPath = "";
-            if (isWindows()) {
-                prependPath = "cmd /c ";
-            }
+            String prependPath = getCommandPrepend();
 
 
             if (yiiFile == null) {
@@ -145,11 +150,42 @@ public class MigrationsForm implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
-        if (yiiFile != null) {
+        if (yiiFile != null && checkYii(yiiFile)) {
             yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
             runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
         } else {
             setMigrateLogText("Set path to yiic in top menu: `Tools` / `Yiistorm config` and reopen the project");
+        }
+    }
+
+    public boolean checkYii(String yiiFile) {
+
+        try {
+
+            String prependPath = getCommandPrepend();
+
+            if (yiiFile == null) {
+                return false;
+            }
+
+            Process p = Runtime.getRuntime().exec(prependPath + yiiFile + " --interactive=0");
+
+            if (p != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line = reader.readLine();
+                while (line != null) {
+                    line = reader.readLine();
+                    if (line.contains("Yii command runner")) {
+                        return true;
+                    }
+                    if (line == null) {
+                        return false;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e1) {
+            return false;
         }
     }
 

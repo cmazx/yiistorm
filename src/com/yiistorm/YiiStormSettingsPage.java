@@ -46,13 +46,15 @@ public class YiiStormSettingsPage implements Configurable {
         panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
 
         JLabel themeNameLabel = new JLabel("Project theme name:");
-
         themeNameField = new JTextField(15);
         themeNameLabel.setLabelFor(themeNameField);
+        themeNameField.setMaximumSize(new Dimension(50, 20));
         panel3.add(themeNameLabel);
         panel3.add(themeNameField);
+
+
         panel3.add(Box.createHorizontalGlue());
-        themeNameField.setMaximumSize(new Dimension(50, 20));
+
 
         panel.add(panel1);
         panel.add(Box.createVerticalStrut(8));
