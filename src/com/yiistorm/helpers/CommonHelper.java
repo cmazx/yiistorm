@@ -25,6 +25,32 @@ import java.util.regex.Pattern;
  * To change this template use File | Settings | File Templates.
  */
 public class CommonHelper {
+
+    /**
+     * Detect windows OS
+     *
+     * @return
+     */
+    public static boolean isWindows() {
+        String OS = System.getProperty("os.name").toLowerCase();
+        return (OS.indexOf("win") >= 0);
+
+    }
+
+    /**
+     * get prepend for command
+     *
+     * @return
+     */
+    public static String getCommandPrepend() {
+        if (isWindows()) {
+            return "cmd /c ";
+        } else {
+            return "";
+        }
+    }
+
+
     public static TextRange getTextRange(PsiElement element, String str) {
         Class elementClass = element.getClass();
         Method method = null;

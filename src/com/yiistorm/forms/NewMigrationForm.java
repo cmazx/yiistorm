@@ -1,5 +1,7 @@
 package com.yiistorm.forms;
 
+import com.yiistorm.elements.MigrationsToolWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;

@@ -12,7 +12,7 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.7.2b</version>
+    <version>0.7.3b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -44,7 +44,8 @@
             <!--loadForDefaultProject/-->
         </projectConfigurable>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
-                    factoryClass="com.yiistorm.forms.MigrationsToolWindow"/>
+                    conditionClass="com.yiistorm.helpers.MigrationsCondition"
+                    factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>
         <!-- Add your extensions here -->
     </extensions>
 </idea-plugin>

@@ -1,4 +1,4 @@
-package com.yiistorm.forms;
+package com.yiistorm.elements;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -15,7 +15,8 @@ import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.yiistorm.elements.VerticalMenuBar;
+import com.yiistorm.forms.NewMigrationForm;
+import com.yiistorm.helpers.CommonHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +38,7 @@ import java.util.regex.Pattern;
 
 
 public class MigrationsToolWindow implements ToolWindowFactory {
+    private Yiic yiic;
     static final public int ADD_MENUS_BACKGROUND_ACTION = 0;
     static final public int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
     static final public int CREATE_MIGRATION_BACKGROUND_ACTION = 2;
@@ -44,7 +46,6 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     public static MigrationsToolWindow toolw;
     private JPanel contentPane;
     private JTextArea migrateLog;
-    private JButton createMigration;
     private JBScrollPane scrollpane;
     private JTextField createMigrationName;
     private VerticalMenuBar actionMenuBar;
@@ -64,19 +65,12 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         return _project;
     }
 
-    public String getCommandPrepend() {
-        if (isWindows()) {
-            return "cmd /c ";
-        } else {
-            return "";
-        }
-    }
 
     public String runCommand(String migrateCommand) {
         try {
 
             Process p = null;
-            String prependPath = getCommandPrepend();
+            String prependPath = CommonHelper.getCommandPrepend();
 
 
             if (yiiFile == null) {
@@ -106,11 +100,6 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
     }
 
-    public static boolean isWindows() {
-
-        return (OS.indexOf("win") >= 0);
-
-    }
 
     public void updateNewMigrations(boolean writeLog) {  //yiic migrate new
         String text = "";
@@ -141,54 +130,47 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
 
+
         _project = project;
         toolw = this;
+        yiic = new Yiic();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
         yiiFile = properties.getValue("yiicFile");
         setMigrateLogText("");
+
+        contentPane = new JPanel();
+        contentPane.setLayout(new BorderLayout());
+
+        scrollpane = new JBScrollPane();
+        migrateLog = new JTextArea("Yii migrations");
+        //migrateLog.setLineWrap(true);
+        migrateLog.setEditable(false);
+        migrateLog.setEnabled(true);
+        scrollpane.setLayout(new ScrollPaneLayout());
+        scrollpane.getViewport().add(migrateLog);
+        contentPane.add(scrollpane, BorderLayout.CENTER);
+
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout());
+        actionMenuBar = new VerticalMenuBar();
+        buttonsPanel.add(actionMenuBar);
+
+        contentPane.add(buttonsPanel, BorderLayout.WEST);
+
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
-        if (yiiFile != null && checkYii(yiiFile)) {
+        if (yiiFile != null && yiic.yiicIsRunnable(yiiFile)) {
             yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
             runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
         } else {
             setMigrateLogText("Set path to yiic in project settings -> YiiStorm");
         }
+
     }
 
-    public boolean checkYii(String yiiFile) {
-
-        try {
-
-            String prependPath = getCommandPrepend();
-
-            if (yiiFile == null) {
-                return false;
-            }
-
-            Process p = Runtime.getRuntime().exec(prependPath + yiiFile + " --interactive=0");
-
-            if (p != null) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = reader.readLine();
-                while (line != null) {
-
-                    if (line.contains("Yii command runner")) {
-                        return true;
-                    }
-                    if (line == null) {
-                        return false;
-                    }
-                    line = reader.readLine();
-                }
-            }
-            return false;
-        } catch (Exception e1) {
-            return false;
-        }
-    }
 
     public void runBackgroundTask(final int Action, Project project) {
         final Task.Backgroundable task = new Task.Backgroundable(project, "Yii migrations", false) {
@@ -329,37 +311,42 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                 actionMenuBar.add(actionMenu);
                 fillActionMenu();
                 JMenuItem updateMenu = new JMenuItem("Update list");
-                ActionListener updateListener = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        updateNewMigrations(true);
-                        fillActionMenu();
-                    }
-                };
-                updateMenu.addActionListener(updateListener);
+                if (updateMenu.getActionListeners().length < 1) {
+                    updateMenu.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            updateNewMigrations(true);
+                            fillActionMenu();
+                        }
+                    });
+                }
                 updateMenu.setBackground(Color.WHITE);
                 updateMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                 actionMenuBar.add(updateMenu);
 
                 //apply migrations
                 final JMenuItem applyAllMenu = new JMenuItem("Apply all");
-                applyAllMenu.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        runBackgroundTask(MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
-                    }
-                });
+                if (applyAllMenu.getActionListeners().length < 1) {
+                    applyAllMenu.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            runBackgroundTask(MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
+                        }
+                    });
+                }
                 applyAllMenu.setBackground(Color.WHITE);
                 applyAllMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                 actionMenuBar.add(applyAllMenu);
 
                 //create migration
-                createMenu.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        showCreateForm();
-                    }
-                });
+                if (createMenu.getActionListeners().length < 1) {
+                    createMenu.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            showCreateForm();
+                        }
+                    });
+                }
                 createMenu.setBackground(Color.WHITE);
                 createMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                 actionMenuBar.add(createMenu);
