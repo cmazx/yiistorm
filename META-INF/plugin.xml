@@ -12,7 +12,7 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.7.1b</version>
+    <version>0.7.2b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -43,8 +43,8 @@
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
             <!--loadForDefaultProject/-->
         </projectConfigurable>
-        <toolWindow id="Yii Migrations" secondary="true" anchor="bottom"
-                    factoryClass="com.yiistorm.forms.MigrationsForm"/>
+        <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
+                    factoryClass="com.yiistorm.forms.MigrationsToolWindow"/>
         <!-- Add your extensions here -->
     </extensions>
 </idea-plugin>

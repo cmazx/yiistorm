@@ -18,7 +18,7 @@ public class YiiStormMigrateAction extends YiiStormActionAbstract {
     public void executeAction() {
         // String text=this.runCommand();
         //JOptionPane.showMessageDialog(null,text);
-        // MigrationsForm mf = new MigrationsForm(this);
+        // MigrationsToolWindow mf = new MigrationsToolWindow(this);
         // mf.setText(text);
         //mf.setVisible(true);
     }

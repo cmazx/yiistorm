@@ -36,12 +36,12 @@ import java.util.regex.Pattern;
  */
 
 
-public class MigrationsForm implements ToolWindowFactory {
+public class MigrationsToolWindow implements ToolWindowFactory {
     static final public int ADD_MENUS_BACKGROUND_ACTION = 0;
     static final public int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
     static final public int CREATE_MIGRATION_BACKGROUND_ACTION = 2;
     static final public int APPLY_MIGRATIONS_BACKGROUND_ACTION = 3;
-    public static MigrationsForm toolw;
+    public static MigrationsToolWindow toolw;
     private JPanel contentPane;
     private JTextArea migrateLog;
     private JButton createMigration;
@@ -154,7 +154,7 @@ public class MigrationsForm implements ToolWindowFactory {
             yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
             runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
         } else {
-            setMigrateLogText("Set path to yiic in top menu: `Tools` / `Yiistorm config` and reopen the project");
+            setMigrateLogText("Set path to yiic in project settings -> YiiStorm");
         }
     }
 
@@ -174,13 +174,14 @@ public class MigrationsForm implements ToolWindowFactory {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String line = reader.readLine();
                 while (line != null) {
-                    line = reader.readLine();
+
                     if (line.contains("Yii command runner")) {
                         return true;
                     }
                     if (line == null) {
                         return false;
                     }
+                    line = reader.readLine();
                 }
             }
             return false;
@@ -211,45 +212,45 @@ public class MigrationsForm implements ToolWindowFactory {
                     }
                 });
                 switch (Action) {
-                    case MigrationsForm.ADD_MENUS_BACKGROUND_ACTION:
+                    case MigrationsToolWindow.ADD_MENUS_BACKGROUND_ACTION:
                         indicator.setText("Updating migrations list");
                         indicator.setFraction(0.1);
-                        MigrationsForm.toolw.updateNewMigrations(true);
+                        MigrationsToolWindow.toolw.updateNewMigrations(true);
                         indicator.setFraction(0.5);
-                        MigrationsForm.toolw.addMenus();
+                        MigrationsToolWindow.toolw.addMenus();
                         indicator.setFraction(0.8);
                         break;
-                    case MigrationsForm.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION:
+                    case MigrationsToolWindow.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION:
                         indicator.setText("Updating migrations list");
                         indicator.setFraction(0.1);
-                        MigrationsForm.toolw.updateNewMigrations(true);
+                        MigrationsToolWindow.toolw.updateNewMigrations(true);
                         indicator.setFraction(0.5);
                         indicator.setText("Updating migrations menu");
-                        MigrationsForm.toolw.fillActionMenu();
+                        MigrationsToolWindow.toolw.fillActionMenu();
                         indicator.setFraction(0.8);
                         break;
-                    case MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION:
+                    case MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION:
                         indicator.setText("Applying migrations list");
                         indicator.setFraction(0.1);
-                        MigrationsForm.toolw.applyMigrations();
+                        MigrationsToolWindow.toolw.applyMigrations();
                         indicator.setFraction(0.3);
-                        MigrationsForm.toolw.updateNewMigrations(false);
+                        MigrationsToolWindow.toolw.updateNewMigrations(false);
                         indicator.setFraction(0.5);
                         indicator.setText("Updating migrations menu");
-                        MigrationsForm.toolw.fillActionMenu();
+                        MigrationsToolWindow.toolw.fillActionMenu();
                         indicator.setFraction(0.8);
                         break;
-                    case MigrationsForm.CREATE_MIGRATION_BACKGROUND_ACTION:
+                    case MigrationsToolWindow.CREATE_MIGRATION_BACKGROUND_ACTION:
                         indicator.setText("Creating migration: " + newMigrationDialog.getMigrationName());
                         indicator.setFraction(0.1);
-                        MigrationsForm.toolw.createMigrationByName(newMigrationDialog.getMigrationName());
+                        MigrationsToolWindow.toolw.createMigrationByName(newMigrationDialog.getMigrationName());
                         indicator.setFraction(0.3);
-                        MigrationsForm.toolw.updateNewMigrations(false);
-                        ArrayList<String> migrationsList = MigrationsForm.toolw.getMigrationsList();
-                        MigrationsForm.toolw.openMigrationFile(migrationsList.get(migrationsList.size() - 1));
+                        MigrationsToolWindow.toolw.updateNewMigrations(false);
+                        ArrayList<String> migrationsList = MigrationsToolWindow.toolw.getMigrationsList();
+                        MigrationsToolWindow.toolw.openMigrationFile(migrationsList.get(migrationsList.size() - 1));
                         indicator.setFraction(0.5);
                         indicator.setText("Updating migrations menu");
-                        MigrationsForm.toolw.fillActionMenu();
+                        MigrationsToolWindow.toolw.fillActionMenu();
                         indicator.setFraction(0.8);
 
                         break;
@@ -318,7 +319,7 @@ public class MigrationsForm implements ToolWindowFactory {
      * Add menu to contentPane
      */
     public void addMenus() {
-        final MigrationsForm me = this;
+        final MigrationsToolWindow me = this;
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -345,7 +346,7 @@ public class MigrationsForm implements ToolWindowFactory {
                 applyAllMenu.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        runBackgroundTask(MigrationsForm.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
+                        runBackgroundTask(MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
                     }
                 });
                 applyAllMenu.setBackground(Color.WHITE);
@@ -367,7 +368,7 @@ public class MigrationsForm implements ToolWindowFactory {
     }
 
     public void showCreateForm() {
-        final MigrationsForm migrForm = this;
+        final MigrationsToolWindow migrForm = this;
         if (!NewFormDisplayed) {
             newMigrationDialog = new NewMigrationForm(migrForm);
             NewFormDisplayed = true;

@@ -11,13 +11,13 @@ public class NewMigrationForm extends JDialog {
     private JTextField migrationName;
     public String migrationNameValue = "";
     public boolean displayed = false;
-    MigrationsForm panel;
+    MigrationsToolWindow panel;
 
     public String getMigrationName() {
         return migrationNameValue;
     }
 
-    public NewMigrationForm(MigrationsForm toolpanel) {
+    public NewMigrationForm(MigrationsToolWindow toolpanel) {
         panel = toolpanel;
         setContentPane(contentPane);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -32,7 +32,7 @@ public class NewMigrationForm extends JDialog {
 
                     migrationNameValue = migrationName.getText().trim();
 
-                    panel.runBackgroundTask(MigrationsForm.CREATE_MIGRATION_BACKGROUND_ACTION, panel.getProject());
+                    panel.runBackgroundTask(MigrationsToolWindow.CREATE_MIGRATION_BACKGROUND_ACTION, panel.getProject());
 
                     panel.NewFormDisplayed = false;
                     onCancel();
