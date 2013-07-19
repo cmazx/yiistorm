@@ -10,9 +10,11 @@
         <li>CController::widget('path.to.widget') references to Widget class in current basepath.</li>
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
         <li>Migrations manager.</li>
+        <li>Controller::render() views names autocompleter.</li>
+        <li>Controller::render() views autocreator.</li>
         </ul>
     ]]></description>
-    <version>0.8b</version>
+    <version>0.8.1b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -41,9 +43,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
-        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
-            <loadForDefaultProject/>
-        </projectConfigurable>
+        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"></projectConfigurable>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"
                     factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>

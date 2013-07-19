@@ -8,8 +8,10 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
 import com.magicento.helpers.PsiPhpHelper;
+import com.yiistorm.completition.providers.ViewCompletionProvider;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -66,8 +68,27 @@ public class CommonHelper {
         }
     }
 
-    public static String getViewsPathFromControllerFile(VirtualFile originalFile) {
-        return originalFile.getParent().getCanonicalPath() + "/../views/";
+
+    public static String getViewsPathFromControllerFile(PsiFile originalFile, int linkType) {
+
+        VirtualFile vFile = originalFile.getOriginalFile().getVirtualFile();
+        if (vFile != null) {
+            String path = vFile.getCanonicalPath();
+            String basePath = originalFile.getProject().getBasePath().replace("\\", "/");
+            if (basePath != null && path != null) {
+                String relativePath = path.replaceAll("(?im)/[^/]+?Controller\\.php$", "");
+                String controllerViewsParent = relativePath.replaceAll("(?im)controllers(/.+)*$", "");
+                //IF absoluteLink from modules
+                if (linkType == ViewCompletionProvider.ABSOLUTE_LINK) {
+                    controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
+                }
+
+                String controllerSubCat = relativePath.replaceAll("(?im).+controllers(/)*", "");
+                String viewsPath = controllerViewsParent + "views/" + controllerSubCat;
+                return viewsPath;
+            }
+        }
+        return null;
     }
 
     public static String getControllerName(String fullname) {
@@ -81,7 +102,8 @@ public class CommonHelper {
     public static String cleanCompleterSearchString(String s) {
         String searchString = s.replace("IntellijIdeaRulezzz", "");
         searchString = searchString.replace("IntellijIdeaRulezzz ", "");
-        return searchString.replaceAll("['\"]+", "").trim();
+        searchString = searchString.replaceAll("['\"]+", "").replaceAll("(?im)\\s+", "");
+        return searchString;
     }
 
     public static String prepareClassName(String str) {
