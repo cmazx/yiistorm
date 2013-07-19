@@ -8,6 +8,7 @@ package com.yiistorm;
  * To change this template use File | Settings | File Templates.
  */
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -22,9 +23,19 @@ public class YiiStormProjectComponent implements ProjectComponent {
     private Project _project;
     private boolean _isCacheConfigXmlUpdated = false;
     private boolean _isCacheLayoutXmlUpdated = false;
+    PropertiesComponent properties;
 
     public YiiStormProjectComponent(Project project) {
         _project = project;
+        properties = PropertiesComponent.getInstance(project);
+    }
+
+    public String getProp(String name) {
+        return properties.getValue(name);
+    }
+
+    public void setProp(String name, String value) {
+        properties.setValue(name, value);
     }
 
     public static YiiStormProjectComponent getInstance(Project project) {
@@ -32,7 +43,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     }
 
     public void initComponent() {
-        //init
+
     }
 
 
