@@ -40,6 +40,24 @@ public class CommonHelper {
         }
     }
 
+    public static String getViewsPathFromControllerFile(VirtualFile originalFile) {
+        return originalFile.getParent().getCanonicalPath() + "/../views/";
+    }
+
+    public static String getControllerName(String fullname) {
+        String controllerName = fullname.replace("Controller.php", "");
+        if (controllerName.length() < 1) {
+            return null;
+        }
+        return controllerName.substring(0, 1).toLowerCase() + controllerName.substring(1);
+    }
+
+    public static String cleanCompleterSearchString(String s) {
+        String searchString = s.replace("IntellijIdeaRulezzz", "");
+        searchString = searchString.replace("IntellijIdeaRulezzz ", "");
+        return searchString.replaceAll("['\"]+", "").trim();
+    }
+
     public static String prepareClassName(String str) {
         return rmQuotes(str).replaceAll("^\\\\", "");
     }

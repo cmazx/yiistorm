@@ -8,6 +8,8 @@
     </content>
     <orderEntry type="jdk" jdkName="WebStorm/PhpStorm PS-121.390" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="php-openapi" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="php" level="project" />
   </component>
 </module>
 

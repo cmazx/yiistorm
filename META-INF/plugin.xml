@@ -11,7 +11,7 @@
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
         </ul>
     ]]></description>
-    <version>0.5b</version>
+    <version>0.8b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -35,6 +35,7 @@
         </action>
     </actions>
 
+    <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -43,5 +44,7 @@
             <loadForDefaultProject/>
         </projectConfigurable>
         <!-- Add your extensions here -->
+        <completion.contributor language="PHP"
+                                implementationClass="com.yiistorm.completition.ViewCompletionContributor"/>
     </extensions>
 </idea-plugin>
