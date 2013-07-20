@@ -38,15 +38,17 @@ public class ARRelationReferenceProvider {
                 TextRange textRange = CommonHelper.getTextRange(element, str);
                 if (textRange != null) {
                     VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-                    String className = element.getText();
-                    VirtualFile v = ARRelationReferenceProvider.getClassFile(className);
-                    VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
-                    VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
-                    if (appDir != null) {
-                        PsiReference ref = new FileReference(v, str.substring(textRange.getStartOffset(), textRange.getEndOffset())
-                                , element,
-                                textRange, YiiPsiReferenceProvider.project, protectedPathDir, appDir);
-                        return new PsiReference[]{ref};
+                    if (baseDir != null) {
+                        String className = element.getText();
+                        VirtualFile v = ARRelationReferenceProvider.getClassFile(className);
+                        VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
+                        VirtualFile protectedPathDir = (!protectedPath.equals("")) ? baseDir.findFileByRelativePath(protectedPath) : null;
+                        if (appDir != null) {
+                            PsiReference ref = new FileReference(v, str.substring(textRange.getStartOffset(), textRange.getEndOffset())
+                                    , element,
+                                    textRange, YiiPsiReferenceProvider.project, protectedPathDir, appDir);
+                            return new PsiReference[]{ref};
+                        }
                     }
                 }
             }

@@ -33,7 +33,7 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
     }
 
     public static boolean isNamespace(PsiElement element) {
-        return (element.toString() == "Namespace" && element.getFirstChild() != null);
+        return (element.toString().equals("Namespace") && element.getFirstChild() != null);
     }
 
     public static boolean parentMethodNameMatch(PsiElement el, String regexp) {

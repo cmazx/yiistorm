@@ -4,8 +4,10 @@ import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
@@ -26,12 +28,66 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     public static final int RELATIVE_LINK = 2;
     public static final int MODULE_RELATIVE_LINK = 3;
 
+    public String[] getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
+        PsiElement pEl = c.getLookup().getPsiElement();
+        String[] names = {};
+        if (pEl != null) {
+            PsiElement pString = pEl.getParent();
+            if (pString != null) {
+                PsiElement nextSibling = pString.getNextSibling();
+
+                while ((nextSibling != null && !nextSibling.getClass().getSimpleName().contains("ArrayCreationExpressionImpl"))) {
+                    // System.err.print(nextSibling.getClass().getSimpleName());
+                    nextSibling = nextSibling.getNextSibling();
+                }
+                if (nextSibling != null) {
+                    PsiElement[] list = nextSibling.getChildren();
+                    for (PsiElement el : list) {
+
+                        PsiElement[] keyValueList = el.getChildren();
+                        if (keyValueList.length == 2) {
+                            String keyText = "";
+                            String valueText = "";
+                            String valueType = "";
+                            for (PsiElement keyValueEl : keyValueList) {
+                                PhpPsiElement kv = (PhpPsiElement) keyValueEl;
+                                System.err.println(kv.toString());
+
+                                if (kv.toString().equals("Array key")) {
+                                    keyText = keyValueEl.getText();
+                                }
+                                if (kv.toString().equals("Array value")) {
+                                    for (PsiElement value : kv.getChildren()) {
+                                        if (value.toString().equals("String")) {
+                                            valueType = "string";
+                                        }
+                                        if (value.toString().equals("Variable")) {
+                                            //Get class from object
+                                            //TODO: GET Class name
+                                        }
+                                    }
+
+                                    valueText = keyValueEl.getText();
+                                }
+
+                            }
+                            valueText = valueText;
+                        }
+
+                    }
+                    list = list;
+                }
+            }
+        }
+        return names;
+    }
+
     @Override
     protected void addCompletions(@NotNull com.intellij.codeInsight.completion.CompletionParameters completionParameters,
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-
+        this.getRenderParams(completionParameters);
         PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
         String cleanText = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
         String searchString = cleanText;
