@@ -1,5 +1,6 @@
 package com.yiistorm.elements;
 
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -369,12 +370,22 @@ public class MigrationsToolWindow implements ToolWindowFactory {
             @Override
             public void run() {
                 String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
-                _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/").refresh(false, true);
-                VirtualFile migrationFile = _project.getBaseDir().findFileByRelativePath(migrationPath + "migrations/" + name + ".php");
-                if (migrationFile != null) {
-                    OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
-                    if (of.canNavigate()) {
-                        of.navigate(true);
+                VirtualFile baseDir = _project.getBaseDir();
+                if (baseDir != null) {
+                    VirtualFile migrationsFolder = baseDir.findFileByRelativePath(migrationPath + "migrations/");
+                    if (migrationsFolder != null) {
+                        migrationsFolder.refresh(false, true);
+                        VirtualFile migrationFile = migrationsFolder.findFileByRelativePath(name + ".php"); //migrationPath + "migrations/" +
+                        if (migrationFile != null) {
+                            OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
+                            if (of.canNavigate()) {
+                                of.navigate(true);
+                            }
+                        } else {
+                            PluginManager.getLogger().error("Migrations file not founded");
+                        }
+                    } else {
+                        PluginManager.getLogger().error("Migrations folder not founded");
                     }
                 }
             }

@@ -403,7 +403,7 @@ public class PsiPhpHelper {
             GotoClassModel2 model = new GotoClassModel2(project);
             for (String className : classes) {
                 Object[] elements = model.getElementsByName(className, true, className);
-                if (elements.length > 0) {
+                if (elements != null && elements.length > 0) {
                     for (Object element : elements) {
                         if (element instanceof PsiElement) {
                             psiElements.add((PsiElement) element);
@@ -412,6 +412,7 @@ public class PsiPhpHelper {
                     }
                 }
             }
+
         }
         return psiElements;
     }
@@ -427,10 +428,12 @@ public class PsiPhpHelper {
         List<PsiElement> methods = new ArrayList<PsiElement>();
         if (methodName != null && className != null && !methodName.isEmpty() && !className.isEmpty()) {
             List<PsiElement> classes = getPsiElementsFromClassName(className, project);
-            for (PsiElement psiClass : classes) {
-                PsiElement method = findMethodInClass(methodName, psiClass, inherited);
-                if (method != null) {
-                    methods.add(method);
+            if (classes.size() > 0) {
+                for (PsiElement psiClass : classes) {
+                    PsiElement method = findMethodInClass(methodName, psiClass, inherited);
+                    if (method != null) {
+                        methods.add(method);
+                    }
                 }
             }
         }

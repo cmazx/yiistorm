@@ -14,7 +14,7 @@
         <li>Controller::render() views autocreator.</li>
         </ul>
     ]]></description>
-    <version>0.8.1b</version>
+    <version>0.8.2b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
@@ -47,7 +47,7 @@
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"
                     factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>
-        <!-- Add your extensions here -->
+
         <completion.contributor language="PHP"
                                 implementationClass="com.yiistorm.completition.ViewCompletionContributor"/>
     </extensions>
