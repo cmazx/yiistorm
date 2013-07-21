@@ -87,7 +87,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        this.getRenderParams(completionParameters);
+        //this.getRenderParams(completionParameters);
         PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
         String cleanText = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
         String searchString = cleanText;
