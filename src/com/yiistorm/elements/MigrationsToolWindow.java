@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,23 +45,27 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     static final public int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
     static final public int CREATE_MIGRATION_BACKGROUND_ACTION = 2;
     static final public int APPLY_MIGRATIONS_BACKGROUND_ACTION = 3;
+    static final public int MIGRATE_DOWN_BACKGROUND_ACTION = 4;
     public static MigrationsToolWindow toolw;
     private JPanel contentPane;
     private JTextArea migrateLog;
     private JBScrollPane scrollpane;
     private JTextField createMigrationName;
-    private VerticalMenuBar actionMenuBar;
+    private JMenuBar actionMenuBar;
     private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
     private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
     private static String OS = System.getProperty("os.name").toLowerCase();
     private Project _project;
     private String yiiFile;
+    private boolean useMigrations;
     private String yiiProtected;
     private ArrayList<String> newMigrationsList = new ArrayList<String>();
     public boolean NewFormDisplayed = false;
-    final JMenuItem createMenu = new JMenuItem("Create new");
+    final JMenuItem createMenu = new JMenuItem();
+    final JMenuItem migrateDown = new JMenuItem();
     JMenu actionMenu = new JMenu();
     NewMigrationForm newMigrationDialog;
+    JPanel buttonsPanel = new JPanel();
 
     public Project getProject() {
         return _project;
@@ -128,9 +133,9 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
     }
 
+
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-
 
         _project = project;
         toolw = this;
@@ -138,6 +143,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
         yiiFile = properties.getValue("yiicFile");
+        useMigrations = properties.getBoolean("useYiiMigrations", false);
         setMigrateLogText("");
 
         contentPane = new JPanel();
@@ -152,13 +158,18 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         scrollpane.getViewport().add(migrateLog);
         contentPane.add(scrollpane, BorderLayout.CENTER);
 
-
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new FlowLayout());
-        actionMenuBar = new VerticalMenuBar();
+        FlowLayout layout = new FlowLayout();
+        layout.setAlignment(FlowLayout.LEFT);
+        buttonsPanel.setLayout(layout);
+        actionMenuBar = new JMenuBar();
+        actionMenuBar.setBackground(new Color(0, 0, 0, 0));
+        actionMenuBar.setLayout(layout);
+        actionMenuBar.setBorderPainted(false);
         buttonsPanel.add(actionMenuBar);
 
-        contentPane.add(buttonsPanel, BorderLayout.WEST);
+
+        contentPane.add(buttonsPanel, BorderLayout.NORTH);
+
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
@@ -195,6 +206,17 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                     }
                 });
                 switch (Action) {
+                    case MigrationsToolWindow.MIGRATE_DOWN_BACKGROUND_ACTION:
+                        indicator.setText("Migrating 1 down");
+                        indicator.setFraction(0.1);
+                        MigrationsToolWindow.toolw.migrateDown();
+                        indicator.setFraction(0.3);
+                        MigrationsToolWindow.toolw.updateNewMigrations(true);
+                        indicator.setFraction(0.5);
+                        indicator.setText("Updating migrations menu");
+                        MigrationsToolWindow.toolw.fillActionMenu();
+                        indicator.setFraction(0.8);
+                        break;
                     case MigrationsToolWindow.ADD_MENUS_BACKGROUND_ACTION:
                         indicator.setText("Updating migrations list");
                         indicator.setFraction(0.1);
@@ -298,6 +320,11 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         setMigrateLogText(text);
     }
 
+    public void migrateDown() {
+        String text = this.runCommand("migrate down 1");
+        setMigrateLogText(text);
+    }
+
     /**
      * Add menu to contentPane
      */
@@ -306,53 +333,80 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-                actionMenu.setText("Actions");
-                actionMenu.setBackground(Color.WHITE);
-                actionMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+                actionMenu.setToolTipText("New migrations");
+                actionMenu.setSize(15, 15);
+
+                ImageIcon icon = new ImageIcon(this.getClass().getResource("/com/yiistorm/images/list.png"));
+                actionMenu.setIcon(icon);
                 actionMenuBar.add(actionMenu);
                 fillActionMenu();
-                JMenuItem updateMenu = new JMenuItem("Update list");
-                if (updateMenu.getActionListeners().length < 1) {
-                    updateMenu.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            updateNewMigrations(true);
-                            fillActionMenu();
-                        }
-                    });
-                }
-                updateMenu.setBackground(Color.WHITE);
-                updateMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                actionMenuBar.add(updateMenu);
+
+                MigrationsToolWindow.addImageButton(
+                        buttonsPanel,
+                        "Update list",
+                        this.getClass().getResource("/com/yiistorm/images/reload.png"),
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                runBackgroundTask(MigrationsToolWindow.UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION, _project);
+                            }
+                        });
 
                 //apply migrations
-                final JMenuItem applyAllMenu = new JMenuItem("Apply all");
-                if (applyAllMenu.getActionListeners().length < 1) {
-                    applyAllMenu.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            runBackgroundTask(MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
-                        }
-                    });
-                }
-                applyAllMenu.setBackground(Color.WHITE);
-                applyAllMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                actionMenuBar.add(applyAllMenu);
+                MigrationsToolWindow.addImageButton(
+                        buttonsPanel,
+                        "Migrate up",
+                        this.getClass().getResource("/com/yiistorm/images/up.png"),
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                runBackgroundTask(MigrationsToolWindow.APPLY_MIGRATIONS_BACKGROUND_ACTION, _project);
+                            }
+                        });
+
+                //migrate down
+                MigrationsToolWindow.addImageButton(
+                        buttonsPanel,
+                        "Migrate one down",
+                        this.getClass().getResource("/com/yiistorm/images/down.png"),
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                runBackgroundTask(MigrationsToolWindow.MIGRATE_DOWN_BACKGROUND_ACTION, _project);
+                            }
+                        });
+
 
                 //create migration
-                if (createMenu.getActionListeners().length < 1) {
-                    createMenu.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            showCreateForm();
-                        }
-                    });
-                }
-                createMenu.setBackground(Color.WHITE);
-                createMenu.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                actionMenuBar.add(createMenu);
+                MigrationsToolWindow.addImageButton(
+                        buttonsPanel,
+                        "Create migration",
+                        this.getClass().getResource("/com/yiistorm/images/add.png"),
+                        new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                showCreateForm();
+                            }
+                        });
+
             }
         });
+    }
+
+    private static void addImageButton(JPanel panel, String toolTip, URL image, ActionListener listener) {
+        ImageIcon updicon = new ImageIcon(image);
+        JButton updateButton = new JButton(updicon);
+        updateButton.setPressedIcon(updicon);
+        updateButton.setFocusable(false);
+        updateButton.setToolTipText(toolTip);
+        //updateButton.setBorder(BorderFactory.createLineBorder(S));
+        updateButton.setContentAreaFilled(false);
+        panel.add(updateButton);
+
+        if (updateButton.getActionListeners().length < 1) {
+            updateButton.addActionListener(listener);
+        }
     }
 
     public void showCreateForm() {
@@ -392,4 +446,6 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         });
 
     }
+
+
 }

@@ -14,7 +14,7 @@
         <li>Controller::render() views autocreator.</li>
         </ul>
     ]]></description>
-    <version>0.8.2b</version>
+    <version>0.8.4b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 

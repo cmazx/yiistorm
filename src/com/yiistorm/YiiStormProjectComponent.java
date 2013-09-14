@@ -34,6 +34,10 @@ public class YiiStormProjectComponent implements ProjectComponent {
         return properties.getValue(name);
     }
 
+    public boolean getBooleanProp(String name) {
+        return properties.getBoolean(name, false);
+    }
+
     public void setProp(String name, String value) {
         properties.setValue(name, value);
     }

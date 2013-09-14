@@ -22,6 +22,7 @@ public class YiiStormSettingsPage implements Configurable {
     private JTextField themeNameField;
     private JTextField yiicFileField;
     private JButton yiicPathSelect;
+    private JCheckBox useMigrationsCheckbox;
     Project project;
 
     public YiiStormSettingsPage(Project project) {
@@ -37,6 +38,7 @@ public class YiiStormSettingsPage implements Configurable {
     @Override
     public JComponent createComponent() {
 
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JPanel panel1 = new JPanel();
@@ -45,8 +47,19 @@ public class YiiStormSettingsPage implements Configurable {
         enableYiiStorm = new JCheckBox("Enable Yii Storm for this project");
         panel1.add(enableYiiStorm);
         panel1.add(Box.createHorizontalGlue());
-
         panel.add(panel1);
+
+        JPanel panel12 = new JPanel();
+        panel12.setLayout(new BoxLayout(panel12, BoxLayout.X_AXIS));
+
+        useMigrationsCheckbox = new JCheckBox("Use migrations");
+        useMigrationsCheckbox.setSelected(properties.getBoolean("useYiiMigrations", true));
+
+        panel12.add(useMigrationsCheckbox);
+        panel12.add(Box.createHorizontalGlue());
+        panel.add(panel12);
+
+
         panel.add(Box.createVerticalStrut(8));
 
         JPanel panel2 = new JPanel();
@@ -70,7 +83,6 @@ public class YiiStormSettingsPage implements Configurable {
         panel.add(themePanel);
 
 
-        PropertiesComponent properties = PropertiesComponent.getInstance(project);
         enableYiiStorm.setSelected(properties.getBoolean("enableYiiStorm", true));
         themeNameField.setText(properties.getValue("themeName", DefaultSettings.themeName));
 
@@ -121,6 +133,7 @@ public class YiiStormSettingsPage implements Configurable {
         properties.setValue("enableYiiStorm", String.valueOf(enableYiiStorm.isSelected()));
         properties.setValue("themeName", themeNameField.getText());
         properties.setValue("yiicFile", yiicFileField.getText());
+        properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
 
         final ToolWindowManager manager = ToolWindowManager.getInstance(project);
         final ToolWindow tw = manager.getToolWindow("Migrations");

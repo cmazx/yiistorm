@@ -29,6 +29,10 @@ public class WidgetCallReferenceProvider {
             String widgetFilePath = "";
             if (widgetPath.matches("^components.+")) {
                 widgetFilePath = protectedPath + "/" + widgetPath.replace(".", "/") + ".php";
+            } else if (widgetPath.matches("^ext\\..+")) {
+                widgetFilePath = (protectedPath + "/" + widgetPath.replace(".", "/")).replace("/ext/", "/extensions/") + ".php";
+            } else if (widgetPath.matches("^app\\..+")) {
+                widgetFilePath = widgetPath.replace(".", "/").replace("app", protectedPath) + ".php";
             } else if (widgetPath.matches("^application.+")) {
                 widgetFilePath = widgetPath.replace(".", "/").replace("application", protectedPath) + ".php";
             } else {
