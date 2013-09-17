@@ -8,12 +8,16 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class NewFileLookupElement extends LookupElement {
@@ -22,15 +26,17 @@ public class NewFileLookupElement extends LookupElement {
     private String filePath;
     private PsiElement psiElement = null;
     private Project project = null;
+    private HashMap<String, String> translatingParams = new HashMap<String, String>();
 
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public NewFileLookupElement(String fileName, String filePath, Project project) {
+    public NewFileLookupElement(String fileName, String filePath, Project project, HashMap<String, String> params) {
 
         this.fileName = fileName;
         this.filePath = filePath;
         this.project = project;
+        this.translatingParams = params;
     }
 
     public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
@@ -53,29 +59,61 @@ public class NewFileLookupElement extends LookupElement {
 
     public void handleInsert(InsertionContext context) {
         File f = new File(filePath + fileName + ".php");
+
         try {
             boolean newFile = f.createNewFile();
-            VirtualFile base = this.project.getBaseDir();
-            if (base != null) {
-                String relativePath = filePath.replace(base.getPath(), "");
-                VirtualFile viewsPath = base.findFileByRelativePath(relativePath);
-                if (viewsPath != null) {
-                    viewsPath.refresh(false, true);
-                    VirtualFile migrationFile = base.findFileByRelativePath(relativePath + fileName + ".php");
-                    if (migrationFile != null) {
-                        OpenFileDescriptor of = new OpenFileDescriptor(this.project, migrationFile);
-                        if (of.canNavigate()) {
+        } catch (IOException e) {
+            return;
+        }
+
+
+        PsiFileFactory pf = PsiFileFactory.getInstance(project);
+        String text = "";
+        if (this.translatingParams.size() > 0) {
+            this.writeNewFileHeader(f);
+        }
+        VirtualFile base = this.project.getBaseDir();
+
+        if (base != null) {
+            final String relativePath = filePath.replace(base.getPath(), "");
+            final Project project = this.project;
+
+            final VirtualFile viewsPath = base.findFileByRelativePath(relativePath);
+
+            if (viewsPath != null) {
+
+                viewsPath.refresh(false, false, new Runnable() {
+                    @Override
+                    public void run() {
+                        VirtualFile newCreatedFile = viewsPath.findFileByRelativePath(fileName + ".php");
+
+                        if (newCreatedFile != null) {
+
+                            OpenFileDescriptor of = new OpenFileDescriptor(project, newCreatedFile);
                             of.navigate(true);
                         }
                     }
+                });
+                if (this.insertHandler != null) {
+                    this.insertHandler.handleInsert(context, this);
                 }
             }
+        }
+    }
 
+    private void writeNewFileHeader(File f) {
+        BufferedWriter output = null;
+        try {
+            output = new BufferedWriter(new FileWriter(f));
+            String text = "<?php\n/**\n *\n";
+            for (String varname : this.translatingParams.keySet()) {
+                text += " * @var " + this.translatingParams.get(varname) + " $" + varname + "\n";
+            }
+            text += " */";
+            output.write(text);
+            output.close();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        if (this.insertHandler != null) {
-            this.insertHandler.handleInsert(context, this);
         }
     }
 

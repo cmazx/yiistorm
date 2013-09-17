@@ -8,12 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
+import com.jetbrains.php.lang.psi.elements.impl.ClassConstantReferenceImpl;
+import com.jetbrains.php.lang.psi.elements.impl.ConstantReferenceImpl;
+import com.jetbrains.php.lang.psi.elements.impl.PhpExpressionImpl;
+import com.jetbrains.php.lang.psi.elements.impl.VariableImpl;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.CompleterHelper;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -28,16 +33,15 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     public static final int RELATIVE_LINK = 2;
     public static final int MODULE_RELATIVE_LINK = 3;
 
-    public String[] getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
+    public HashMap<String, String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
         PsiElement pEl = c.getLookup().getPsiElement();
-        String[] names = {};
+        HashMap<String, String> names = new HashMap<String, String>();
         if (pEl != null) {
             PsiElement pString = pEl.getParent();
             if (pString != null) {
                 PsiElement nextSibling = pString.getNextSibling();
 
                 while ((nextSibling != null && !nextSibling.getClass().getSimpleName().contains("ArrayCreationExpressionImpl"))) {
-                    // System.err.print(nextSibling.getClass().getSimpleName());
                     nextSibling = nextSibling.getNextSibling();
                 }
                 if (nextSibling != null) {
@@ -47,38 +51,97 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                         PsiElement[] keyValueList = el.getChildren();
                         if (keyValueList.length == 2) {
                             String keyText = "";
-                            String valueText = "";
                             String valueType = "";
                             for (PsiElement keyValueEl : keyValueList) {
+
+
+                                valueType = "";
                                 PhpPsiElement kv = (PhpPsiElement) keyValueEl;
-                                System.err.println(kv.toString());
 
                                 if (kv.toString().equals("Array key")) {
-                                    keyText = keyValueEl.getText();
+                                    keyText = keyValueEl.getText().replace("'", "");
                                 }
+
                                 if (kv.toString().equals("Array value")) {
                                     for (PsiElement value : kv.getChildren()) {
-                                        if (value.toString().equals("String")) {
-                                            valueType = "string";
+
+                                        if (value.toString().equals("Number")) {
+                                            PhpExpressionImpl composite_value = (PhpExpressionImpl) value;
+                                            valueType = composite_value.getType().toStringResolved();
                                         }
-                                        if (value.toString().equals("Variable")) {
-                                            //Get class from object
-                                            //TODO: GET Class name
+                                        //Class::CONST
+                                        else if (value.toString().equals("Class constant reference")) {
+                                            ClassConstantReferenceImpl value_cri = (ClassConstantReferenceImpl) value;
+                                            valueType = value_cri.getText();
+                                        }
+                                        //null,bool,etc..
+                                        else if (value.toString().equals("Constant reference")) {
+                                            ConstantReferenceImpl value_cri = (ConstantReferenceImpl) value;
+
+                                            valueType = value_cri.getType().toStringResolved();
+                                        }
+                                        // new Class();
+                                        else if (value.toString().equals("New expression")) {
+                                            PsiElement[] value_new_exr = value.getChildren();
+                                            if (value_new_exr.length > 0) {
+                                                PsiElement classref = value_new_exr[0];
+                                                if (classref.toString().equals("Class reference")) {
+                                                    valueType = classref.getText();
+                                                } else {   //can't detect class
+                                                    valueType = "";
+                                                    //System.err.println("Bad 'New expression' founded by phpstorm :" + value_new_exr.toString());
+                                                }
+                                            }
+                                        }
+                                        // $var
+                                        else if (value.toString().equals("Variable")) {
+
+                                            VariableImpl psi = (VariableImpl) value;
+                                            valueType = psi.getType().toStringResolved();
+                                            if (valueType.startsWith("#")) {
+                                                //FIXME: add type process
+                                                valueType = " ";
+                                            }
+                                        }
+                                        //all over types
+                                        else {
+
+                                            try {
+                                                VariableImpl psi = (VariableImpl) value;
+                                                valueType = psi.getType().toStringResolved();
+                                            } catch (Exception e) {
+                                                valueType = value.toString();
+                                            }
                                         }
                                     }
 
-                                    valueText = keyValueEl.getText();
+                                    //Standartize some types
+                                    if (valueType.startsWith("#F") || valueType.equals("Function call")) {
+                                        //FIXME: try add return type from standard functions
+                                        valueType = "resource";
+                                    }
+                                    if (valueType.equals("Array creation expression")) {
+                                        valueType = "mixed";
+                                    }
+
+                                    if (keyText != null && valueType != "") {
+
+                                        names.put(keyText, valueType);
+                                    }
+                                    keyText = null;
                                 }
 
                             }
-                            valueText = valueText;
-                        }
 
+
+                        }
                     }
-                    list = list;
+
                 }
             }
         }
+
+
         return names;
     }
 
@@ -87,7 +150,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        //this.getRenderParams(completionParameters);
+        HashMap<String, String> translatingParams = this.getRenderParams(completionParameters);
         PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
         String cleanText = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
         String searchString = cleanText;
@@ -127,7 +190,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
             }
 
             if (!identMatch) {
-                NewFileLookupElement n = new NewFileLookupElement(searchString, path, completionParameters.getPosition().getProject());
+                NewFileLookupElement n = new NewFileLookupElement(searchString, path, completionParameters.getPosition().getProject(), translatingParams);
                 completionResultSet.addElement(n);
                   /* ControllerLookupElementWeigher cl = new ControllerLookupElementWeigher(searchString, true, false);
                 CompletionSorter cs = CompletionSorter.emptySorter();

@@ -11,10 +11,10 @@
         <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
         <li>Migrations manager.</li>
         <li>Controller::render() views names autocompleter.</li>
-        <li>Controller::render() views autocreator.</li>
+        <li>Controller::render() views autocreator with variables phpdoc.</li>
         </ul>
     ]]></description>
-    <version>0.8.4b</version>
+    <version>0.9b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
     <idea-version since-build="8000"/>
 
