@@ -17,7 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 
 public class NewFileLookupElement extends LookupElement {
@@ -26,12 +26,12 @@ public class NewFileLookupElement extends LookupElement {
     private String filePath;
     private PsiElement psiElement = null;
     private Project project = null;
-    private HashMap<String, String> translatingParams = new HashMap<String, String>();
+    private ArrayList<String> translatingParams = new ArrayList<String>();
 
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public NewFileLookupElement(String fileName, String filePath, Project project, HashMap<String, String> params) {
+    public NewFileLookupElement(String fileName, String filePath, Project project, ArrayList<String> params) {
 
         this.fileName = fileName;
         this.filePath = filePath;
@@ -106,8 +106,8 @@ public class NewFileLookupElement extends LookupElement {
         try {
             output = new BufferedWriter(new FileWriter(f));
             String text = "<?php\n/**\n *\n";
-            for (String varname : this.translatingParams.keySet()) {
-                text += " * @var " + this.translatingParams.get(varname) + " $" + varname + "\n";
+            for (String varname : this.translatingParams) {
+                text += " * @var " + varname + "\n";
             }
             text += " */";
             output.write(text);

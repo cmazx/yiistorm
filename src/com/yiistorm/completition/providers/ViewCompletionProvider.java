@@ -11,13 +11,14 @@ import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocReturnTag;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
 import com.jetbrains.php.lang.psi.elements.impl.*;
+import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.CompleterHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -116,9 +117,14 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         return type;
     }
 
-    public HashMap<String, String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
+    public ArrayList<String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
         PsiElement pEl = c.getLookup().getPsiElement();
-        HashMap<String, String> names = new HashMap<String, String>();
+
+        ArrayList<String> names = new ArrayList<String>();
+        String creatorClassName = PsiPhpHelper.getClassName(pEl);
+        if (!creatorClassName.isEmpty()) {
+            names.add(creatorClassName + " $this");
+        }
         if (pEl != null) {
             PsiElement pString = pEl.getParent();
             if (pString != null) {
@@ -155,7 +161,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
 
                                     if (keyText != null && valueType != "") {
 
-                                        names.put(keyText, valueType);
+                                        names.add(valueType + " $" + keyText);
                                     }
                                     keyText = null;
                                 }
@@ -179,7 +185,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        HashMap<String, String> translatingParams = this.getRenderParams(completionParameters);
+        ArrayList<String> translatingParams = this.getRenderParams(completionParameters);
         PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
         String cleanText = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
         String searchString = cleanText;
