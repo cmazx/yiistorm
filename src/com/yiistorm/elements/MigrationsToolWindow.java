@@ -66,6 +66,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     JMenu actionMenu = new JMenu();
     NewMigrationForm newMigrationDialog;
     JPanel buttonsPanel = new JPanel();
+    private boolean MenusAdded = false;
 
     public Project getProject() {
         return _project;
@@ -329,7 +330,10 @@ public class MigrationsToolWindow implements ToolWindowFactory {
      * Add menu to contentPane
      */
     public void addMenus() {
-        final MigrationsToolWindow me = this;
+        if (MenusAdded) {
+            return;
+        }
+        MenusAdded = true;
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
