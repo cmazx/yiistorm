@@ -7,11 +7,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
+import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocReturnTag;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
-import com.jetbrains.php.lang.psi.elements.impl.ClassConstantReferenceImpl;
-import com.jetbrains.php.lang.psi.elements.impl.ConstantReferenceImpl;
-import com.jetbrains.php.lang.psi.elements.impl.PhpExpressionImpl;
-import com.jetbrains.php.lang.psi.elements.impl.VariableImpl;
+import com.jetbrains.php.lang.psi.elements.impl.*;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
@@ -32,6 +31,90 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     public static final int ABSOLUTE_LINK = 1;
     public static final int RELATIVE_LINK = 2;
     public static final int MODULE_RELATIVE_LINK = 3;
+
+    public String getPhpPsiType(PsiElement psiElement) {
+        String type = "";
+        if (psiElement.toString().equals("Method reference")) {
+            PhpReferenceImpl composite_value = (PhpReferenceImpl) psiElement;
+            if (composite_value.resolve() != null) {
+                MethodImpl cm = (MethodImpl) composite_value.resolve();
+
+                if (cm != null) {
+                    PhpDocComment phpDoc = cm.getDocComment();
+                    if (phpDoc != null && phpDoc.getReturnTag() != null) {
+                        PhpDocReturnTag returnTag = phpDoc.getReturnTag();
+                        if (returnTag != null) {
+                            type = returnTag.getType().toStringResolved();
+                        }
+                    }
+                }
+            }
+
+        } else if (psiElement.toString().equals("Number")) {
+            PhpExpressionImpl composite_value = (PhpExpressionImpl) psiElement;
+            type = composite_value.getType().toStringResolved();
+        }
+        //Class::CONST
+        else if (psiElement.toString().equals("Class constant reference")) {
+            ClassConstantReferenceImpl value_cri = (ClassConstantReferenceImpl) psiElement;
+            type = value_cri.getText();
+        }
+        //null,bool,etc..
+        else if (psiElement.toString().equals("Constant reference")) {
+            ConstantReferenceImpl value_cri = (ConstantReferenceImpl) psiElement;
+
+            type = value_cri.getType().toStringResolved();
+        }
+        // new Class();
+        else if (psiElement.toString().equals("New expression")) {
+            PsiElement[] value_new_exr = psiElement.getChildren();
+            if (value_new_exr.length > 0) {
+                PsiElement classref = value_new_exr[0];
+                if (classref.toString().equals("Class reference")) {
+                    type = classref.getText();
+                } else {   //can't detect class
+                    type = "";
+                    //System.err.println("Bad 'New expression' founded by phpstorm :" + value_new_exr.toString());
+                }
+            }
+        }
+        // $var
+        else if (psiElement.toString().equals("Variable")) {
+
+            VariableImpl psi = (VariableImpl) psiElement;
+            type = psi.getType().toStringResolved();
+            if (type.startsWith("#F")) {
+                type = " ";
+            } else if (type.startsWith("#")) {
+                VariableImpl vd = (VariableImpl) psi.resolve();
+                if (vd != null) {
+                    PsiElement last = vd.getNextPsiSibling();
+                    type = getPhpPsiType(last);
+                }
+            }
+        }
+        //all over types
+        else {
+
+            try {
+                VariableImpl psi = (VariableImpl) psiElement;
+                type = psi.getType().toStringResolved();
+            } catch (Exception e) {
+                type = psiElement.toString();
+            }
+        }
+
+        //Standartize some types
+        if (type.startsWith("#F") || type.equals("Function call")) {
+            //FIXME: try add return type from standard functions
+            type = " ";
+        }
+        if (type.equals("Array creation expression")) {
+            type = "mixed";
+        }
+
+        return type;
+    }
 
     public HashMap<String, String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
         PsiElement pEl = c.getLookup().getPsiElement();
@@ -63,66 +146,12 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                 }
 
                                 if (kv.toString().equals("Array value")) {
-                                    for (PsiElement value : kv.getChildren()) {
-
-                                        if (value.toString().equals("Number")) {
-                                            PhpExpressionImpl composite_value = (PhpExpressionImpl) value;
-                                            valueType = composite_value.getType().toStringResolved();
-                                        }
-                                        //Class::CONST
-                                        else if (value.toString().equals("Class constant reference")) {
-                                            ClassConstantReferenceImpl value_cri = (ClassConstantReferenceImpl) value;
-                                            valueType = value_cri.getText();
-                                        }
-                                        //null,bool,etc..
-                                        else if (value.toString().equals("Constant reference")) {
-                                            ConstantReferenceImpl value_cri = (ConstantReferenceImpl) value;
-
-                                            valueType = value_cri.getType().toStringResolved();
-                                        }
-                                        // new Class();
-                                        else if (value.toString().equals("New expression")) {
-                                            PsiElement[] value_new_exr = value.getChildren();
-                                            if (value_new_exr.length > 0) {
-                                                PsiElement classref = value_new_exr[0];
-                                                if (classref.toString().equals("Class reference")) {
-                                                    valueType = classref.getText();
-                                                } else {   //can't detect class
-                                                    valueType = "";
-                                                    //System.err.println("Bad 'New expression' founded by phpstorm :" + value_new_exr.toString());
-                                                }
-                                            }
-                                        }
-                                        // $var
-                                        else if (value.toString().equals("Variable")) {
-
-                                            VariableImpl psi = (VariableImpl) value;
-                                            valueType = psi.getType().toStringResolved();
-                                            if (valueType.startsWith("#")) {
-                                                //FIXME: add type process
-                                                valueType = " ";
-                                            }
-                                        }
-                                        //all over types
-                                        else {
-
-                                            try {
-                                                VariableImpl psi = (VariableImpl) value;
-                                                valueType = psi.getType().toStringResolved();
-                                            } catch (Exception e) {
-                                                valueType = value.toString();
-                                            }
-                                        }
+                                    for (PsiElement psiElement : kv.getChildren()) {
+                                        valueType = getPhpPsiType(psiElement);
                                     }
 
                                     //Standartize some types
-                                    if (valueType.startsWith("#F") || valueType.equals("Function call")) {
-                                        //FIXME: try add return type from standard functions
-                                        valueType = "resource";
-                                    }
-                                    if (valueType.equals("Array creation expression")) {
-                                        valueType = "mixed";
-                                    }
+
 
                                     if (keyText != null && valueType != "") {
 
