@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class NewFileLookupElement extends LookupElement {
 
+    private String lookupString;
     private String fileName;
     private String filePath;
     private PsiElement psiElement = null;
@@ -31,8 +32,9 @@ public class NewFileLookupElement extends LookupElement {
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public NewFileLookupElement(String fileName, String filePath, Project project, ArrayList<String> params) {
+    public NewFileLookupElement(String lookupString, String fileName, String filePath, Project project, ArrayList<String> params) {
 
+        this.lookupString = lookupString;
         this.fileName = fileName;
         this.filePath = filePath;
         this.project = project;
@@ -49,7 +51,7 @@ public class NewFileLookupElement extends LookupElement {
     @NotNull
     @Override
     public String getLookupString() {
-        return fileName;
+        return lookupString;
     }
 
     @NotNull
@@ -120,8 +122,7 @@ public class NewFileLookupElement extends LookupElement {
     public void renderElement(LookupElementPresentation presentation) {
         presentation.setItemText(getLookupString());
         presentation.setIcon(PlatformIcons.ADD_ICON);
-        //String base=getPsiElement().getProject().getBasePath();
-        presentation.setTypeText("create new view");//VfsUtil.getRelativePath(filePath, base, '/'));
+        presentation.setTypeText("create new view");
         presentation.setTypeGrayed(false);
     }
 

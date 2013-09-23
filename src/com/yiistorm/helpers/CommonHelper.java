@@ -79,7 +79,7 @@ public class CommonHelper {
                 String relativePath = path.replaceAll("(?im)/[^/]+?Controller\\.php$", "");
                 String controllerViewsParent = relativePath.replaceAll("(?im)controllers(/.+)*$", "");
                 //IF absoluteLink from modules
-                if (linkType == ViewCompletionProvider.ABSOLUTE_LINK) {
+                if (linkType == ViewCompletionProvider.ABSOLUTE_LINK && relativePath.contains("modules")) {
                     controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
                 }
 

@@ -20,6 +20,17 @@ public class CompleterHelper {
         return scanner.getIncludedFiles();
     }
 
+    public static String[] searchFolders(String searchPath, String searchString) {
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setIncludes(new String[]{searchString + "*"});
+        scanner.setExcludes(new String[]{searchString + "*.php"});
+
+        scanner.setBasedir(searchPath);
+        scanner.setCaseSensitive(false);
+        scanner.scan();
+        return scanner.getIncludedDirectories();
+    }
+
 
  /*   public static String prepareViewPath(String controllerPath){
 
