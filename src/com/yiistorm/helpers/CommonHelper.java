@@ -91,6 +91,31 @@ public class CommonHelper {
         return null;
     }
 
+    public static String getFilePath(PsiFile originalFile) {
+
+        VirtualFile vFile = originalFile.getOriginalFile().getVirtualFile();
+        if (vFile != null) {
+            String path = vFile.getCanonicalPath();
+            if (path != null) {
+                return path.replaceAll("(?im)[a-z0-9_]+\\.[a-z]+$", "");
+            }
+        }
+        return "";
+    }
+
+    public static String detectPathFileType(String path) {
+        if (path.matches("(?im).+?/[a-z_0-9]+?Controller.php")) {
+            return "controller";
+        } else if (path.matches("(?im).+?/views/.+/[a-z_0-9]+?.php")) {
+            return "view";
+        } else if (path.matches("(?im).+?/models/(.+/)*[a-z_0-9]+?.php")) {
+            return "model";
+        } else if (path.matches("(?im).+?/[a-z_0-9]+?Widget.php")) {
+            return "widget";
+        }
+        return "unknown";
+    }
+
     public static String getControllerName(String fullname) {
         String controllerName = fullname.replace("Controller.php", "");
         if (controllerName.length() < 1) {

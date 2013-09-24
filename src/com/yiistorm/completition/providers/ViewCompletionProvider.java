@@ -37,7 +37,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
 
         ArrayList<String> names = new ArrayList<String>();
         String creatorClassName = PsiPhpHelper.getClassName(pEl);
-        if (!creatorClassName.isEmpty()) {
+        if (creatorClassName != null && !creatorClassName.isEmpty()) {
             names.add(creatorClassName + " $this");
         }
         if (pEl != null) {
@@ -108,28 +108,54 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         VirtualFile originalFile = psiContainingFile.getOriginalFile().getVirtualFile();
 
         if (originalFile != null) {
-            String controllerName = CommonHelper.getControllerName(originalFile.getName());
-            String path = CommonHelper.getViewsPathFromControllerFile(psiContainingFile, linkType);
 
+            String controllerName = getControllerName(psiContainingFile);
+            String path = "";
             String resultAppend = ""; // prefix part for results
-            //absolute path
-            if (linkType != RELATIVE_LINK) {
-                resultAppend = cleanText.replaceAll("(?si)/[a-z0-9_]+$", "/");
-                path = path + "/" + controllerName + "/";   // fullpath to view folder
-                searchString = searchString.replaceAll("(?si).+/", "");   //Only last part
-                path = path.replaceAll("(?si)/[a-z0-9_]+$", "");    //Only path w/o last part  and
-            } else {
-                if (!path.endsWith("/")) {
-                    path += "/";
+            if (!controllerName.isEmpty()) {   //from controller
+                path = CommonHelper.getViewsPathFromControllerFile(psiContainingFile, linkType);
+                if (linkType != RELATIVE_LINK) {
+                    resultAppend = cleanText.replaceAll("(?si)/[a-z0-9_]+$", "/");
+                    path = path.replaceAll("/$", "") + "/";   // fullpath to view folder
+                    searchString = searchString.replaceAll("(?si).+/", "");   //Only last part
+                    path = path.replaceAll("(?si)/[a-z0-9_]+$", "");    //Only path w/o last part  and
+                    path = path + resultAppend.replaceAll("^//", "");
+                } else {
+                    if (!path.endsWith("/")) {
+                        path += "/";
+                    }
+                    path += controllerName + "/";
+                    if (searchString.contains("/")) {
+                        resultAppend = searchString.replaceAll("(?si)/[a-z0-9_]+$", "/");
+                        searchString = searchString.replaceAll("(?si).+/", "");
+                        path = path + resultAppend.replaceAll("^//", "");
+                    }
                 }
-                path += controllerName + "/";
+            } else {       //not from controller
+                if (linkType != RELATIVE_LINK) {   //ABSOLUTE PATH
+                    path = CommonHelper.getFilePath(psiContainingFile);
+                    String endPart = path.replaceAll("(?im)^.+?views/", "");
+                    path = path.replace(endPart, "");
+                    resultAppend = cleanText.replaceAll("(?si)/[a-z0-9_]+$", "/");
+                    if (resultAppend.startsWith("//")) {
+                        path += resultAppend.replaceAll("(?im)^//", "");
+                    } else if (cleanText.startsWith("/")) {
+                        path += resultAppend.replaceAll("(?im)^/", "");
+                    }
+                    searchString = searchString.replaceAll("(?si).+/", "");   //Only last part
+                    path = path.replace("(?im)/[a-z0-9_]+?.php$", "");
+                } else {                 //RELATIVE PATH
+                    path = CommonHelper.getFilePath(psiContainingFile);
+                    if (searchString.contains("/")) {
+                        resultAppend = searchString.replaceAll("(?si)/[a-z0-9_]+$", "/");
+                        searchString = searchString.replaceAll("(?si).+/", "");
+                        path = path + resultAppend.replaceAll("^//", "");
+                    }
+                }
             }
 
-            if (searchString.contains("/")) {
-                resultAppend = searchString.replaceAll("(?si)/[a-z0-9_]+$", "/");
-                path = path + resultAppend;
-                searchString = searchString.replaceAll("(?si).+/", "");
-            }
+            //absolute path
+
 
             String[] files = CompleterHelper.searchFiles(path, searchString);
             Boolean identMatch = false;
@@ -176,6 +202,19 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
             }
 
             //  completionResultSet.addAllElements(matches);
+        }
+    }
+
+    private String getControllerName(PsiFile file) {
+        VirtualFile originalFile = file.getOriginalFile().getVirtualFile();
+        String s = CommonHelper.detectPathFileType(originalFile.getPath());
+        if (s.equals("controller")) {
+            return CommonHelper.getControllerName(originalFile.getName());
+        } else if (s.equals("view")) {
+            return "";
+
+        } else {
+            return "";
         }
     }
 
