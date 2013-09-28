@@ -17,6 +17,7 @@ import com.yiistorm.helpers.CompleterHelper;
 import com.yiistorm.helpers.PsiPhpTypeHelper;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
@@ -154,54 +155,55 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                 }
             }
 
-            //absolute path
+            if (new File(path).exists()) {
 
 
-            String[] files = CompleterHelper.searchFiles(path, searchString);
-            Boolean identMatch = false;
+                String[] files = CompleterHelper.searchFiles(path, searchString);
+                Boolean identMatch = false;
 
-            for (String file : files) {
-                String file_name = file.replace(".php", "");
-                if ((resultAppend + file_name).equals(resultAppend + searchString)) {
-                    identMatch = true;
-                }
-                file_name = resultAppend + file_name.replace("\\", "_");
-
-                completionResultSet.getPrefixMatcher().prefixMatches(cleanText);
-                ExistFileLookupElement exFL = new ExistFileLookupElement(file_name);
-                completionResultSet.addElement(exFL);
-            }
-
-            //FOLDERS
-            if (!identMatch) {
-
-                String[] folders = CompleterHelper.searchFolders(path, searchString);
-                for (String folder : folders) {
-                    if ((resultAppend + folder).equals(resultAppend + searchString)) {
+                for (String file : files) {
+                    String file_name = file.replace(".php", "");
+                    if ((resultAppend + file_name).equals(resultAppend + searchString)) {
                         identMatch = true;
                     }
-                    completionResultSet.getPrefixMatcher().prefixMatches(resultAppend + folder);
-                    FolderLookupElement flEl = new FolderLookupElement(folder);
-                    completionResultSet.addElement(flEl);
+                    file_name = resultAppend + file_name.replace("\\", "_");
+
+                    completionResultSet.getPrefixMatcher().prefixMatches(cleanText);
+                    ExistFileLookupElement exFL = new ExistFileLookupElement(file_name);
+                    completionResultSet.addElement(exFL);
                 }
-            }
 
-            if (!identMatch && !searchString.trim().isEmpty()) {
+                //FOLDERS
+                if (!identMatch) {
 
-                NewFileLookupElement n = new NewFileLookupElement(cleanText, searchString, path,
-                        completionParameters.getPosition().getProject(), translatingParams);
-                completionResultSet.addElement(n);
+                    String[] folders = CompleterHelper.searchFolders(path, searchString);
+                    for (String folder : folders) {
+                        if ((resultAppend + folder).equals(resultAppend + searchString)) {
+                            identMatch = true;
+                        }
+                        completionResultSet.getPrefixMatcher().prefixMatches(resultAppend + folder);
+                        FolderLookupElement flEl = new FolderLookupElement(folder);
+                        completionResultSet.addElement(flEl);
+                    }
+                }
+
+                if (!identMatch && !searchString.trim().isEmpty()) {
+
+                    NewFileLookupElement n = new NewFileLookupElement(cleanText, searchString, path,
+                            completionParameters.getPosition().getProject(), translatingParams);
+                    completionResultSet.addElement(n);
 
                   /* ControllerLookupElementWeigher cl = new ControllerLookupElementWeigher(searchString, true, false);
                 CompletionSorter cs = CompletionSorter.emptySorter();
                 cs.weigh(cl);
                 completionResultSet.withRelevanceSorter(cs);  */
 
-                //completionResultSet.getPrefixMatcher().prefixMatches(searchString);
-                completionResultSet.addElement(new IgnoredLookupElement(cleanText));
-            }
+                    //completionResultSet.getPrefixMatcher().prefixMatches(searchString);
+                    completionResultSet.addElement(new IgnoredLookupElement(cleanText));
+                }
 
-            //  completionResultSet.addAllElements(matches);
+                //  completionResultSet.addAllElements(matches);
+            }
         }
     }
 

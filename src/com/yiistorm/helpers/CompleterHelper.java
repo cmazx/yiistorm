@@ -11,6 +11,7 @@ import org.apache.tools.ant.DirectoryScanner;
  */
 public class CompleterHelper {
     public static String[] searchFiles(String searchPath, String searchString) {
+
         DirectoryScanner scanner = new DirectoryScanner();
         scanner.setIncludes(new String[]{searchString + "*.php"});
 
@@ -18,6 +19,7 @@ public class CompleterHelper {
         scanner.setCaseSensitive(false);
         scanner.scan();
         return scanner.getIncludedFiles();
+
     }
 
     public static String[] searchFolders(String searchPath, String searchString) {

@@ -34,7 +34,7 @@ public class NewFileLookupElement extends LookupElement {
 
     public NewFileLookupElement(String lookupString, String fileName, String filePath, Project project, ArrayList<String> params) {
 
-        this.lookupString = lookupString;
+        this.lookupString = lookupString.replaceFirst("^[/]{2}", "");
         this.fileName = fileName;
         this.filePath = filePath;
         this.project = project;

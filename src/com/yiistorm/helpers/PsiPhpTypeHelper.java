@@ -64,7 +64,18 @@ public class PsiPhpTypeHelper {
 
             VariableImpl psi = (VariableImpl) psiElement;
             type = psi.getType().toStringResolved();
-            if (type.startsWith("#F")) {
+            if (type.matches("(?sim)#M#M#C\\\\[a-z_0-9]+?.model.find.+?\\|\\?")) {
+                VariableImpl vd = (VariableImpl) psi.resolve();
+                if (vd != null) {
+                    PsiElement findMetodCall = vd.getNextPsiSibling();
+                    if (findMetodCall != null) {
+                        MethodReferenceImpl modelStaticCall = (MethodReferenceImpl) findMetodCall.getFirstChild();
+                        if (modelStaticCall != null) {
+                            type = modelStaticCall.getText().replaceAll("(?sim)::.+", "");
+                        }
+                    }
+                }
+            } else if (type.startsWith("#F") || type.startsWith("#M")) {
                 VariableImpl vd = (VariableImpl) psi.resolve();
                 if (vd != null) {
                     PsiElement last = vd.getNextPsiSibling();
