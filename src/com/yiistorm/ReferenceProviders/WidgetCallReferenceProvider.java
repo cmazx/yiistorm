@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
+import com.yiistorm.elements.ConfigParser;
 import com.yiistorm.helpers.CommonHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,12 @@ public class WidgetCallReferenceProvider {
             String protectedPath = CommonHelper.searchCurrentProtected(inProtectedPath);
             String widgetPath = element.getText().replace("'", "");
             String widgetFilePath = "";
-            if (widgetPath.matches("^components.+")) {
+            String alias = ConfigParser.checkAlias(widgetPath);
+            if (!alias.isEmpty()) {
+                widgetPath = widgetPath.replaceFirst(".+?\\.", "");
+                widgetFilePath = alias + "/" + widgetPath.replace(".", "/") + ".php";
+                widgetFilePath = widgetFilePath.replace("\\", "/");
+            } else if (widgetPath.matches("^components.+")) {
                 widgetFilePath = protectedPath + "/" + widgetPath.replace(".", "/") + ".php";
             } else if (widgetPath.matches("^ext\\..+")) {
                 widgetFilePath = (protectedPath + "/" + widgetPath.replace(".", "/")).replace("/ext/", "/extensions/") + ".php";

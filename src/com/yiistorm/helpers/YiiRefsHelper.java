@@ -1,6 +1,8 @@
 package com.yiistorm.helpers;
 
+import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.YiiPsiReferenceProvider;
 
@@ -77,6 +79,16 @@ public class YiiRefsHelper {
         }
 
         return YII_TYPE_UNKNOWN;
+    }
+
+    public static boolean isYiiApplication(PsiElement el) {
+
+        //System.err.println(el.getText().toString());
+        return PlatformPatterns
+                .psiElement(PhpElementTypes.EXPRESSION)
+                        // .withParent(PlatformPatterns
+                        //         .psiElement(PhpElementTypes.METHOD_REFERENCE) )
+                .accepts(el);
     }
 
     public static boolean isExtendCActiveRecord(PsiElement el) {

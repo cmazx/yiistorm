@@ -43,6 +43,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
+        <psi.referenceContributor implementation="com.yiistorm.YiiApplicationReferenceContributor"/>
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"></projectConfigurable>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"

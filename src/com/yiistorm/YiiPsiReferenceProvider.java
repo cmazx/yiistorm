@@ -34,6 +34,10 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
         project = element.getProject();
         String elname = element.getClass().getName();
         properties = PropertiesComponent.getInstance(project);
+        boolean ProviderType2 = YiiRefsHelper.isYiiApplication(element);
+        if (ProviderType2) {
+            ProviderType2 = ProviderType2;
+        }
         if (elname.endsWith("StringLiteralExpressionImpl")) {
 
             try {
