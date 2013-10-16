@@ -1,4 +1,4 @@
-package com.magicento.helpers;
+package com.yiistorm.helpers;
 
 import com.intellij.ide.util.gotoByName.GotoClassModel2;
 import com.intellij.openapi.project.Project;

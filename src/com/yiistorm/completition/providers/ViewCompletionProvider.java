@@ -7,13 +7,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.elements.Lookups.ExistFileLookupElement;
 import com.yiistorm.elements.Lookups.FolderLookupElement;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.CompleterHelper;
+import com.yiistorm.helpers.PsiPhpHelper;
 import com.yiistorm.helpers.PsiPhpTypeHelper;
 import org.jetbrains.annotations.NotNull;
 

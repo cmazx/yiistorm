@@ -1,11 +1,11 @@
-package com.magicento.actions;
+package com.yiistorm.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
 /**
  * @author Enrique Piatti
  */
-public interface IMagicentoAction {
+public interface IAction {
 
     Boolean isApplicable(AnActionEvent e);
 

@@ -12,7 +12,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.magicento.helpers.IdeHelper;
+import com.yiistorm.helpers.IdeHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

@@ -5,10 +5,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
+import com.yiistorm.helpers.PsiPhpHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

@@ -10,7 +10,6 @@ import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.completition.providers.ViewCompletionProvider;
 
 import java.lang.reflect.Method;
@@ -248,6 +247,21 @@ public class CommonHelper {
                     new OpenFileDescriptor(project, virtualFile, navOffset).navigate(true);
                 }
             }
+        }
+        return null;
+    }
+
+    public static boolean testRegex(String regex, String test) {
+        Pattern myPattern = Pattern.compile(regex);
+        Matcher myMatcher = myPattern.matcher(test);
+        return myMatcher.find();
+    }
+
+    public static String extractFirstCaptureRegex(String regex, String text) {
+        Pattern myPattern = Pattern.compile(regex);
+        Matcher myMatcher = myPattern.matcher(text);
+        if (myMatcher.find()) {
+            return myMatcher.group(1);
         }
         return null;
     }

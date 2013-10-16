@@ -1,7 +1,6 @@
 package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;

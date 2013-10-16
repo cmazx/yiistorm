@@ -1,7 +1,6 @@
 package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
-import com.magicento.helpers.PsiPhpHelper;
 
 /**
  * Created with IntelliJ IDEA.
