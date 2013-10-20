@@ -54,14 +54,11 @@ public class CommonHelper {
 
     public static TextRange getTextRange(PsiElement element, String str) {
         Class elementClass = element.getClass();
-        Method method = null;
+
         try {
-            method = elementClass.getMethod("getValueRange");
-            Object obj = null;
-            obj = method.invoke(element);
-            TextRange textRange = (TextRange) obj;
-            String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
-            return textRange;
+            Method method = elementClass.getMethod("getValueRange");
+            Object obj = method.invoke(element);
+            return (TextRange) obj;
         } catch (Exception e) {
             return null;
         }
@@ -72,19 +69,21 @@ public class CommonHelper {
 
         VirtualFile vFile = originalFile.getOriginalFile().getVirtualFile();
         if (vFile != null) {
-            String path = vFile.getCanonicalPath();
-            String basePath = originalFile.getProject().getBasePath().replace("\\", "/");
-            if (basePath != null && path != null) {
-                String relativePath = path.replaceAll("(?im)/[^/]+?Controller\\.php$", "");
-                String controllerViewsParent = relativePath.replaceAll("(?im)controllers(/.+)*$", "");
-                //IF absoluteLink from modules
-                if (linkType == ViewCompletionProvider.ABSOLUTE_LINK && relativePath.contains("modules")) {
-                    controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
-                }
+            String projectBasePath = originalFile.getProject().getBasePath();
+            if (projectBasePath != null) {
+                String path = vFile.getCanonicalPath();
+                String basePath = projectBasePath.replace("\\", "/");
+                if (basePath != null && path != null) {
+                    String relativePath = path.replaceAll("(?im)/[^/]+?Controller\\.php$", "");
+                    String controllerViewsParent = relativePath.replaceAll("(?im)controllers(/.+)*$", "");
+                    //IF absoluteLink from modules
+                    if (linkType == ViewCompletionProvider.ABSOLUTE_LINK && relativePath.contains("modules")) {
+                        controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
+                    }
 
-                String controllerSubCat = relativePath.replaceAll("(?im).+controllers(/)*", "");
-                String viewsPath = controllerViewsParent + "views/" + controllerSubCat;
-                return viewsPath;
+                    String controllerSubCat = relativePath.replaceAll("(?im).+controllers(/)*", "");
+                    return controllerViewsParent + "views/" + controllerSubCat;
+                }
             }
         }
         return null;
@@ -148,7 +147,7 @@ public class CommonHelper {
             Matcher m = pattern.matcher(str);
             m.matches();
             m.groupCount();
-            return m.group(groupNumber).toString();
+            return m.group(groupNumber);
         } catch (Exception e) {
             return null;
         }
@@ -213,7 +212,6 @@ public class CommonHelper {
     }
 
     public static ArrayList<String> searchClasses(String regex, Project project) {
-        List<PsiElement> psiElements = new ArrayList<PsiElement>();
         GotoClassModel2 model = new GotoClassModel2(project);
         Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         ArrayList classesNamesFounded = new ArrayList<String>();
@@ -228,23 +226,22 @@ public class CommonHelper {
     }
 
     public static PsiElement getFileByClass(String actionClass, Project project) {
-        if (actionClass == null) {
-            return null;
-        }
-        List<PsiElement> elements = PsiPhpHelper.getPsiElementsFromClassName(actionClass, project);
-        if (elements.size() > 0) {
-            PsiElement element = elements.get(0);
-            PsiElement navElement = element.getNavigationElement();
-            navElement = TargetElementUtilBase.getInstance().getGotoDeclarationTarget(element, navElement);
-            if (navElement instanceof Navigatable) {
-                if (((Navigatable) navElement).canNavigate()) {
-                    ((Navigatable) navElement).navigate(true);
-                }
-            } else if (navElement != null) {
-                int navOffset = navElement.getTextOffset();
-                VirtualFile virtualFile = PsiUtilCore.getVirtualFile(navElement);
-                if (virtualFile != null) {
-                    new OpenFileDescriptor(project, virtualFile, navOffset).navigate(true);
+        if (actionClass != null) {
+            List<PsiElement> elements = PsiPhpHelper.getPsiElementsFromClassName(actionClass, project);
+            if (elements.size() > 0) {
+                PsiElement element = elements.get(0);
+                PsiElement navElement = element.getNavigationElement();
+                navElement = TargetElementUtilBase.getInstance().getGotoDeclarationTarget(element, navElement);
+                if (navElement instanceof Navigatable) {
+                    if (((Navigatable) navElement).canNavigate()) {
+                        ((Navigatable) navElement).navigate(true);
+                    }
+                } else if (navElement != null) {
+                    int navOffset = navElement.getTextOffset();
+                    VirtualFile virtualFile = PsiUtilCore.getVirtualFile(navElement);
+                    if (virtualFile != null) {
+                        new OpenFileDescriptor(project, virtualFile, navOffset).navigate(true);
+                    }
                 }
             }
         }

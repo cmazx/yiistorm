@@ -56,9 +56,8 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                         PsiElement[] keyValueList = el.getChildren();
                         if (keyValueList.length == 2) {
                             String keyText = "";
-                            String valueType = "";
+                            String valueType;
                             for (PsiElement keyValueEl : keyValueList) {
-
 
                                 valueType = "";
                                 PhpPsiElement kv = (PhpPsiElement) keyValueEl;
@@ -71,11 +70,8 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                     for (PsiElement psiElement : kv.getChildren()) {
                                         valueType = PsiPhpTypeHelper.detectType(psiElement);
                                     }
-
                                     //Standartize some types
-
-
-                                    if (keyText != null && valueType != "") {
+                                    if (keyText != null && !valueType.equals("")) {
 
                                         names.add(valueType + " $" + keyText);
                                     }
@@ -111,7 +107,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         if (originalFile != null) {
 
             String controllerName = getControllerName(psiContainingFile);
-            String path = "";
+            String path;
             String resultAppend = ""; // prefix part for results
             if (!controllerName.isEmpty()) {   //from controller
                 path = CommonHelper.getViewsPathFromControllerFile(psiContainingFile, linkType);
@@ -209,15 +205,13 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
 
     private String getControllerName(PsiFile file) {
         VirtualFile originalFile = file.getOriginalFile().getVirtualFile();
-        String s = CommonHelper.detectPathFileType(originalFile.getPath());
-        if (s.equals("controller")) {
-            return CommonHelper.getControllerName(originalFile.getName());
-        } else if (s.equals("view")) {
-            return "";
-
-        } else {
-            return "";
+        if (originalFile != null) {
+            String s = CommonHelper.detectPathFileType(originalFile.getPath());
+            if (s.equals("controller")) {
+                return CommonHelper.getControllerName(originalFile.getName());
+            }
         }
+        return "";
     }
 
     private static int _getLinkType(String path) {

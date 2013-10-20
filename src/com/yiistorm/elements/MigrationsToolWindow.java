@@ -18,6 +18,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.yiistorm.forms.NewMigrationForm;
 import com.yiistorm.helpers.CommonHelper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -76,7 +77,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     public String runCommand(String migrateCommand) {
         try {
 
-            Process p = null;
+            Process p;
             String prependPath = CommonHelper.getCommandPrepend();
 
 
@@ -109,7 +110,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
 
     public void updateNewMigrations(boolean writeLog) {  //yiic migrate new
-        String text = "";
+        String text;
         if (yiiFile == null) {
             text = "Please select path to yiic in YiiStorm config.";
         } else {
@@ -198,7 +199,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                 return DumbModeAction.CANCEL;
             }
 
-            public void run(final ProgressIndicator indicator) {
+            public void run(@NotNull final ProgressIndicator indicator) {
                 final Task.Backgroundable this_task = this;
                 ((ProgressIndicatorEx) indicator).addStateDelegate(new ProgressIndicatorBase() {
                     @Override

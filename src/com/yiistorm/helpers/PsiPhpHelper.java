@@ -59,7 +59,7 @@ public class PsiPhpHelper {
     public static boolean isElementType(PsiElement psiElement, String[] types) {
         if (psiElement != null && types != null) {
             String elementType = getElementType(psiElement);
-            if (elementType != null && !elementType.isEmpty()) {
+            if (!elementType.isEmpty()) {
                 for (String type : types) {
                     if (elementType.equals(type))
                         return true;
@@ -160,7 +160,7 @@ public class PsiPhpHelper {
 
     public static boolean hasChainedMethod(PsiElement psiElement) {
         PsiElement[] children = psiElement.getChildren();
-        if (children != null && children.length > 0) {
+        if (children.length > 0) {
             PsiElement child = children[0];
             while (child != null) {
                 if (isArrow(child))
@@ -178,7 +178,7 @@ public class PsiPhpHelper {
     public static String getMethodName(PsiElement psiMethodReference) {
         if (isMethodRefence(psiMethodReference)) {
             PsiElement[] children = psiMethodReference.getChildren();
-            if (children != null && children.length > 0) {
+            if (children.length > 0) {
 
                 // This fails because getChildren is not returning all the children !! why???
                 for (PsiElement child : children) {
@@ -196,7 +196,7 @@ public class PsiPhpHelper {
                     if (prevSiblingWasArrow && isIdentifier(child)) {
                         // and the next element is a parenthesis (this bypass properties)
                         PsiElement nextSibling = child.getNextSibling();
-                        if (nextSibling.getText().equals("(")) {
+                        if (nextSibling != null && nextSibling.getText().equals("(")) {
                             return child.getText();
                         }
                     } else {
@@ -229,7 +229,7 @@ public class PsiPhpHelper {
             childMethodReference = PsiPhpHelper.findFirstChildOfType(childMethodReference, METHOD_REFERENCE);
         }
 
-        if (methods != null) {
+        if (methods.size() > 0) {
             Collections.reverse(methods);
         }
 
@@ -503,9 +503,7 @@ public class PsiPhpHelper {
 
     public static boolean isExtendsSuperclass(PsiElement child, String superclass) {
         String name = getClassIdentifierName(child).toString();
-        if (name == null) {
-            return false;
-        }
+
         if (name.replace("\\", "").equals(superclass)) {
             return true;
         }
@@ -516,11 +514,10 @@ public class PsiPhpHelper {
                 return true;
             }
             List<PsiElement> classes = getPsiElementsFromClassName(parent.replaceAll("^\\\\", ""), child.getProject());
-            if (classes != null) {
-                if (classes.size() > 0) {
-                    for (PsiElement parentClass : classes) {
-                        return isExtendsSuperclass(parentClass, superclass);
-                    }
+
+            if (classes.size() > 0) {
+                for (PsiElement parentClass : classes) {
+                    return isExtendsSuperclass(parentClass, superclass);
                 }
             }
         }
@@ -682,7 +679,7 @@ public class PsiPhpHelper {
 
     public static String getParameterName(@NotNull PsiElement parameter) {
         List<PsiElement> parameterChildren = PsiPhpHelper.getFullListOfChildren(parameter); // parameter.getChildren();
-        if (parameterChildren != null) {
+        if (parameterChildren.size() > 0) {
             for (PsiElement child : parameterChildren) {
                 if (isElementType(child, VARIABLE)) {
                     return child.getText();

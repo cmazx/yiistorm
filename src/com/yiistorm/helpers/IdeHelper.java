@@ -32,7 +32,7 @@ public class IdeHelper {
     public static final String INTELLIJ_IDEA_RULEZZZ = "IntellijIdeaRulezzz ";
 
     public static void showDialog(final Project project, final String message, final String title, final Icon icon) {
-        final Throwable[] exception = {null};
+
         UIUtil.invokeAndWaitIfNeeded(new Runnable() {
             @Override
             public void run() {
@@ -51,7 +51,6 @@ public class IdeHelper {
     }
 
     public static void logError(String message) {
-        message += " (if you think this is a bug please send the trace to issues@magicento.com)";
         Logger.getInstance("").error(message);
     }
 
@@ -103,7 +102,7 @@ public class IdeHelper {
 
     public static void showNotification(String message, NotificationType type, @Nullable Project project) {
         final MessageBus messageBus = project == null ? ApplicationManager.getApplication().getMessageBus() : project.getMessageBus();
-        final Notification notification = new Notification("Magicento Notification", "Magicento Notification", message, type, null);
+        final Notification notification = new Notification("Notification", "Notification", message, type, null);
 
         ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
             @Override

@@ -37,19 +37,21 @@ public class ViewRenderViewReferenceProvider {
             }
 
             VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-            VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
-            VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
+            if (baseDir != null) {
+                VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
+                VirtualFile protectedPathDir = (!protectedPath.equals("")) ? baseDir.findFileByRelativePath(protectedPath) : null;
 
-            String filepath = viewPath + "//" + uri;
-            if (uri.matches("^//.+")) {
-                filepath = viewAbsolutePath + "/" + uri.replace("//", "");
-            }
-            VirtualFile file = baseDir.findFileByRelativePath(filepath);
+                String filepath = viewPath + "//" + uri;
+                if (uri.matches("^//.+")) {
+                    filepath = viewAbsolutePath + "/" + uri.replace("//", "");
+                }
+                VirtualFile file = baseDir.findFileByRelativePath(filepath);
 
-            if (file != null && appDir != null) {
-                PsiReference ref = new FileReference(file, uri, element,
-                        new TextRange(start, start + len), YiiPsiReferenceProvider.project, protectedPathDir, appDir);
-                return new PsiReference[]{ref};
+                if (file != null && appDir != null) {
+                    PsiReference ref = new FileReference(file, uri, element,
+                            new TextRange(start, start + len), YiiPsiReferenceProvider.project, protectedPathDir, appDir);
+                    return new PsiReference[]{ref};
+                }
             }
             return PsiReference.EMPTY_ARRAY;
 

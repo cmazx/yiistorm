@@ -30,12 +30,8 @@ public class Yiic {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String line = reader.readLine();
                 while (line != null) {
-
                     if (line.contains("Yii command runner")) {
                         return true;
-                    }
-                    if (line == null) {
-                        return false;
                     }
                     line = reader.readLine();
                 }

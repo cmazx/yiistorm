@@ -8,7 +8,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +40,7 @@ public class NewFileLookupElement extends LookupElement {
         this.translatingParams = params;
     }
 
-    public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
+    public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.insertHandler = insertHandler;
@@ -62,15 +61,6 @@ public class NewFileLookupElement extends LookupElement {
     public void handleInsert(InsertionContext context) {
         File f = new File(filePath + fileName + ".php");
 
-        try {
-            boolean newFile = f.createNewFile();
-        } catch (IOException e) {
-            return;
-        }
-
-
-        PsiFileFactory pf = PsiFileFactory.getInstance(project);
-        String text = "";
         if (this.translatingParams.size() > 0) {
             this.writeNewFileHeader(f);
         }
@@ -104,7 +94,7 @@ public class NewFileLookupElement extends LookupElement {
     }
 
     private void writeNewFileHeader(File f) {
-        BufferedWriter output = null;
+        BufferedWriter output;
         try {
             output = new BufferedWriter(new FileWriter(f));
             String text = "<?php\n/**\n *\n";

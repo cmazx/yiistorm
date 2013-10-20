@@ -43,10 +43,12 @@ public class ConfigForm extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 VirtualFile baseDir = currentAction.getProject().getBaseDir();
-                fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
-                int ret = fileChooser.showDialog(null, "Открыть файл");
-                if (ret == JFileChooser.APPROVE_OPTION) {
-                    yiicFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                if (baseDir != null) {
+                    fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
+                    int ret = fileChooser.showDialog(null, "Открыть файл");
+                    if (ret == JFileChooser.APPROVE_OPTION) {
+                        yiicFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                    }
                 }
             }
         });

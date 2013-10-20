@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ViewsReference implements PsiReference {
@@ -49,7 +50,7 @@ public class ViewsReference implements PsiReference {
         throw new IncorrectOperationException();
     }
 
-    public PsiElement bindToElement(PsiElement element) throws IncorrectOperationException {
+    public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
         // TODO: Implement this method
         throw new IncorrectOperationException();
     }
@@ -58,6 +59,7 @@ public class ViewsReference implements PsiReference {
         return resolve() == element;
     }
 
+    @NotNull
     public Object[] getVariants() {
         // TODO: Implement this method
         return new Object[0];
@@ -70,7 +72,6 @@ public class ViewsReference implements PsiReference {
 
     @Nullable
     public PsiElement resolve() {
-        String uri = path;
         String dir = "views/";
         Project project = element.getProject();
         VirtualFile targetFile;
@@ -90,6 +91,7 @@ public class ViewsReference implements PsiReference {
         return null;
     }
 
+    @NotNull
     @Override
     public String getCanonicalText() {
         return path;

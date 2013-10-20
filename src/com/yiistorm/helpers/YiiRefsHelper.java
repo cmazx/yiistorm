@@ -86,6 +86,7 @@ public class YiiRefsHelper {
                 return true;
             }
         } catch (Exception ex) {
+            //
         }
         return false;
     }
@@ -102,6 +103,7 @@ public class YiiRefsHelper {
                 }
             }
         } catch (Exception ex) {
+            //
         }
         return false;
     }

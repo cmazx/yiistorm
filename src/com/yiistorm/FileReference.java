@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FileReference implements PsiReference {
@@ -43,15 +44,13 @@ public class FileReference implements PsiReference {
     }
 
 
-
-
     public PsiElement handleElementRename(String newElementName)
             throws IncorrectOperationException {
         // TODO: Implement this method
         throw new IncorrectOperationException();
     }
 
-    public PsiElement bindToElement(PsiElement element) throws IncorrectOperationException {
+    public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
         // TODO: Implement this method
         throw new IncorrectOperationException();
     }
@@ -60,6 +59,7 @@ public class FileReference implements PsiReference {
         return resolve() == element;
     }
 
+    @NotNull
     public Object[] getVariants() {
         // TODO: Implement this method
         return new Object[0];
@@ -73,12 +73,13 @@ public class FileReference implements PsiReference {
     @Nullable
     public PsiElement resolve() {
         Project project = element.getProject();
-        if(this.virtualFile !=null){
+        if (this.virtualFile != null) {
             return PsiManager.getInstance(project).findFile(virtualFile);
         }
         return null;
     }
 
+    @NotNull
     @Override
     public String getCanonicalText() {
         return path;

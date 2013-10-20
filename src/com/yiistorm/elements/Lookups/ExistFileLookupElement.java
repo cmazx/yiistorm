@@ -32,7 +32,7 @@ public class ExistFileLookupElement extends LookupElement {
         }
     }
 
-    public ExistFileLookupElement(String title, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
+    public ExistFileLookupElement(String title, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
         if (title.startsWith("//")) {
             prependSlashes = "//";
             this.title = title.replace("//", "");
