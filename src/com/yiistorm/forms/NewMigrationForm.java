@@ -26,7 +26,7 @@ public class NewMigrationForm extends JDialog {
         setModal(true);
         setBounds(500, 500, 300, 300);
         getRootPane().setDefaultButton(buttonOK);
-        final JDialog dialog = this;
+
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 migrationName.setBackground(Color.WHITE);

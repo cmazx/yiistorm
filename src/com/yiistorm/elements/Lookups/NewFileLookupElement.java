@@ -8,7 +8,6 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,13 +40,6 @@ public class NewFileLookupElement extends LookupElement {
         this.translatingParams = params;
     }
 
-    public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.insertHandler = insertHandler;
-        this.psiElement = psiElement;
-    }
-
     @NotNull
     @Override
     public String getLookupString() {
@@ -62,15 +54,6 @@ public class NewFileLookupElement extends LookupElement {
     public void handleInsert(InsertionContext context) {
         File f = new File(filePath + fileName + ".php");
 
-        try {
-            boolean newFile = f.createNewFile();
-        } catch (IOException e) {
-            return;
-        }
-
-
-        PsiFileFactory pf = PsiFileFactory.getInstance(project);
-        String text = "";
         if (this.translatingParams.size() > 0) {
             this.writeNewFileHeader(f);
         }
@@ -104,7 +87,7 @@ public class NewFileLookupElement extends LookupElement {
     }
 
     private void writeNewFileHeader(File f) {
-        BufferedWriter output = null;
+        BufferedWriter output;
         try {
             output = new BufferedWriter(new FileWriter(f));
             String text = "<?php\n/**\n *\n";
@@ -115,14 +98,15 @@ public class NewFileLookupElement extends LookupElement {
             output.write(text);
             output.close();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.out.println("View file create failed");
         }
     }
 
     public void renderElement(LookupElementPresentation presentation) {
         presentation.setItemText(getLookupString());
         presentation.setIcon(PlatformIcons.ADD_ICON);
-        presentation.setTypeText("create new view");
+        presentation.setTypeText("create view file");
+        presentation.setTailText(".php");
         presentation.setTypeGrayed(false);
     }
 

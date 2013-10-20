@@ -2,6 +2,7 @@ package com.yiistorm;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
@@ -42,24 +43,30 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
 
             try {
                 PsiFile file = element.getContainingFile();
-                String path = file.getVirtualFile().getPath();
-                projectPath = project.getBasePath().replace("\\", "/");
-                int ProviderType = YiiRefsHelper.getYiiObjectType(path, element);
-                switch (ProviderType) {
-                    case YiiRefsHelper.YII_TYPE_CONTROLLER_TO_VIEW_RENDER:
-                        return ControllerRenderViewReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_AR_RELATION:
-                        return ARRelationReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_VIEW_TO_VIEW_RENDER:
-                        return ViewRenderViewReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_WIDGET_CALL:
-                        return WidgetCallReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_CACTION_TO_VIEW_RENDER:
-                        return CActionRenderViewReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_WIDGET_VIEW_RENDER:
-                        return WidgetRenderViewReferenceProvider.getReference(path, element);
-                    case YiiRefsHelper.YII_TYPE_CONTROLLER_ACTIONS_CACTION:
-                        return ControlleActionsClassReferenceProvider.getReference(path, element);
+                VirtualFile vfile = file.getVirtualFile();
+                if (vfile != null) {
+                    String path = vfile.getPath();
+                    String basePath = project.getBasePath();
+                    if (basePath != null) {
+                        projectPath = basePath.replace("\\", "/");
+                        int ProviderType = YiiRefsHelper.getYiiObjectType(path, element);
+                        switch (ProviderType) {
+                            case YiiRefsHelper.YII_TYPE_CONTROLLER_TO_VIEW_RENDER:
+                                return ControllerRenderViewReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_AR_RELATION:
+                                return ARRelationReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_VIEW_TO_VIEW_RENDER:
+                                return ViewRenderViewReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_WIDGET_CALL:
+                                return WidgetCallReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_CACTION_TO_VIEW_RENDER:
+                                return CActionRenderViewReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_WIDGET_VIEW_RENDER:
+                                return WidgetRenderViewReferenceProvider.getReference(path, element);
+                            case YiiRefsHelper.YII_TYPE_CONTROLLER_ACTIONS_CACTION:
+                                return ControlleActionsClassReferenceProvider.getReference(path, element);
+                        }
+                    }
                 }
             } catch (Exception e) {
                 //System.err.println("error" + e.getMessage());

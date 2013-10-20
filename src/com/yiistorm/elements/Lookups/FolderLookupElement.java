@@ -23,7 +23,7 @@ public class FolderLookupElement extends LookupElement {
         this.title = title;
     }
 
-    public FolderLookupElement(String title, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
+    public FolderLookupElement(String title, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
         this.title = title;
         this.insertHandler = insertHandler;
         this.psiElement = psiElement;

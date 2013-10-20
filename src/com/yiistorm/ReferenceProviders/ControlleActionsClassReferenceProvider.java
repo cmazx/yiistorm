@@ -19,35 +19,35 @@ import org.jetbrains.annotations.NotNull;
 public class ControlleActionsClassReferenceProvider {
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {
-            String themeName = YiiPsiReferenceProvider.properties.getValue("themeName");
-            Class elementClass = element.getClass();
+
             String protectedPath = CommonHelper.searchCurrentProtected(path).replace(YiiPsiReferenceProvider.projectPath, "");
-            path = path.replace(YiiPsiReferenceProvider.projectPath, "");
-            String str = element.getText();
-            TextRange textRange = CommonHelper.getTextRange(element, str);
-            String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
-            int start = textRange.getStartOffset();
-            int len = textRange.getLength();
-
             VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-            VirtualFile protectedVirtual = baseDir.findFileByRelativePath(protectedPath);
-            VirtualFile appDir = baseDir.findFileByRelativePath(path);
-            if (uri.matches("^application.+")) {
-                uri = uri.replace("application.", "").replace(".", "/");
-            }
+            if (protectedPath != null && baseDir != null) {
+                path = path.replace(YiiPsiReferenceProvider.projectPath, "");
+                String str = element.getText();
+                TextRange textRange = CommonHelper.getTextRange(element, str);
+                String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
 
-            VirtualFile file = protectedVirtual.findFileByRelativePath(uri + ".php");
+                VirtualFile protectedVirtual = baseDir.findFileByRelativePath(protectedPath);
+                VirtualFile appDir = baseDir.findFileByRelativePath(path);
+                if (uri.matches("^application.+")) {
+                    uri = uri.replace("application.", "").replace(".", "/");
+                }
+                if (protectedVirtual != null) {
+                    VirtualFile file = protectedVirtual.findFileByRelativePath(uri + ".php");
 
-            if (file == null) {
-                file = protectedVirtual.findFileByRelativePath("components/" + uri + ".php");
-            }
+                    if (file == null) {
+                        file = protectedVirtual.findFileByRelativePath("components/" + uri + ".php");
+                    }
 
-            if (file != null) {
+                    if (file != null) {
 
-                if (appDir != null) {
-                    PsiReference ref = new FileReference(file, uri, element,
-                            textRange, YiiPsiReferenceProvider.project, protectedVirtual, appDir);
-                    return new PsiReference[]{ref};
+                        if (appDir != null) {
+                            PsiReference ref = new FileReference(file, uri, element,
+                                    textRange, YiiPsiReferenceProvider.project, protectedVirtual, appDir);
+                            return new PsiReference[]{ref};
+                        }
+                    }
                 }
             }
             return PsiReference.EMPTY_ARRAY;

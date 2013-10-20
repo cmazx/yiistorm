@@ -46,21 +46,19 @@ public class ControllerRenderViewReferenceProvider {
 
             if (controllerName != null) {
                 VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-                String inThemeFullPath = viewPathTheme + controllerName + "/" + uri + (uri.endsWith(".tpl") ? "" : ".php");
-                if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {
-                    viewPath = viewPathTheme;
-                }
-                VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
-                /*if (uri.matches("^/.+") && viewPath.matches(".+modules.+")) {
-                    viewPath = CommonHelper.searchModulePath(viewPath)+"/views/";
-                    appDir = baseDir.findFileByRelativePath(viewPath);
-                }    */
-
-                VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
-                if (appDir != null) {
-                    PsiReference ref = new ViewsReference(controllerName, uri, element,
-                            new TextRange(start, start + len), YiiPsiReferenceProvider.project, protectedPathDir, appDir);
-                    return new PsiReference[]{ref};
+                if (baseDir != null) {
+                    String inThemeFullPath = viewPathTheme + controllerName + "/" + uri + (uri.endsWith(".tpl") ? "" : ".php");
+                    if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {
+                        viewPath = viewPathTheme;
+                    }
+                    VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
+                    VirtualFile protectedPathDir = (!protectedPath.equals("")) ?
+                            baseDir.findFileByRelativePath(protectedPath) : null;
+                    if (appDir != null) {
+                        PsiReference ref = new ViewsReference(controllerName, uri, element,
+                                new TextRange(start, start + len), YiiPsiReferenceProvider.project, protectedPathDir, appDir);
+                        return new PsiReference[]{ref};
+                    }
                 }
                 return PsiReference.EMPTY_ARRAY;
             }

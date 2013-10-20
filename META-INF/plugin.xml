@@ -14,37 +14,23 @@
         <li>Controller::render() views autocreator with variables phpdoc.</li>
         </ul>
     ]]></description>
-    <version>0.9.4b</version>
-    <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
+    <version>0.9.5b</version>
+    <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
     <idea-version since-build="8000"/>
 
-    <application-components>
-        <!-- Add your application components here -->
-    </application-components>
-
     <project-components>
-        <!-- Add your project components here -->
         <component>
             <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>
         </component>
     </project-components>
 
-    <actions>
-        <!-- Add your actions here -->
-        <!--action id="YiiStormConfigAction" class="com.yiistorm.actions.YiiStormConfigAction" text="YiiStorm config"
-                description="YiiStorm config">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="alt Y"/>
-        </action-->
-    </actions>
 
     <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
-        <psi.referenceContributor implementation="com.yiistorm.YiiApplicationReferenceContributor"/>
-        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"></projectConfigurable>
+        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"/>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"
                     factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>

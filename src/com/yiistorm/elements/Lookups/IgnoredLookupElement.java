@@ -22,7 +22,7 @@ public class IgnoredLookupElement extends LookupElement {
         this.title = title;
     }
 
-    public IgnoredLookupElement(String title, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
+    public IgnoredLookupElement(String title, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
         this.title = title;
         this.insertHandler = insertHandler;
         this.psiElement = psiElement;

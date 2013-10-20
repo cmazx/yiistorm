@@ -2,8 +2,6 @@ package com.yiistorm.helpers;
 
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
-import com.jetbrains.php.lang.parser.PhpElementTypes;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
@@ -99,6 +97,7 @@ public class YiiRefsHelper {
                 return true;
             }
         } catch (Exception ex) {
+            //
         }
         return false;
     }
@@ -115,6 +114,7 @@ public class YiiRefsHelper {
                 }
             }
         } catch (Exception ex) {
+            //
         }
         return false;
     }

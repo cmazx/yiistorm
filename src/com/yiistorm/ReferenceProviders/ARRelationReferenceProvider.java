@@ -6,11 +6,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiUtilCore;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.ExtendedPsiPhpHelper;
+import com.yiistorm.helpers.PsiPhpHelper;
 import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 

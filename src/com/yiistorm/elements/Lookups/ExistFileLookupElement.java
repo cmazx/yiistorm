@@ -5,15 +5,15 @@ import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementPresentation;
 import com.intellij.psi.PsiElement;
-import com.jetbrains.php.PhpIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 
 public class ExistFileLookupElement extends LookupElement {
 
     private String title;
-    private String prependSlashes = "";
     private PsiElement psiElement = null;
 
     @Nullable
@@ -22,30 +22,12 @@ public class ExistFileLookupElement extends LookupElement {
     public ExistFileLookupElement(String title) {
 
         if (title.startsWith("//")) {
-            prependSlashes = "//";
             this.title = title.replace("//", "");
         } else if (title.startsWith("/")) {
-            prependSlashes = "/";
             this.title = title.replaceAll("(?im)^/", "");
         } else {
             this.title = title;
         }
-    }
-
-    public ExistFileLookupElement(String title, String filePath, PsiElement psiElement, InsertHandler<LookupElement> insertHandler) {
-        if (title.startsWith("//")) {
-            prependSlashes = "//";
-            this.title = title.replace("//", "");
-        } else if (title.startsWith("/")) {
-            prependSlashes = "/";
-            this.title = title.replaceAll("(?im)^/", "");
-        } else {
-            this.title = title;
-        }
-
-
-        this.insertHandler = insertHandler;
-        this.psiElement = psiElement;
     }
 
     @NotNull
@@ -67,7 +49,8 @@ public class ExistFileLookupElement extends LookupElement {
 
     public void renderElement(LookupElementPresentation presentation) {
         presentation.setItemText(title);
-        presentation.setIcon(PhpIcons.PHP_FILE);
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("/com/yiistorm/images/yii.png"));
+        presentation.setIcon(icon);
         presentation.setTypeText("view file");
         presentation.setTypeGrayed(false);
     }

@@ -5,10 +5,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
-import com.magicento.helpers.PsiPhpHelper;
 import com.yiistorm.FileReference;
 import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
+import com.yiistorm.helpers.PsiPhpHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,23 +42,28 @@ public class CActionRenderViewReferenceProvider {
                     PsiElement controllerPsi = getControllersUsingAction(actionName);
                     String controllerName = PsiPhpHelper.getClassIdentifierName(controllerPsi);
                     VirtualFile controllerFile = controllerPsi.getNavigationElement().getContainingFile().getVirtualFile();
-                    String controllerPath = controllerFile.getPath();
-                    if (elementName.matches("^/.+")) {
-                        String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
-                                "/views/" + elementName.replace("//", "") + ".php");
-                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
-                        file = baseDir.findFileByRelativePath(viewPath);
-                    } else if (elementName.matches("^//.+")) {
-                        String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
-                                "/views/" + elementName.replace("//", "") + ".php");
-                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
-                        file = baseDir.findFileByRelativePath(viewPath);
-                    } else {
-                        String viewPath = controllerPath.replaceAll("/[a-zA-Z0-9_]+?.php",
-                                "/" + controllerName.replace("Controller", "") + "/" + elementName + ".php");
-                        viewPath = viewPath.replace("/controllers/", "/views/");
-                        viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
-                        file = baseDir.findFileByRelativePath(viewPath);
+                    if (controllerFile != null && baseDir != null) {
+                        String controllerPath = controllerFile.getPath();
+
+                        if (controllerPath != null) {
+                            if (elementName.matches("^/.+")) {
+                                String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
+                                        "/views/" + elementName.replace("//", "") + ".php");
+                                viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                                file = baseDir.findFileByRelativePath(viewPath);
+                            } else if (elementName.matches("^//.+")) {
+                                String viewPath = controllerPath.replaceAll("/controllers/[a-zA-Z0-9_]+?.php",
+                                        "/views/" + elementName.replace("//", "") + ".php");
+                                viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                                file = baseDir.findFileByRelativePath(viewPath);
+                            } else {
+                                String viewPath = controllerPath.replaceAll("/[a-zA-Z0-9_]+?.php",
+                                        "/" + controllerName.replace("Controller", "") + "/" + elementName + ".php");
+                                viewPath = viewPath.replace("/controllers/", "/views/");
+                                viewPath = viewPath.replace(YiiPsiReferenceProvider.projectPath, "");
+                                file = baseDir.findFileByRelativePath(viewPath);
+                            }
+                        }
                     }
 
                     if (file == null) {
@@ -72,8 +77,8 @@ public class CActionRenderViewReferenceProvider {
                     file = cacheFiles.get(cacheKey);
                 }
 
-                if (file != null) {
-                    VirtualFile protectedPathDir = (protectedPath != "") ? baseDir.findFileByRelativePath(protectedPath) : null;
+                if (file != null && baseDir != null) {
+                    VirtualFile protectedPathDir = (!protectedPath.equals("")) ? baseDir.findFileByRelativePath(protectedPath) : null;
                     String str = element.getText();
                     TextRange textRange = CommonHelper.getTextRange(element, str);
                     String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
@@ -112,7 +117,6 @@ public class CActionRenderViewReferenceProvider {
             List<PsiElement> elements = PsiPhpHelper.getPsiElementsFromClassName(controllerClass, YiiPsiReferenceProvider.project);
             if (elements.size() > 0) {
                 PsiElement controllerClassPsi = elements.get(0);
-                String controllerName = PsiPhpHelper.getClassIdentifierName(controllerClassPsi);
                 List<PsiNamedElement> methods = PsiPhpHelper.getAllMethodsFromClass(controllerClassPsi, false);
                 CONTROLLER_FOR:
                 for (PsiNamedElement controllerMethod : methods) {
@@ -140,7 +144,7 @@ public class CActionRenderViewReferenceProvider {
                                         String ActionArrayChildName = PsiPhpHelper.findFirstChildOfType(ActionArrayChild, "Array key").getText().replace("'", "");
                                         if (ActionArrayChildName.matches("^class$")) {
                                             String ControllerActionClassName = PsiPhpHelper.findFirstChildOfType(ActionArrayChild, "Array value").getText().replace("'", "");
-                                            ControllerActionClassName = ControllerActionClassName;
+
                                             if (ControllerActionClassName.equals(actionClass)) {
                                                 controllersUsingAction.add(controllerClassPsi);
                                                 break CONTROLLER_FOR;
