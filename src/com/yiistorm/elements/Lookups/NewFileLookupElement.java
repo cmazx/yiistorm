@@ -40,12 +40,12 @@ public class NewFileLookupElement extends LookupElement {
         this.translatingParams = params;
     }
 
-    public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
+    /*public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.insertHandler = insertHandler;
         this.psiElement = psiElement;
-    }
+    }  */
 
     @NotNull
     @Override
@@ -105,14 +105,15 @@ public class NewFileLookupElement extends LookupElement {
             output.write(text);
             output.close();
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.out.println("View file create failed");
         }
     }
 
     public void renderElement(LookupElementPresentation presentation) {
         presentation.setItemText(getLookupString());
         presentation.setIcon(PlatformIcons.ADD_ICON);
-        presentation.setTypeText("create new view");
+        presentation.setTypeText("create view file");
+        presentation.setTailText(".php");
         presentation.setTypeGrayed(false);
     }
 

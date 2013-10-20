@@ -44,8 +44,7 @@ public class ViewsReference implements PsiReference {
     }
 
 
-    public PsiElement handleElementRename(String newElementName)
-            throws IncorrectOperationException {
+    public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
         // TODO: Implement this method
         throw new IncorrectOperationException();
     }
@@ -61,7 +60,6 @@ public class ViewsReference implements PsiReference {
 
     @NotNull
     public Object[] getVariants() {
-        // TODO: Implement this method
         return new Object[0];
     }
 
