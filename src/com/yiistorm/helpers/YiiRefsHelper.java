@@ -2,6 +2,7 @@ package com.yiistorm.helpers;
 
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.yiistorm.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
@@ -34,7 +35,7 @@ public class YiiRefsHelper {
                 Matcher regexMatcher = regex.matcher(path);
                 regexMatcher.matches();
                 regexMatcher.groupCount();
-                return regexMatcher.group(1).toString();
+                return regexMatcher.group(1);
             } catch (PatternSyntaxException ex) {
                 // Syntax error in the regular expression
             }
@@ -43,8 +44,8 @@ public class YiiRefsHelper {
     }
 
     /**
-     * @param path
-     * @return
+     * @param path Path
+     * @return int
      */
     public static int getYiiObjectType(String path, PsiElement el) {
 
@@ -265,7 +266,7 @@ public class YiiRefsHelper {
                                     Matcher m = pattern.matcher(className);
                                     m.matches();
                                     m.groupCount();
-                                    return m.group(1).toString();
+                                    return m.group(1);
                                 }
                             } else {
                             /*
