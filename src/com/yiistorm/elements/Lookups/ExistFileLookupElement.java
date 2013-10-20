@@ -30,22 +30,6 @@ public class ExistFileLookupElement extends LookupElement {
         }
     }
 
-    /*public ExistFileLookupElement(String title, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
-        if (title.startsWith("//")) {
-            prependSlashes = "//";
-            this.title = title.replace("//", "");
-        } else if (title.startsWith("/")) {
-            prependSlashes = "/";
-            this.title = title.replaceAll("(?im)^/", "");
-        } else {
-            this.title = title;
-        }
-
-
-        this.insertHandler = insertHandler;
-        this.psiElement = psiElement;
-    }        */
-
     @NotNull
     @Override
     public String getLookupString() {

@@ -40,13 +40,6 @@ public class NewFileLookupElement extends LookupElement {
         this.translatingParams = params;
     }
 
-    /*public NewFileLookupElement(String fileName, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
-        this.fileName = fileName;
-        this.filePath = filePath;
-        this.insertHandler = insertHandler;
-        this.psiElement = psiElement;
-    }  */
-
     @NotNull
     @Override
     public String getLookupString() {
