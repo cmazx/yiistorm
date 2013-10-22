@@ -108,8 +108,22 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
     }
 
+    /**
+     * Update new migrations list
+     *
+     * @param writeLog
+     */
+    public void updateNewMigrations(boolean writeLog) {
+        updateNewMigrations(writeLog, false);
+    }
 
-    public void updateNewMigrations(boolean writeLog) {  //yiic migrate new
+    /**
+     * Update new migrations list
+     *
+     * @param writeLog
+     * @param openFirst
+     */
+    public void updateNewMigrations(boolean writeLog, boolean openFirst) {
         String text;
         if (yiiFile == null) {
             text = "Please select path to yiic in YiiStorm config.";
@@ -122,6 +136,11 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
                 while (regexMatcher.find()) {
                     newMigrationsList.add(regexMatcher.group(1));
+                }
+                if (openFirst) {
+                    if (newMigrationsList.size() > 0) {
+                        MigrationsToolWindow.toolw.openMigrationFile(newMigrationsList.get(newMigrationsList.size() - 1));
+                    }
                 }
             } catch (Exception ex) {
                 // Syntax error in the regular expression
@@ -252,9 +271,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                         indicator.setFraction(0.1);
                         MigrationsToolWindow.toolw.createMigrationByName(newMigrationDialog.getMigrationName());
                         indicator.setFraction(0.3);
-                        MigrationsToolWindow.toolw.updateNewMigrations(false);
-                        ArrayList<String> migrationsList = MigrationsToolWindow.toolw.getMigrationsList();
-                        MigrationsToolWindow.toolw.openMigrationFile(migrationsList.get(migrationsList.size() - 1));
+                        MigrationsToolWindow.toolw.updateNewMigrations(false, true);
                         indicator.setFraction(0.5);
                         indicator.setText("Updating migrations menu");
                         MigrationsToolWindow.toolw.fillActionMenu();

@@ -14,7 +14,7 @@
         <li>Controller::render() views autocreator with variables phpdoc.</li>
         </ul>
     ]]></description>
-    <version>0.9.6b</version>
+    <version>0.9.7b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
     <idea-version since-build="8000"/>
 
