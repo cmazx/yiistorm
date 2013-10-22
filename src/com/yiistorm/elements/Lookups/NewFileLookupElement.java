@@ -22,6 +22,7 @@ import java.util.ArrayList;
 public class NewFileLookupElement extends LookupElement {
 
     private String lookupString;
+    private String insertString;
     private String fileName;
     private String filePath;
     private PsiElement psiElement = null;
@@ -31,9 +32,11 @@ public class NewFileLookupElement extends LookupElement {
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public NewFileLookupElement(String lookupString, String fileName, String filePath, Project project, ArrayList<String> params) {
+    public NewFileLookupElement(String lookupString, String insertString, String fileName, String filePath, Project project,
+                                ArrayList<String> params) {
 
         this.lookupString = lookupString.replaceFirst("^[/]{2}", "");
+        this.insertString = insertString.replaceFirst("^[/]{2}", "");
         this.fileName = fileName;
         this.filePath = filePath;
         this.project = project;
@@ -43,7 +46,7 @@ public class NewFileLookupElement extends LookupElement {
     @NotNull
     @Override
     public String getLookupString() {
-        return lookupString;
+        return insertString;
     }
 
     @NotNull
@@ -103,7 +106,7 @@ public class NewFileLookupElement extends LookupElement {
     }
 
     public void renderElement(LookupElementPresentation presentation) {
-        presentation.setItemText(getLookupString());
+        presentation.setItemText(this.lookupString);
         presentation.setIcon(PlatformIcons.ADD_ICON);
         presentation.setTypeText("create view file");
         presentation.setTailText(".php");

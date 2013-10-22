@@ -184,21 +184,16 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                 }
 
                 if (!identMatch && !searchString.trim().isEmpty()) {
-
-                    NewFileLookupElement n = new NewFileLookupElement(cleanText, searchString, path,
-                            completionParameters.getPosition().getProject(), translatingParams);
+                    NewFileLookupElement n = new NewFileLookupElement(
+                            cleanText,
+                            CommonHelper.getActiveTextPart(completionParameters.getPosition().getText()),
+                            searchString, path,
+                            completionParameters.getPosition().getProject(),
+                            translatingParams
+                    );
                     completionResultSet.addElement(n);
-
-                  /* ControllerLookupElementWeigher cl = new ControllerLookupElementWeigher(searchString, true, false);
-                CompletionSorter cs = CompletionSorter.emptySorter();
-                cs.weigh(cl);
-                completionResultSet.withRelevanceSorter(cs);  */
-
-                    //completionResultSet.getPrefixMatcher().prefixMatches(searchString);
                     completionResultSet.addElement(new IgnoredLookupElement(cleanText));
                 }
-
-                //  completionResultSet.addAllElements(matches);
             }
         }
     }

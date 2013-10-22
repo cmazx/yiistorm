@@ -263,5 +263,18 @@ public class CommonHelper {
         return null;
     }
 
+    /**
+     * Get first part inside text with caret
+     *
+     * @param text
+     * @return
+     */
+    public static String getActiveTextPart(String text) {
+        if (text.contains("IntellijIdeaRulezzz")) {
+            return text = text.split("IntellijIdeaRulezzz")[0].replace("\"", "");
+        }
+        return text;
+    }
+
 
 }
