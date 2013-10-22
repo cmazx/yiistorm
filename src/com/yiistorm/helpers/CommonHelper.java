@@ -271,7 +271,7 @@ public class CommonHelper {
      */
     public static String getActiveTextPart(String text) {
         if (text.contains("IntellijIdeaRulezzz")) {
-            return text = text.split("IntellijIdeaRulezzz")[0].replace("\"", "");
+            return text = text.split("IntellijIdeaRulezzz")[0].replaceAll("['\"]+", "");
         }
         return text;
     }
