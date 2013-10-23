@@ -8,7 +8,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
-import com.yiistorm.ReferenceProviders.*;
+import com.yiistorm.ReferenceProviders.ARRelationReferenceProvider;
+import com.yiistorm.ReferenceProviders.CActionRenderViewReferenceProvider;
+import com.yiistorm.ReferenceProviders.ControlleActionsClassReferenceProvider;
+import com.yiistorm.ReferenceProviders.WidgetRenderViewReferenceProvider;
 import com.yiistorm.helpers.YiiRefsHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,14 +50,8 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
                         projectPath = basePath.replace("\\", "/");
                         int ProviderType = YiiRefsHelper.getYiiObjectType(path, element);
                         switch (ProviderType) {
-                            case YiiRefsHelper.YII_TYPE_CONTROLLER_TO_VIEW_RENDER:
-                                return ControllerRenderViewReferenceProvider.getReference(path, element);
                             case YiiRefsHelper.YII_TYPE_AR_RELATION:
                                 return ARRelationReferenceProvider.getReference(path, element);
-                            case YiiRefsHelper.YII_TYPE_VIEW_TO_VIEW_RENDER:
-                                return ViewRenderViewReferenceProvider.getReference(path, element);
-                            case YiiRefsHelper.YII_TYPE_WIDGET_CALL:
-                                return WidgetCallReferenceProvider.getReference(path, element);
                             case YiiRefsHelper.YII_TYPE_CACTION_TO_VIEW_RENDER:
                                 return CActionRenderViewReferenceProvider.getReference(path, element);
                             case YiiRefsHelper.YII_TYPE_WIDGET_VIEW_RENDER:

@@ -29,7 +29,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
+        <psi.referenceContributor language="PHP" implementation="com.yiistorm.MyPsiReferenceContributor"/>
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"/>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"
