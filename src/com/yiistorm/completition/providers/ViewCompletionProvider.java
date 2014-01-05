@@ -39,7 +39,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         ArrayList<String> names = new ArrayList<String>();
         String creatorClassName = PsiPhpHelper.getClassName(pEl);
         if (creatorClassName != null && !creatorClassName.isEmpty()) {
-            names.add(creatorClassName + " $this");
+            names.add("@var " + creatorClassName + " $this");
         }
         if (pEl != null) {
             PsiElement pString = pEl.getParent();
@@ -73,7 +73,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                     //Standartize some types
                                     if (keyText != null && !valueType.equals("")) {
 
-                                        names.add(valueType + " $" + keyText);
+                                        names.add("@var " + valueType + " $" + keyText);
                                     }
                                     keyText = null;
                                 }

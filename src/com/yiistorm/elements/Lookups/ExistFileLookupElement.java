@@ -14,6 +14,7 @@ import javax.swing.*;
 public class ExistFileLookupElement extends LookupElement {
 
     private String title;
+    public String createTitle = "view file";
     private PsiElement psiElement = null;
 
     @Nullable
@@ -51,7 +52,7 @@ public class ExistFileLookupElement extends LookupElement {
         presentation.setItemText(title);
         ImageIcon icon = new ImageIcon(this.getClass().getResource("/com/yiistorm/images/yii.png"));
         presentation.setIcon(icon);
-        presentation.setTypeText("view file");
+        presentation.setTypeText(createTitle);
         presentation.setTypeGrayed(false);
     }
 

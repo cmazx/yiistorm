@@ -1,7 +1,7 @@
 package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
-import com.yiistorm.YiiPsiReferenceProvider;
+import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;

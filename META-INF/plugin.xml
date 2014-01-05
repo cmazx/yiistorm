@@ -14,7 +14,7 @@
         <li>Controller::render() views autocreator with variables phpdoc.</li>
         </ul>
     ]]></description>
-    <version>0.9.7b</version>
+    <version>0.9.8b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
     <idea-version since-build="8000"/>
 
@@ -29,12 +29,18 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor language="PHP" implementation="com.yiistorm.MyPsiReferenceContributor"/>
+
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.yiistorm.references.referenceContributors.YiiReferenceContributor"/>
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.yiistorm.references.referenceContributors.I18nReferenceContributor"/>
         <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"/>
         <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
                     conditionClass="com.yiistorm.helpers.MigrationsCondition"
                     factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>
 
+        <completion.contributor language="PHP" order="FIRST"
+                                implementationClass="com.yiistorm.completition.contributors.I18CompletionContributor"/>
         <completion.contributor language="PHP"
                                 implementationClass="com.yiistorm.completition.ViewCompletionContributor"/>
     </extensions>

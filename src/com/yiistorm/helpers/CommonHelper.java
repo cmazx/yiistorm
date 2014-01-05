@@ -9,11 +9,24 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.util.PsiUtilCore;
+import com.jetbrains.php.lang.PhpFileType;
+import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
+import com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl;
 import com.yiistorm.completition.providers.ViewCompletionProvider;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -125,7 +138,8 @@ public class CommonHelper {
     public static String cleanCompleterSearchString(String s) {
         String searchString = s.replace("IntellijIdeaRulezzz", "");
         searchString = searchString.replace("IntellijIdeaRulezzz ", "");
-        searchString = searchString.replaceAll("['\"]+", "").replaceAll("(?im)\\s+", "");
+        searchString = searchString.replaceAll("^['\"]{1}", "").replaceAll("['\"]{1}$", "")
+                .replaceAll("(?im)\\s+", "");
         return searchString;
     }
 
@@ -134,7 +148,7 @@ public class CommonHelper {
     }
 
     public static String rmQuotes(String str) {
-        return str.replace("'", "");
+        return str.replaceAll("^['\"]{1}", "").replaceAll("['\"]{1}$", "");
     }
 
     public static String getCleanClassName(String str) {
@@ -274,6 +288,63 @@ public class CommonHelper {
             return text = text.split("IntellijIdeaRulezzz")[0].replaceAll("['\"]+", "");
         }
         return text;
+    }
+
+    public static PsiFile getPsiFile(Project project, String path) {
+        return PsiFileFactory.getInstance(project)
+                .createFileFromText("x", PhpFileType.INSTANCE, CharSequenceFromFile(path));
+    }
+
+    public static HashMap<String, String> parsePhpArrayConfig(Project project, String filePath) {
+        PsiFile pf = CommonHelper.getPsiFile(project, filePath);
+        HashMap<String, String> hashx = new HashMap<String, String>();
+        if (pf != null) {
+            PsiElement groupStatement = pf.getFirstChild();
+            if (groupStatement != null) {
+                for (PsiElement pl : groupStatement.getChildren()) {
+                    if (pl.toString().equals("Return")) {
+                        PsiElement[] pl2 = pl.getChildren();
+                        if (pl2.length > 0 && pl2[0].toString().equals("Array creation expression")) {
+                            ArrayCreationExpressionImpl ar = (ArrayCreationExpressionImpl) pl2[0];
+                            if (ar.getChildren().length > 0) {
+                                for (ArrayHashElement he : ar.getHashElements()) {
+                                    String val = he.getValue().getText();
+                                    String key = he.getKey().getText();
+                                    hashx.put(CommonHelper.rmQuotes(
+                                            key.substring(0, key.length() > 40 ? 40 : key.length())
+                                    ),
+                                            CommonHelper.rmQuotes(
+                                                    val.substring(0, val.length() > 40 ? 40 : val.length()))
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return hashx;
+    }
+
+    private static CharSequence CharSequenceFromFile(String filename) {
+        CharBuffer cbuf = null;
+        try {
+            FileInputStream fis = new FileInputStream(filename);
+            FileChannel fc = fis.getChannel();
+
+            // Create a read-only CharBuffer on the file
+            ByteBuffer bbuf = fc.map(FileChannel.MapMode.READ_ONLY, 0,
+                    (int) fc.size());
+
+            cbuf = Charset.forName("utf-8").newDecoder().decode(bbuf);
+        } catch (CharacterCodingException e) {
+            // e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            // e.printStackTrace();
+        } catch (IOException e) {
+            // e.printStackTrace();
+        }
+        return cbuf;
     }
 
 
