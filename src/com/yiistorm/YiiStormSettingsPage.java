@@ -14,6 +14,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 
 public class YiiStormSettingsPage implements Configurable {
@@ -22,8 +24,12 @@ public class YiiStormSettingsPage implements Configurable {
     private JTextField themeNameField;
     private JTextField langField;
     private JTextField yiicFileField;
-    private JButton yiicPathSelect;
+    private JTextField yiiConfigPath;
+    private JTextField yiiLitePath;
     private JCheckBox useMigrationsCheckbox;
+    private JCheckBox useYiiCompleter;
+    private PropertiesComponent properties;
+    private JPanel panel;
     Project project;
 
     public YiiStormSettingsPage(Project project) {
@@ -39,8 +45,9 @@ public class YiiStormSettingsPage implements Configurable {
     @Override
     public JComponent createComponent() {
 
-        PropertiesComponent properties = PropertiesComponent.getInstance(project);
-        JPanel panel = new JPanel();
+        properties = PropertiesComponent.getInstance(project);
+        panel = new JPanel();
+
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
@@ -61,6 +68,8 @@ public class YiiStormSettingsPage implements Configurable {
         panel12.add(Box.createHorizontalGlue());
         panel.add(panel12);
 
+
+        //strut
         panel.add(Box.createVerticalStrut(8));
 
         JPanel panel2 = new JPanel();
@@ -110,15 +119,153 @@ public class YiiStormSettingsPage implements Configurable {
         langField.setText(properties.getValue("langName", DefaultSettings.langName));
 
 
+        initYiicPath();
+        initYiiAppPanel();
+
+        panel.add(Box.createVerticalGlue());
+        return panel;
+    }
+
+    public void initYiiAppPanel() {
+
+        KeyListener toggleListener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                useYiiCompleterDisabledToggle();
+            }
+        };
+
+        JPanel panelYiiApp = new JPanel();
+        panelYiiApp.setLayout(new BoxLayout(panelYiiApp, BoxLayout.Y_AXIS));
+        panelYiiApp.setBorder(BorderFactory.createTitledBorder("Yii application completing"));
+
+        //chbox migrations
+        JPanel panelUseYiiiCompleter = new JPanel();
+        panelUseYiiiCompleter.setLayout(new BoxLayout(panelUseYiiiCompleter, BoxLayout.X_AXIS));
+
+        useYiiCompleter = new JCheckBox("Use Yii::app() completer");
+        useYiiCompleter.setSelected(properties.getBoolean("useYiiCompleter", false));
+        if (properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty()) {
+            useYiiCompleter.setEnabled(false);
+        }
+
+        panelUseYiiiCompleter.add(useYiiCompleter);
+        panelUseYiiiCompleter.add(Box.createHorizontalGlue());
+        panelYiiApp.add(panelUseYiiiCompleter);
+
+//YiiLite SELECT
+
         JPanel yiicPanel = new JPanel();
         yiicPanel.setLayout(new BorderLayout());
         yiicPanel.setMaximumSize(new Dimension(5000, 25));
-        JLabel yiicFileFieldLabel = new JLabel("Yiic manager path:");
+        JLabel label = new JLabel("YiiLite.php file path:");
+        label.setSize(new Dimension(200, 20));
+        yiiLitePath = new JTextField(15);
+        label.setLabelFor(yiiLitePath);
+        yiiLitePath.setMaximumSize(new Dimension(500, 20));
+        yiiLitePath.addKeyListener(toggleListener);
+        JButton yiiLitePathSelect = new JButton("Select file");
+
+        JPanel lpan = new JPanel();
+        lpan.add(label).setSize(200, 20);
+        yiicPanel.add(lpan, BorderLayout.WEST);
+        yiicPanel.add(yiiLitePath, BorderLayout.CENTER);
+        yiicPanel.add(yiiLitePathSelect, BorderLayout.EAST);
+        panelYiiApp.add(Box.createVerticalStrut(4));
+        panelYiiApp.add(yiicPanel);
+
+
+        String yiicFile = properties.getValue("yiiLitePath");
+        if (yiicFile != null) {
+            yiiLitePath.setText(yiicFile);
+        }
+
+        yiiLitePathSelect.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                VirtualFile baseDir = project.getBaseDir();
+                if (baseDir != null) {
+                    fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
+                    int ret = fileChooser.showDialog(null, "Открыть файл");
+                    if (ret == JFileChooser.APPROVE_OPTION) {
+                        yiiLitePath.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                        useYiiCompleterDisabledToggle();
+                    }
+                }
+            }
+        });
+
+
+//CONFIG SELECT
+        JPanel yiicConfigPanel = new JPanel();
+        yiicConfigPanel.setLayout(new BorderLayout());
+        yiicConfigPanel.setMaximumSize(new Dimension(5000, 25));
+        JLabel ConfigLabel = new JLabel("Yii current config path:");
+        ConfigLabel.setSize(new Dimension(200, 20));
+        yiiConfigPath = new JTextField(15);
+        yiiConfigPath.addKeyListener(toggleListener);
+        ConfigLabel.setLabelFor(yiiConfigPath);
+        yiiConfigPath.setMaximumSize(new Dimension(500, 20));
+        JButton yiiConfigPathSelect = new JButton("Select file");
+
+        JPanel ConfigLabelpan = new JPanel();
+        ConfigLabelpan.add(ConfigLabel).setSize(200, 20);
+        yiicConfigPanel.add(ConfigLabelpan, BorderLayout.WEST);
+        yiicConfigPanel.add(yiiConfigPath, BorderLayout.CENTER);
+        yiicConfigPanel.add(yiiConfigPathSelect, BorderLayout.EAST);
+        panelYiiApp.add(Box.createVerticalStrut(4));
+        panelYiiApp.add(yiicConfigPanel);
+
+
+        String yiicConfigFile = properties.getValue("yiiConfigPath");
+        if (yiicConfigFile != null) {
+            yiiConfigPath.setText(yiicConfigFile);
+        }
+
+        yiiConfigPathSelect.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                VirtualFile baseDir = project.getBaseDir();
+                if (baseDir != null) {
+                    fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
+                    int ret = fileChooser.showDialog(null, "Открыть файл");
+                    if (ret == JFileChooser.APPROVE_OPTION) {
+                        yiiConfigPath.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                        useYiiCompleterDisabledToggle();
+                    }
+                }
+            }
+        });
+
+        panel.add(panelYiiApp);
+    }
+
+    public void useYiiCompleterDisabledToggle() {
+        boolean filled = !yiiLitePath.getText().isEmpty() && !yiiConfigPath.getText().isEmpty();
+        useYiiCompleter.setEnabled(filled);
+        if (!filled) {
+            useYiiCompleter.setSelected(false);
+        }
+    }
+
+    public void initYiicPath() {
+        JPanel yiicPanel = new JPanel();
+        yiicPanel.setLayout(new BorderLayout());
+        yiicPanel.setMaximumSize(new Dimension(5000, 25));
+        JLabel yiicFileFieldLabel = new JLabel("Yiic.php path:");
         yiicFileFieldLabel.setSize(new Dimension(200, 20));
         yiicFileField = new JTextField(15);
         yiicFileFieldLabel.setLabelFor(yiicFileField);
         yiicFileField.setMaximumSize(new Dimension(500, 20));
-        yiicPathSelect = new JButton("Select yiic file");
+        JButton yiicPathSelect = new JButton("Select file");
 
 
         yiicPanel.add(yiicFileFieldLabel, BorderLayout.WEST);
@@ -126,8 +273,6 @@ public class YiiStormSettingsPage implements Configurable {
         yiicPanel.add(yiicPathSelect, BorderLayout.EAST);
         panel.add(Box.createVerticalStrut(4));
         panel.add(yiicPanel);
-
-        panel.add(Box.createVerticalGlue());
 
 
         String yiicFile = properties.getValue("yiicFile");
@@ -148,8 +293,6 @@ public class YiiStormSettingsPage implements Configurable {
                 }
             }
         });
-
-        return panel;
     }
 
     @Override
@@ -159,6 +302,9 @@ public class YiiStormSettingsPage implements Configurable {
         properties.setValue("themeName", themeNameField.getText());
         properties.setValue("langName", langField.getText());
         properties.setValue("yiicFile", yiicFileField.getText());
+        properties.setValue("yiiConfigPath", yiiConfigPath.getText());
+        properties.setValue("yiiLitePath", yiiLitePath.getText());
+        properties.setValue("useYiiCompleter", String.valueOf(useYiiCompleter.isSelected()));
         properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
 
         final ToolWindowManager manager = ToolWindowManager.getInstance(project);

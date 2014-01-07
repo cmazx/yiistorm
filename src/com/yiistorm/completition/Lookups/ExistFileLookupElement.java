@@ -1,4 +1,4 @@
-package com.yiistorm.elements.Lookups;
+package com.yiistorm.completition.lookups;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
@@ -8,24 +8,27 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 
-public class IgnoredLookupElement extends LookupElement {
+
+public class ExistFileLookupElement extends LookupElement {
 
     private String title;
+    public String createTitle = "view file";
     private PsiElement psiElement = null;
 
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public IgnoredLookupElement(String title) {
+    public ExistFileLookupElement(String title) {
 
-        this.title = title;
-    }
-
-    public IgnoredLookupElement(String title, String filePath, PsiElement psiElement, @Nullable InsertHandler<LookupElement> insertHandler) {
-        this.title = title;
-        this.insertHandler = insertHandler;
-        this.psiElement = psiElement;
+        if (title.startsWith("//")) {
+            this.title = title.replace("//", "");
+        } else if (title.startsWith("/")) {
+            this.title = title.replaceAll("(?im)^/", "");
+        } else {
+            this.title = title;
+        }
     }
 
     @NotNull
@@ -46,10 +49,10 @@ public class IgnoredLookupElement extends LookupElement {
     }
 
     public void renderElement(LookupElementPresentation presentation) {
-        presentation.setItemText("");
-        //presentation.setIcon(PlatformIcons.);
-        //String base=getPsiElement().getProject().getBasePath();
-        presentation.setTypeText("");   //ignore autocomplete
+        presentation.setItemText(title);
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("/com/yiistorm/images/yii.png"));
+        presentation.setIcon(icon);
+        presentation.setTypeText(createTitle);
         presentation.setTypeGrayed(false);
     }
 

@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.lang.psi.elements.ParameterList;
-import com.yiistorm.elements.Lookups.MessageLookupElement;
+import com.yiistorm.completition.lookups.MessageLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.I18NHelper;
 import org.jetbrains.annotations.NotNull;

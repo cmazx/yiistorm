@@ -12,6 +12,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.yiistorm.elements.ConfigParser;
 import com.yiistorm.helpers.IdeHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,10 +25,22 @@ public class YiiStormProjectComponent implements ProjectComponent {
     private boolean _isCacheConfigXmlUpdated = false;
     private boolean _isCacheLayoutXmlUpdated = false;
     PropertiesComponent properties;
+    private ConfigParser yiiConfig;
 
     public YiiStormProjectComponent(Project project) {
         _project = project;
         properties = PropertiesComponent.getInstance(project);
+        loadConfigParser();
+    }
+
+    public ConfigParser getYiiConfig() {
+        return yiiConfig;
+    }
+
+    private void loadConfigParser() {
+        if (getBooleanProp("useYiiCompleter")) {
+            yiiConfig = new ConfigParser(this);
+        }
     }
 
     public String getProp(String name) {

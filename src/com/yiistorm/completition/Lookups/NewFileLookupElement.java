@@ -1,4 +1,4 @@
-package com.yiistorm.elements.Lookups;
+package com.yiistorm.completition.lookups;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
