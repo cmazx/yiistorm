@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonStreamParser;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.yiistorm.YiiPsiReferenceProvider;
 import com.yiistorm.helpers.CommonHelper;
+import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.io.BufferedReader;
 import java.io.File;

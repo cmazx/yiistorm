@@ -1,10 +1,9 @@
 package com.yiistorm.helpers;
 
-import com.intellij.patterns.PlatformPatterns; 
+import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
-import com.yiistorm.YiiPsiReferenceProvider; 
 import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
