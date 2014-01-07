@@ -36,14 +36,12 @@ public class I18nReferenceProvider extends PsiReferenceProvider {
         String[] result = I18NHelper.findMessageSource(searchStringFull, protectedPath, project);
         if (result != null) {
             protectedPath = result[0];
-            subpathAlias = !result[1].isEmpty() ? (result[1] + ".") : "";
             searchString = result[2];
         } else {
             protectedPath += "/messages/" + I18NHelper.getLang(project);
         }
         try {
             String relativePath = protectedPath + "/" + searchString + ".php";
-
             VirtualFile viewfile = project.getBaseDir().findFileByRelativePath(relativePath);
 
             if (viewfile != null) {

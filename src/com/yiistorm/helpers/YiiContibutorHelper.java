@@ -1,4 +1,4 @@
-package com.yiistorm.completition.contributors;
+package com.yiistorm.helpers;
 
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
@@ -18,42 +18,6 @@ public class YiiContibutorHelper {
                 .withParent(YiiContibutorHelper.methodLiteralExpression(methodName, className, superLevels))
                 .withLanguage(PhpLanguage.INSTANCE);
     }
-
-    /**
-     * public static PsiElementPattern.Capture stringInMethod(String methodName, String className, int superLevels,
-     * boolean first) {
-     * PsiElementPattern.Capture c = PlatformPatterns.psiElement(PsiElement.class)
-     * .withParent(
-     * PhpPatterns.phpLiteralExpression()
-     * .withParent(
-     * PlatformPatterns.psiElement().withElementType(PhpElementTypes.PARAMETER_LIST)
-     * .withParent(
-     * PlatformPatterns.psiElement()
-     * .withElementType(PhpElementTypes.METHOD_REFERENCE)
-     * .referencing(
-     * PhpPatterns.psiElement().withElementType(
-     * PhpElementTypes.CLASS_METHOD
-     * ).withName(methodName)
-     * .withSuperParent(superLevels,
-     * PhpPatterns.psiElement().withName(
-     * className
-     * ))
-     * )
-     * <p/>
-     * )
-     * )
-     * )
-     * .withLanguage(PhpLanguage.INSTANCE);
-     * if (first) {
-     * c.withParent(
-     * PhpPatterns.phpLiteralExpression().insideStarting(
-     * PlatformPatterns.psiElement().withElementType(PhpElementTypes.PARAMETER_LIST)
-     * ));
-     * }
-     * <p/>
-     * return c;
-     * }
-     */
 
     public static PsiElementPattern.Capture firstStringInMethod(String methodName, String className, int superLevels) {
 
@@ -75,7 +39,8 @@ public class YiiContibutorHelper {
                 );
     }
 
-    public static PsiElementPattern.Capture<PsiElement> methodParamsList(String methodName, String className, int superLevels) {
+    public static PsiElementPattern.Capture<PsiElement> methodParamsList(String methodName, String className,
+                                                                         int superLevels) {
         return PlatformPatterns.psiElement().withElementType(PhpElementTypes.PARAMETER_LIST)
                 .withParent(
                         PlatformPatterns.psiElement()
@@ -90,6 +55,16 @@ public class YiiContibutorHelper {
                                                         ))
                                 )
 
+                );
+    }
+
+    public static PsiElementPattern.Capture<PsiElement> paramListInMethodWithName(String methodName) {
+        return PlatformPatterns.psiElement().withElementType(PhpElementTypes.PARAMETER_LIST)
+                .withParent(
+                        PlatformPatterns.psiElement().withElementType(PhpElementTypes.METHOD_REFERENCE)
+                                .referencing(PhpPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD)
+                                        .withName(methodName)
+                                )
                 );
     }
 

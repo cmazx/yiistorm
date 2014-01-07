@@ -8,8 +8,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.lang.psi.elements.ParameterList;
-import com.yiistorm.DefaultSettings;
-import com.yiistorm.YiiStormProjectComponent;
 import com.yiistorm.elements.Lookups.MessageLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.I18NHelper;
@@ -28,10 +26,8 @@ public class I18TitleCompletionProvider extends CompletionProvider {
 
         PsiFile currentFile = completionParameters.getPosition().getContainingFile();
         Project project = currentFile.getProject();
-        String lang = YiiStormProjectComponent.getInstance(currentFile.getProject()).getProp("langName");
-        if (lang == null) {
-            lang = DefaultSettings.langName;
-        }
+
+        String lang = I18NHelper.getLang(project);
 
         PsiElement position = completionParameters.getPosition();
         PsiElement list = (ParameterList) position.getParent().getParent();

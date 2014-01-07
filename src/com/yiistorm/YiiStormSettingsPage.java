@@ -50,6 +50,7 @@ public class YiiStormSettingsPage implements Configurable {
         panel1.add(Box.createHorizontalGlue());
         panel.add(panel1);
 
+        //chbox migrations
         JPanel panel12 = new JPanel();
         panel12.setLayout(new BoxLayout(panel12, BoxLayout.X_AXIS));
 
@@ -59,7 +60,6 @@ public class YiiStormSettingsPage implements Configurable {
         panel12.add(useMigrationsCheckbox);
         panel12.add(Box.createHorizontalGlue());
         panel.add(panel12);
-
 
         panel.add(Box.createVerticalStrut(8));
 

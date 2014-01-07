@@ -7,7 +7,7 @@ import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
-import com.yiistorm.completition.contributors.YiiContibutorHelper;
+import com.yiistorm.helpers.YiiContibutorHelper;
 import com.yiistorm.references.ReferenceProviders.I18nReferenceProvider;
 
 public class I18nReferenceContributor extends PsiReferenceContributor {
