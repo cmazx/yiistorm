@@ -1,4 +1,4 @@
-package com.yiistorm.completition;
+package com.yiistorm.completition.contributors;
 
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;

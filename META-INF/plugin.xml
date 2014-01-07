@@ -40,8 +40,11 @@
                     factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>
 
         <completion.contributor language="PHP" order="FIRST"
+                                implementationClass="com.yiistorm.completition.contributors.YiiAppCompletionContributor"/>
+        <completion.contributor language="PHP" order="FIRST"
                                 implementationClass="com.yiistorm.completition.contributors.I18CompletionContributor"/>
         <completion.contributor language="PHP"
-                                implementationClass="com.yiistorm.completition.ViewCompletionContributor"/>
+                                implementationClass="com.yiistorm.completition.contributors.ViewCompletionContributor"/>
+
     </extensions>
 </idea-plugin>
