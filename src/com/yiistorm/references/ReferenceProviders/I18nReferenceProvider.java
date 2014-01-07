@@ -31,30 +31,31 @@ public class I18nReferenceProvider extends PsiReferenceProvider {
         PsiFile currentFile = element.getContainingFile();
 
         String protectedPath = CommonHelper.searchCurrentProtected(CommonHelper.getFilePath(currentFile));
-        protectedPath = CommonHelper.getRelativePath(project, protectedPath);
-        String[] result = I18NHelper.findMessageSource(searchStringFull, protectedPath, project);
-        if (result != null) {
-            protectedPath = result[0];
-            searchString = result[2];
-        } else {
-            protectedPath += "/messages/" + I18NHelper.getLang(project);
-        }
-        try {
-            String relativePath = protectedPath + "/" + searchString + ".php";
-            VirtualFile viewfile = project.getBaseDir().findFileByRelativePath(relativePath);
-
-            if (viewfile != null) {
-                PsiReference ref = new I18nFileReference(
-                        viewfile,
-                        element,
-                        element.getTextRange(),
-                        project);
-                return new PsiReference[]{ref};
+        if (protectedPath != null) {
+            protectedPath = CommonHelper.getRelativePath(project, protectedPath);
+            String[] result = I18NHelper.findMessageSource(searchStringFull, protectedPath, project);
+            if (result != null) {
+                protectedPath = result[0];
+                searchString = result[2];
+            } else {
+                protectedPath += "/messages/" + I18NHelper.getLang(project);
             }
-        } catch (Exception e) {
-            System.err.println("error" + e.getMessage());
-        }
+            try {
+                String relativePath = protectedPath + "/" + searchString + ".php";
+                VirtualFile viewfile = project.getBaseDir().findFileByRelativePath(relativePath);
 
+                if (viewfile != null) {
+                    PsiReference ref = new I18nFileReference(
+                            viewfile,
+                            element,
+                            element.getTextRange(),
+                            project);
+                    return new PsiReference[]{ref};
+                }
+            } catch (Exception e) {
+                System.err.println("error" + e.getMessage());
+            }
+        }
         return PsiReference.EMPTY_ARRAY;
     }
 }
