@@ -22,28 +22,33 @@ import java.util.ArrayList;
 public class NewFileLookupElement extends LookupElement {
 
     private String lookupString;
+    private String insertString;
     private String fileName;
     private String filePath;
     private PsiElement psiElement = null;
     private Project project = null;
-    private ArrayList<String> translatingParams = new ArrayList<String>();
+    private ArrayList<String> phpDocs = new ArrayList<String>();
+    public String fileContent = "";
+    public String createTitle = "create view file";
 
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
 
-    public NewFileLookupElement(String lookupString, String fileName, String filePath, Project project, ArrayList<String> params) {
+    public NewFileLookupElement(String lookupString, String insertString, String fileName, String filePath, Project project,
+                                ArrayList<String> params) {
 
         this.lookupString = lookupString.replaceFirst("^[/]{2}", "");
+        this.insertString = insertString.replaceFirst("^[/]{2}", "");
         this.fileName = fileName;
         this.filePath = filePath;
         this.project = project;
-        this.translatingParams = params;
+        this.phpDocs = params;
     }
 
     @NotNull
     @Override
     public String getLookupString() {
-        return lookupString;
+        return insertString;
     }
 
     @NotNull
@@ -53,10 +58,8 @@ public class NewFileLookupElement extends LookupElement {
 
     public void handleInsert(InsertionContext context) {
         File f = new File(filePath + fileName + ".php");
+        this.writeNewFileHeader(f);
 
-        if (this.translatingParams.size() > 0) {
-            this.writeNewFileHeader(f);
-        }
         VirtualFile base = this.project.getBaseDir();
 
         if (base != null) {
@@ -87,25 +90,29 @@ public class NewFileLookupElement extends LookupElement {
     }
 
     private void writeNewFileHeader(File f) {
-        BufferedWriter output;
         try {
+            BufferedWriter output;
             output = new BufferedWriter(new FileWriter(f));
             String text = "<?php\n/**\n *\n";
-            for (String varname : this.translatingParams) {
-                text += " * @var " + varname + "\n";
+            if (this.phpDocs != null && this.phpDocs.size() > 0) {
+
+                for (String doc : this.phpDocs) {
+                    text += " * " + doc + "\n";
+                }
             }
             text += " */";
             output.write(text);
+            output.write(fileContent);
             output.close();
         } catch (IOException e) {
-            System.out.println("View file create failed");
+            System.out.println("File create failed");
         }
     }
 
     public void renderElement(LookupElementPresentation presentation) {
-        presentation.setItemText(getLookupString());
+        presentation.setItemText(this.lookupString);
         presentation.setIcon(PlatformIcons.ADD_ICON);
-        presentation.setTypeText("create view file");
+        presentation.setTypeText(createTitle);
         presentation.setTailText(".php");
         presentation.setTypeGrayed(false);
     }

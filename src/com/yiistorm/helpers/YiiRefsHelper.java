@@ -1,9 +1,11 @@
 package com.yiistorm.helpers;
 
-import com.intellij.patterns.PlatformPatterns;
+import com.intellij.patterns.PlatformPatterns; 
+import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
-import com.yiistorm.YiiPsiReferenceProvider;
+import com.yiistorm.YiiPsiReferenceProvider; 
+import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
@@ -49,20 +51,12 @@ public class YiiRefsHelper {
      */
     public static int getYiiObjectType(String path, PsiElement el) {
 
-        if (isWidgetCall(el)) {
-            return YII_TYPE_WIDGET_CALL;
-        }
-
         if (isWidgetRenderView(path, el)) {
             return YII_TYPE_WIDGET_VIEW_RENDER;
         }
 
         if (isExtendCActiveRecord(el)) {
             return YII_TYPE_AR_RELATION;
-        }
-
-        if (isYiiViewToViewRenderCall(el)) {
-            return YII_TYPE_VIEW_TO_VIEW_RENDER;
         }
 
         if (isYiiControllerToViewRenderCall(path, el)) {
@@ -123,33 +117,27 @@ public class YiiRefsHelper {
 
     public static boolean isWidgetRenderView(String path, PsiElement el) {
         if (!path.contains("Controller.php")) {
-            PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
-            if (PsiClass != null) {
-                boolean extendsWidget = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CWidget");
-                if (!extendsWidget) {
-                    return false;
-                }
-                PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-                String methodName = PsiPhpHelper.getMethodName(method);
-                if (methodName.matches("^(renderPartial|render)$")) {
-                    return true;
+            PsiElementPattern.Capture p = PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS)
+                    .withSuperParent(5, PlatformPatterns.psiElement().withName("CWidget"));
+
+            PsiElementPattern.Capture renderMethod = PlatformPatterns.psiElement().withParent(
+                    YiiContibutorHelper.paramListInMethodWithName("render")
+            );
+            PsiElementPattern.Capture renderPartialMethod = PlatformPatterns.psiElement().withParent(
+                    YiiContibutorHelper.paramListInMethodWithName("renderPartial")
+            );
+            PsiElement[] elc = el.getContainingFile().getChildren();
+            if (elc.length > 0 && elc[0] != null && elc[0].getChildren().length > 0) {
+                for (PsiElement element : elc[0].getChildren()) {
+                    if (p.accepts(element) && (renderMethod.accepts(el) || renderPartialMethod.accepts(el))) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
 
-    public static boolean isWidgetCall(PsiElement el) {
-
-        PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-        if (method != null) {
-            String methodName = PsiPhpHelper.getMethodName(method);
-            if (methodName.matches("^widget$")) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static boolean isYiiControllerToViewRenderCall(String path, PsiElement el) {
         if (path.contains("Controller.php")) {
@@ -181,20 +169,6 @@ public class YiiRefsHelper {
                 }
             }
         }
-        return false;
-    }
-
-    public static boolean isYiiViewToViewRenderCall(PsiElement el) {
-        if (PsiPhpHelper.getClassElement(el) == null) {
-            PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-            if (parameter_list != null) {
-                String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
-                if (mrefchild.matches("^(renderPartial|render)$")) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 

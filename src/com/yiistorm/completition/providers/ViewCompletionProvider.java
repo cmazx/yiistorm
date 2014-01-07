@@ -39,7 +39,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         ArrayList<String> names = new ArrayList<String>();
         String creatorClassName = PsiPhpHelper.getClassName(pEl);
         if (creatorClassName != null && !creatorClassName.isEmpty()) {
-            names.add(creatorClassName + " $this");
+            names.add("@var " + creatorClassName + " $this");
         }
         if (pEl != null) {
             PsiElement pString = pEl.getParent();
@@ -73,7 +73,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                                     //Standartize some types
                                     if (keyText != null && !valueType.equals("")) {
 
-                                        names.add(valueType + " $" + keyText);
+                                        names.add("@var " + valueType + " $" + keyText);
                                     }
                                     keyText = null;
                                 }
@@ -184,21 +184,16 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
                 }
 
                 if (!identMatch && !searchString.trim().isEmpty()) {
-
-                    NewFileLookupElement n = new NewFileLookupElement(cleanText, searchString, path,
-                            completionParameters.getPosition().getProject(), translatingParams);
+                    NewFileLookupElement n = new NewFileLookupElement(
+                            cleanText,
+                            CommonHelper.getActiveTextPart(completionParameters.getPosition().getText()),
+                            searchString, path,
+                            completionParameters.getPosition().getProject(),
+                            translatingParams
+                    );
                     completionResultSet.addElement(n);
-
-                  /* ControllerLookupElementWeigher cl = new ControllerLookupElementWeigher(searchString, true, false);
-                CompletionSorter cs = CompletionSorter.emptySorter();
-                cs.weigh(cl);
-                completionResultSet.withRelevanceSorter(cs);  */
-
-                    //completionResultSet.getPrefixMatcher().prefixMatches(searchString);
                     completionResultSet.addElement(new IgnoredLookupElement(cleanText));
                 }
-
-                //  completionResultSet.addAllElements(matches);
             }
         }
     }

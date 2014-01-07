@@ -20,6 +20,7 @@ public class YiiStormSettingsPage implements Configurable {
 
     private JCheckBox enableYiiStorm;
     private JTextField themeNameField;
+    private JTextField langField;
     private JTextField yiicFileField;
     private JButton yiicPathSelect;
     private JCheckBox useMigrationsCheckbox;
@@ -49,6 +50,7 @@ public class YiiStormSettingsPage implements Configurable {
         panel1.add(Box.createHorizontalGlue());
         panel.add(panel1);
 
+        //chbox migrations
         JPanel panel12 = new JPanel();
         panel12.setLayout(new BoxLayout(panel12, BoxLayout.X_AXIS));
 
@@ -59,13 +61,33 @@ public class YiiStormSettingsPage implements Configurable {
         panel12.add(Box.createHorizontalGlue());
         panel.add(panel12);
 
-
         panel.add(Box.createVerticalStrut(8));
 
         JPanel panel2 = new JPanel();
         panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
 
         panel.add(panel2);
+
+
+        //default lang name
+
+
+        JPanel themePanellang = new JPanel();
+        themePanellang.setLayout(new BorderLayout());
+        themePanellang.setMaximumSize(new Dimension(5000, 25));
+
+        JLabel langLabel = new JLabel("Default lang abbr:");
+        langLabel.setSize(new Dimension(200, 20));
+        langField = new JTextField(15);
+        langLabel.setLabelFor(langField);
+        langField.setMaximumSize(new Dimension(500, 20));
+        themePanellang.add(langLabel, BorderLayout.WEST);
+        themePanellang.add(langField, BorderLayout.CENTER);
+
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(themePanellang);
+
+        //theme name
 
         JPanel themePanel = new JPanel();
         themePanel.setLayout(new BorderLayout());
@@ -85,6 +107,7 @@ public class YiiStormSettingsPage implements Configurable {
 
         enableYiiStorm.setSelected(properties.getBoolean("enableYiiStorm", true));
         themeNameField.setText(properties.getValue("themeName", DefaultSettings.themeName));
+        langField.setText(properties.getValue("langName", DefaultSettings.langName));
 
 
         JPanel yiicPanel = new JPanel();
@@ -134,6 +157,7 @@ public class YiiStormSettingsPage implements Configurable {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         properties.setValue("enableYiiStorm", String.valueOf(enableYiiStorm.isSelected()));
         properties.setValue("themeName", themeNameField.getText());
+        properties.setValue("langName", langField.getText());
         properties.setValue("yiicFile", yiicFileField.getText());
         properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
 
