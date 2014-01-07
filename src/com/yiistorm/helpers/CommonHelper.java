@@ -347,5 +347,7 @@ public class CommonHelper {
         return cbuf;
     }
 
-
+    public static String getRelativePath(Project project, String string) {
+        return string.replace(project.getBaseDir().getCanonicalPath(), "").replace("\\", "/");
+    }
 }

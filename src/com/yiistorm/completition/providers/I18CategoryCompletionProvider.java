@@ -2,19 +2,18 @@ package com.yiistorm.completition.providers;
 
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.ProcessingContext;
-import com.yiistorm.DefaultSettings;
-import com.yiistorm.YiiStormProjectComponent;
 import com.yiistorm.elements.Lookups.ExistFileLookupElement;
 import com.yiistorm.elements.Lookups.IgnoredLookupElement;
 import com.yiistorm.elements.Lookups.NewFileLookupElement;
 import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.CompleterHelper;
+import com.yiistorm.helpers.I18NHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -27,25 +26,43 @@ public class I18CategoryCompletionProvider extends CompletionProvider {
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
-        String cleanText = CommonHelper.rmQuotes(completionParameters.getPosition().getText());
-        String searchString = cleanText;
-        VirtualFile originalFile = psiContainingFile.getOriginalFile().getVirtualFile();
-        String lang = YiiStormProjectComponent.getInstance(psiContainingFile.getProject()).getProp("langName");
-        if (lang == null) {
-            lang = DefaultSettings.langName;
-        }
+        PsiFile currentFile = completionParameters.getPosition().getContainingFile();
+        Project project = currentFile.getProject();
+        String lang = I18NHelper.getLang(project);
+        if (currentFile.getOriginalFile().getVirtualFile() != null) {
 
-        Boolean identMatch = false;
-        if (originalFile != null) {
+            String searchStringFull = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
+            String searchString = searchStringFull;
+            String subpathAlias = "";
+            String path = CommonHelper.getFilePath(currentFile);
+            String protectedPath = CommonHelper.searchCurrentProtected(path);
+            if (protectedPath == null) {
+                return;
+            }
+            path = CommonHelper.getRelativePath(project, protectedPath).replaceFirst("\\/", "");
+            if (path == null) {
+                return;
+            }
+            if (searchString.contains(".")) {
+                String[] result = I18NHelper.findMessageSource(searchString, path, project);
+                if (result != null) {
+                    path = result[0];
+                    subpathAlias = !result[1].isEmpty() ? (result[1] + ".") : "";
+                    searchString = result[2];
+                } else {
+                    path += "/messages/" + lang;
+                }
+            } else {
+                path += "/messages/" + lang;
+            }
+            if (path == null) {
+                return;
+            }
+            Boolean identMatch = false;
+            VirtualFile fv = project.getBaseDir().findFileByRelativePath(path);
+            if (fv != null) {
 
-            String path = CommonHelper.getFilePath(psiContainingFile);
-            path = CommonHelper.searchCurrentProtected(path) + "/messages/" + lang;
-
-            if (new File(path).exists()) {
-
-
-                String[] files = CompleterHelper.searchFiles(path, searchString);
+                String[] files = CompleterHelper.searchFiles(fv.getCanonicalPath(), searchString);
 
                 for (String file : files) {
                     String file_name = file.replace(".php", "");
@@ -54,27 +71,27 @@ public class I18CategoryCompletionProvider extends CompletionProvider {
                     }
                 }
 
-                if (!identMatch && !searchString.trim().isEmpty()) {
+                if (!identMatch && !searchString.trim().isEmpty() && !searchString.isEmpty()) {
                     ArrayList<String> phpDoc = new ArrayList<String>();
-                    phpDoc.add("Localization file " + lang + "/" + cleanText);
+                    phpDoc.add("Localization file " + lang + "/" + searchString);
                     NewFileLookupElement n = new NewFileLookupElement(
-                            cleanText,
+                            subpathAlias + searchString,
                             CommonHelper.getActiveTextPart(completionParameters.getPosition().getText()),
                             searchString,
-                            path + "/",
+                            fv.getCanonicalPath() + "/",
                             completionParameters.getPosition().getProject(),
                             phpDoc
                     );
                     n.createTitle = "create l18n category";
                     n.fileContent = "\nreturn array(\n\n);";
                     completionResultSet.addElement(n);
-                    completionResultSet.addElement(new IgnoredLookupElement(cleanText));
+                    completionResultSet.addElement(new IgnoredLookupElement(searchString));
                 }
 
                 for (String file : files) {
                     String file_name = file.replace(".php", "");
-                    completionResultSet.getPrefixMatcher().prefixMatches(cleanText);
-                    ExistFileLookupElement exFL = new ExistFileLookupElement(file_name);
+                    completionResultSet.getPrefixMatcher().prefixMatches(subpathAlias + file_name);
+                    ExistFileLookupElement exFL = new ExistFileLookupElement(subpathAlias + file_name);
                     exFL.createTitle = "create l18n category";
                     completionResultSet.addElement(exFL);
                 }

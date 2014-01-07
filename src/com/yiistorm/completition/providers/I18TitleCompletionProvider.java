@@ -2,6 +2,7 @@ package com.yiistorm.completition.providers;
 
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -11,6 +12,7 @@ import com.yiistorm.DefaultSettings;
 import com.yiistorm.YiiStormProjectComponent;
 import com.yiistorm.elements.Lookups.MessageLookupElement;
 import com.yiistorm.helpers.CommonHelper;
+import com.yiistorm.helpers.I18NHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -24,8 +26,9 @@ public class I18TitleCompletionProvider extends CompletionProvider {
                                   ProcessingContext processingContext,
                                   @NotNull CompletionResultSet completionResultSet) {
 
-        PsiFile psiContainingFile = completionParameters.getPosition().getContainingFile();
-        String lang = YiiStormProjectComponent.getInstance(psiContainingFile.getProject()).getProp("langName");
+        PsiFile currentFile = completionParameters.getPosition().getContainingFile();
+        Project project = currentFile.getProject();
+        String lang = YiiStormProjectComponent.getInstance(currentFile.getProject()).getProp("langName");
         if (lang == null) {
             lang = DefaultSettings.langName;
         }
@@ -40,21 +43,37 @@ public class I18TitleCompletionProvider extends CompletionProvider {
             return;
         }
         String fileName = CommonHelper.rmQuotes(children[0].getFirstChild().getText());
-        String cleanText = CommonHelper.rmQuotes(completionParameters.getPosition().getText());
-        VirtualFile originalFile = psiContainingFile.getOriginalFile().getVirtualFile();
+        String searchString = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
+        VirtualFile originalFile = currentFile.getOriginalFile().getVirtualFile();
 
         Boolean identMatch = false;
         if (originalFile != null) {
 
-            String path = CommonHelper.getFilePath(psiContainingFile);
-            path = CommonHelper.searchCurrentProtected(path) + "/messages/" + lang + "/";
-            HashMap<String, String> map = CommonHelper.parsePhpArrayConfig(psiContainingFile.getProject(),
-                    path + fileName + ".php");
+            String path = CommonHelper.getFilePath(currentFile);
+            String protectedPath = CommonHelper.searchCurrentProtected(path);
+            protectedPath = CommonHelper.getRelativePath(project, protectedPath);
+            if (fileName.contains(".")) {
+                String[] result = I18NHelper.findMessageSource(fileName, protectedPath, project);
+                if (result != null) {
+                    protectedPath = result[0];
+                    fileName = result[2];
+                } else {
+                    protectedPath += "/messages/" + lang;
+                }
+            } else {
+                protectedPath += "/messages/" + lang;
+            }
+
+            VirtualFile file = project.getBaseDir().findFileByRelativePath(protectedPath + "/" + fileName + ".php");
+            if (file == null) {
+                return;
+            }
+            HashMap<String, String> map = CommonHelper.parsePhpArrayConfig(project, file.getCanonicalPath());
 
             completionResultSet.caseInsensitive();
             if (map.size() > 0) {
                 for (String key : map.keySet()) {
-                    if (key.equals(cleanText)) {
+                    if (key.equals(searchString)) {
                         identMatch = true;
                     }
                     completionResultSet.getPrefixMatcher().prefixMatches(key.toLowerCase());
