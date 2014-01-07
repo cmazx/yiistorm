@@ -28,9 +28,8 @@ public class I18nReferenceProvider extends PsiReferenceProvider {
         properties = PropertiesComponent.getInstance(project);
         String searchStringFull = CommonHelper.rmQuotes(element.getText());
         String searchString = searchStringFull;
-        String subpathAlias = "";
         PsiFile currentFile = element.getContainingFile();
-        String lang = I18NHelper.getLang(project);
+
         String protectedPath = CommonHelper.searchCurrentProtected(CommonHelper.getFilePath(currentFile));
         protectedPath = CommonHelper.getRelativePath(project, protectedPath);
         String[] result = I18NHelper.findMessageSource(searchStringFull, protectedPath, project);
