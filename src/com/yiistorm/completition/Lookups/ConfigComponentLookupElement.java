@@ -58,7 +58,7 @@ public class ConfigComponentLookupElement extends LookupElement {
     public void renderElement(LookupElementPresentation presentation) {
         presentation.setItemText(title);
         presentation.setIcon(icon);
-        presentation.setTypeText("component in config");
+        presentation.setTypeText("application component");
         presentation.setTypeGrayed(false);
     }
 

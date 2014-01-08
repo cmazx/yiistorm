@@ -5,16 +5,17 @@
         <br/>
         <b>Provides:</b>
         <ul>
-        <li>CController::render() call references to view file (renderPartial supported).</li>
-        <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction (renderPartial supported).</li>
-        <li>CController::widget('path.to.widget') references to Widget class in current basepath.</li>
-        <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
+        <li>References to view file from render method.</li>
+        <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction.</li>
+        <li>Reference to widget from widget-call.</li>
+        <li>References to related model in relations().</li>
+        <li>Autocomplete views names and application components.</li>
+        <li>Qick creating view files by select autocompleter variant + auto-phpdoc.</li>
+        <li>Yii::t('category','line') autocomplete and quick-create.</li>
         <li>Migrations manager.</li>
-        <li>Controller::render() views names autocompleter.</li>
-        <li>Controller::render() views autocreator with variables phpdoc.</li>
         </ul>
     ]]></description>
-    <version>0.9.9b</version>
+    <version>0.9.10b</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
     <idea-version since-build="8000"/>
 
