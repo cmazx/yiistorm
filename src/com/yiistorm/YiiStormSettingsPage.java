@@ -7,6 +7,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.JBColor;
+import com.yiistorm.elements.ConfigParser;
 import com.yiistorm.helpers.MigrationsCondition;
 import org.jetbrains.annotations.Nls;
 
@@ -153,9 +155,6 @@ public class YiiStormSettingsPage implements Configurable {
 
         useYiiCompleter = new JCheckBox("Use Yii::app() completer");
         useYiiCompleter.setSelected(properties.getBoolean("useYiiCompleter", false));
-        if (properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty()) {
-            useYiiCompleter.setEnabled(false);
-        }
 
         panelUseYiiiCompleter.add(useYiiCompleter);
         panelUseYiiiCompleter.add(Box.createHorizontalGlue());
@@ -245,11 +244,23 @@ public class YiiStormSettingsPage implements Configurable {
             }
         });
 
+        if (properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty()) {
+            useYiiCompleter.setEnabled(false);
+        } else {
+            useYiiCompleterDisabledToggle();
+        }
+
         panel.add(panelYiiApp);
     }
 
     public void useYiiCompleterDisabledToggle() {
+        if (yiiLitePath.getText().length() > 0) {
+            checkYiiAppParams();
+        }
         boolean filled = !yiiLitePath.getText().isEmpty() && !yiiConfigPath.getText().isEmpty();
+        if (filled) {
+            filled = yiiLitePath.getBackground().equals(JBColor.GREEN) && yiiConfigPath.getBackground().equals(JBColor.GREEN);
+        }
         useYiiCompleter.setEnabled(filled);
         if (!filled) {
             useYiiCompleter.setSelected(false);
@@ -295,6 +306,29 @@ public class YiiStormSettingsPage implements Configurable {
         });
     }
 
+    public void checkYiiAppParams() {
+
+        ConfigParser parser = new ConfigParser(YiiStormProjectComponent.getInstance(project));
+        if (yiiLitePath.getText().length() > 0) {
+            if (parser.testYiiLitePath(yiiLitePath.getText())) {
+                yiiLitePath.setBackground(JBColor.GREEN);
+                if (yiiConfigPath.getText().length() > 0) {
+                    if (parser.testYiiConfigPath(yiiConfigPath.getText())) {
+                        yiiConfigPath.setBackground(JBColor.GREEN);
+                    } else {
+                        yiiConfigPath.setBackground(JBColor.PINK);
+                    }
+                } else {
+                    yiiConfigPath.setBackground(JBColor.background());
+                }
+            } else {
+                yiiLitePath.setBackground(JBColor.PINK);
+            }
+        } else {
+            yiiLitePath.setBackground(JBColor.background());
+        }
+    }
+
     @Override
     public void apply() throws ConfigurationException {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
@@ -311,6 +345,11 @@ public class YiiStormSettingsPage implements Configurable {
         final ToolWindow tw = manager.getToolWindow("Migrations");
         if (tw != null) {
             tw.setAvailable(MigrationsCondition.makeCondition(project), null);
+        }
+        if (properties.getBoolean("useYiiCompleter", false)) {
+            YiiStormProjectComponent.getInstance(project).loadConfigParser();
+        } else {
+            YiiStormProjectComponent.getInstance(project).clearConfigParser();
         }
 
     }

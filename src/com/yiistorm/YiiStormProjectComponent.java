@@ -37,10 +37,14 @@ public class YiiStormProjectComponent implements ProjectComponent {
         return yiiConfig;
     }
 
-    private void loadConfigParser() {
+    public void loadConfigParser() {
         if (getBooleanProp("useYiiCompleter")) {
             yiiConfig = new ConfigParser(this);
         }
+    }
+
+    public void clearConfigParser() {
+        yiiConfig = null;
     }
 
     public String getProp(String name) {

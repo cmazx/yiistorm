@@ -33,9 +33,60 @@ public class ConfigParser {
     public ConfigParser(YiiStormProjectComponent projectComponent) {
         yiiConfigPath = projectComponent.getProp("yiiConfigPath");
         yiiLitePath = projectComponent.getProp("yiiLitePath");
-        if (yiiConfigPath != null && yiiLitePath != null) {
+        if (projectComponent.getBooleanProp("useYiiCompleter")) {
             parseConfig();
         }
+    }
+
+    public boolean testYiiLitePath(String yiiLitePathNew) {
+        if (yiiLitePathNew == null) {
+            return false;
+        }
+        if (new File(yiiLitePathNew).exists()) {
+            yiiLitePath = yiiLitePathNew;
+            BufferedReader reader = execYiiLite("print YiiBase::getVersion();");
+            try {
+                String readed = reader.readLine();
+                if (readed.matches("^\\d+?\\.\\d.+")) {
+                    return true;
+                }
+            } catch (IOException e) {
+                //
+            }
+        }
+        return false;
+    }
+
+    public boolean testYiiConfigPath(String yiiConfigPathNew) {
+        if (yiiConfigPathNew == null) {
+            return false;
+        }
+        if (new File(yiiConfigPathNew).exists()) {
+            BufferedReader reader = execYiiLite("print_r(require('" + yiiConfigPathNew + "'));");
+            try {
+                String readed = reader.readLine();
+                if (readed.matches("^Array")) {
+                    return true;
+                }
+            } catch (IOException e) {
+                //
+            }
+        }
+        return false;
+    }
+
+    public BufferedReader execYiiLite(String phpCode) {
+        phpCode = "php -r \"error_reporting(0);require('" + yiiLitePath + "');" + phpCode + "\"";
+
+        try {
+            Process p = Runtime.getRuntime().exec(phpCode);
+            if (p != null) {
+                return new BufferedReader(new InputStreamReader(p.getInputStream()));
+            }
+        } catch (IOException e) {
+            // e.printStackTrace();
+        }
+        return null;
     }
 
     public void parseConfig() {
@@ -43,50 +94,40 @@ public class ConfigParser {
             return;
         }
         if (new File(yiiConfigPath).exists()) {
-            BufferedReader output = null;
-            String s = "";
-            try {
-                //   String prependPath = CommonHelper.getCommandPrepend();
 
-                String php = "print json_encode(require('" + yiiConfigPath + "'));";
-                php = "php -r \"error_reporting(0);require('" + yiiLitePath + "');" + php + "\"";
-                Process p = Runtime.getRuntime().exec(php);
+            BufferedReader reader = execYiiLite("print json_encode(require('" + yiiConfigPath + "'));");
+            if (reader != null) {
+                JsonStreamParser jsonStreamParser = new JsonStreamParser(reader);
+                JsonElement obj = jsonStreamParser.next();
+                JsonObject root = obj.getAsJsonObject();
 
-                if (p != null) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    JsonStreamParser jsonStreamParser = new JsonStreamParser(reader);
-                    JsonElement obj = jsonStreamParser.next();
-                    JsonObject root = obj.getAsJsonObject();
-
-                    if (root != null && root.has("aliases") && root.get("aliases").isJsonObject()) {
-                        JsonObject aliasesObj = root.get("aliases").getAsJsonObject();
-                        for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
-                            aliases.put(el.getKey(), el.getValue().toString());
-                        }
+                if (root != null && root.has("aliases") && root.get("aliases").isJsonObject()) {
+                    JsonObject aliasesObj = root.get("aliases").getAsJsonObject();
+                    for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
+                        aliases.put(el.getKey(), el.getValue().toString());
                     }
-                    if (root != null && root.has("components") && root.get("components").isJsonObject()) {
-                        JsonObject aliasesObj = root.get("components").getAsJsonObject();
-                        for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
-                            components.put(el.getKey(), el);
-                        }
-                    }
-                    if (root != null && root.has("params") && root.get("params").isJsonObject()) {
-                        JsonObject aliasesObj = root.get("params").getAsJsonObject();
-                        for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
-                            modules.put(el.getKey(), el);
-                        }
-                    }
-                    if (root != null && root.has("modules") && root.get("modules").isJsonObject()) {
-                        JsonObject aliasesObj = root.get("modules").getAsJsonObject();
-                        for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
-                            params.put(el.getKey(), el);
-                        }
-                    }
-
                 }
-            } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                if (root != null && root.has("components") && root.get("components").isJsonObject()) {
+                    JsonObject aliasesObj = root.get("components").getAsJsonObject();
+                    for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
+                        components.put(el.getKey(), el);
+                    }
+                }
+                if (root != null && root.has("params") && root.get("params").isJsonObject()) {
+                    JsonObject aliasesObj = root.get("params").getAsJsonObject();
+                    for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
+                        modules.put(el.getKey(), el);
+                    }
+                }
+                if (root != null && root.has("modules") && root.get("modules").isJsonObject()) {
+                    JsonObject aliasesObj = root.get("modules").getAsJsonObject();
+                    for (Map.Entry<String, JsonElement> el : aliasesObj.entrySet()) {
+                        params.put(el.getKey(), el);
+                    }
+                }
+
             }
+
 
         }
     }
