@@ -243,8 +243,11 @@ public class YiiStormSettingsPage implements Configurable {
                 }
             }
         });
-
-        if (properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty()) {
+        boolean empty = properties.getValue("yiiLitePath") == null || properties.getValue("yiiConfigPath") == null;
+        if (!empty) {
+            empty = properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty();
+        }
+        if (empty) {
             useYiiCompleter.setEnabled(false);
         } else {
             useYiiCompleterDisabledToggle();
