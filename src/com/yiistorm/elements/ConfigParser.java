@@ -65,11 +65,11 @@ public class ConfigParser {
             BufferedReader reader = execYiiLite("print_r(require('" + yiiConfigPathNew + "'));");
             try {
                 String readed = reader.readLine();
-                if (readed.matches("^Array")) {
+                if (readed != null && readed.matches("^Array")) {
                     return true;
                 }
-            } catch (IOException e) {
-                //
+            } catch (Exception e) {
+                return false;
             }
         }
         return false;
