@@ -2,9 +2,12 @@ package com.yiistorm.helpers;
 
 import com.intellij.ide.util.gotoByName.GotoClassModel2;
 import com.intellij.openapi.project.Project;
+import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiWhiteSpace;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
+import com.jetbrains.php.lang.psi.elements.PhpClass;
 import org.apache.commons.lang.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -340,7 +343,6 @@ public class PsiPhpHelper {
             }
 
             while (parentElement != null && isNotElementType(parentElement, types)) {
-                // System.err.println(parentElement.getNode().getElementType().toString() + " ^^^ " + parentElement.getText());
                 if (limitTypes != null) {
                     if (isElementType(parentElement, limitTypes))
                         return null;
@@ -502,24 +504,23 @@ public class PsiPhpHelper {
     }
 
     public static boolean isExtendsSuperclass(PsiElement child, String superclass) {
-        String name = getClassIdentifierName(child).toString();
-
-        if (name.replace("\\", "").equals(superclass)) {
-            return true;
+        if (child == null) {
+            return false;
         }
-        String parent = getExtendsClassNameForClass(child);
 
-        if (parent != null) {
-            if (parent.replace("\\", "").equals(superclass)) {
+        try {
+            PhpClass[] supers = ((PhpClass) child).getSupers();
+            String className = ((PhpClass) child).getName().toLowerCase();
+            if (className.equals(superclass.toLowerCase())) {
                 return true;
             }
-            List<PsiElement> classes = getPsiElementsFromClassName(parent.replaceAll("^\\\\", ""), child.getProject());
-
-            if (classes.size() > 0) {
-                for (PsiElement parentClass : classes) {
-                    return isExtendsSuperclass(parentClass, superclass);
+            for (PhpClass cl : supers) {
+                if (cl.getName().toLowerCase().equals(superclass.toLowerCase())) {
+                    return true;
                 }
             }
+        } catch (Exception e) {
+            return false;
         }
         return false;
     }
@@ -586,7 +587,15 @@ public class PsiPhpHelper {
     }
 
     public static PsiElement getClassElement(PsiElement child) {
-        return PsiPhpHelper.findFirstParentOfType(child, PsiPhpHelper.CLASS, PsiPhpHelper.CLASS);
+        PsiElement[] elc = child.getContainingFile().getChildren();
+        if (elc.length > 0 && elc[0] != null) {
+            for (PsiElement element : elc[0].getChildren()) {
+                if (PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS).accepts(element)) {
+                    return element;
+                }
+            }
+        }
+        return null;
     }
 
     public static String getClassName(PsiElement child) {

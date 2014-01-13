@@ -84,14 +84,51 @@ public class YiiRefsHelper {
     }
 
     public static boolean isExtendCActiveRecord(PsiElement el) {
-        try {
-            PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
-            boolean extendsCActiveRecord = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CActiveRecord");
-            if (extendsCActiveRecord) {
-                return true;
+
+        class ParentsSearch {
+            PsiElementPattern.Capture lookupCapture;
+
+            public ParentsSearch(PsiElementPattern.Capture lc) {
+                this.lookupCapture = lc;
             }
-        } catch (Exception ex) {
-            //
+
+            public boolean lookupParent(PsiElement el) {
+                if (el == null) {
+                    return false;
+                }
+                if (lookupCapture.accepts(el)) {
+                    return true;
+                }
+                return this.lookupParent(el.getParent());
+            }
+        }
+        PsiElementPattern.Capture ARClass = PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS);
+        PsiElementPattern.Capture p = PlatformPatterns.psiElement().withElementType(PhpElementTypes.STRING)
+                .withSuperParent(6,
+                        PlatformPatterns.psiElement()
+                                .withElementType(PhpElementTypes.RETURN))
+                .withSuperParent(8,
+                        PlatformPatterns.psiElement()
+                                .withElementType(PhpElementTypes.CLASS_METHOD)
+                                .withName("relations")
+                );
+
+
+        ParentsSearch ps = new ParentsSearch(PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD));
+        if (p.accepts(el) && el.getParent().getParent().getChildren()[0].getText()
+                .matches(".*(BELONGS_TO|HAS_MANY|HAS_ONE){1}.*")) {
+            PsiElement[] elc = el.getContainingFile().getChildren();
+            if (elc.length > 0 && elc[0] != null && elc[0].getChildren().length > 0) {
+                for (PsiElement element : elc[0].getChildren()) {
+                    if (ARClass.accepts(element)) {
+                        boolean extend = PsiPhpHelper.isExtendsSuperclass(element, "CActiveRecord");
+                        if (extend && ps.lookupParent(el)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
         }
         return false;
     }

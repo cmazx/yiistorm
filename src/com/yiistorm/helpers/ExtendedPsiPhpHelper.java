@@ -39,8 +39,12 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
         PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
         if (parameter_list != null) {
             String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
-            if (mrefchild.matches(regexp)) {
-                return true;
+            try {
+                if (mrefchild.matches(regexp)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                return false;
             }
         }
         return false;

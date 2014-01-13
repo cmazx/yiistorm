@@ -76,6 +76,6 @@ public class I18nFileReference implements PsiReference {
     @NotNull
     @Override
     public String getCanonicalText() {
-        return path;
+        return virtualFile.getCanonicalPath();
     }
 }

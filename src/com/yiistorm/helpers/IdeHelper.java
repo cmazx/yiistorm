@@ -112,5 +112,34 @@ public class IdeHelper {
         });
     }
 
+    /**
+     * BG runner
+     public void runBackgroundTask(final int Action, Project project) {
+     final Task.Backgroundable task = new Task.Backgroundable(project, "RunningPr", false) {
+
+    @Override public String getProcessId() {
+    return "RunningPr";
+    }
+
+    @Override public DumbModeAction getDumbModeAction() {
+    return DumbModeAction.CANCEL;
+    }
+
+    public void run(@NotNull final ProgressIndicator indicator) {
+    final Task.Backgroundable this_task = this;
+    ((ProgressIndicatorEx) indicator).addStateDelegate(new ProgressIndicatorBase() {
+    @Override public void cancel() {
+    this_task.onCancel();
+    }
+    });
+    indicator.setText("Running");
+    indicator.setFraction(0.1);
+    indicator.stop();
+    }
+
+    };
+     task.setCancelText("Stop processing").queue();
+     }      */
+
 
 }

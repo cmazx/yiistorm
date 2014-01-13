@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.patterns.StandardPatterns;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.patterns.PhpPatterns;
@@ -24,15 +25,14 @@ public class YiiAppCompletionContributor extends CompletionContributor {
                         .withChild(
                                 PlatformPatterns.psiElement().withElementType(PhpElementTypes.METHOD_REFERENCE)
                                         .referencing(
-                                                PhpPatterns.psiElement().withElementType(
-                                                        PhpElementTypes.CLASS_METHOD
-                                                ).withName("app")
-                                                        .withSuperParent(5, PhpPatterns.psiElement().withName("Yii"))
+                                                PhpPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD)
+                                                        .withName("app").withParent(
+                                                        PhpPatterns.psiElement()
+                                                                .withElementType(PhpElementTypes.CLASS)
+                                                                .withName(StandardPatterns.string().oneOf("Yii", "YiiBase"))
+                                                )
                                         )
-
                         )
-
-
                 ).withLanguage(PhpLanguage.INSTANCE);
 
     }

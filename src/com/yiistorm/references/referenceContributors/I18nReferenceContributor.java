@@ -2,6 +2,7 @@ package com.yiistorm.references.referenceContributors;
 
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
@@ -20,7 +21,7 @@ public class I18nReferenceContributor extends PsiReferenceContributor {
     public PsiElementPattern.Capture categoryPattern() {
         return PlatformPatterns.psiElement(PsiElement.class)
                 .withElementType(PhpElementTypes.STRING)
-                .withParent(YiiContibutorHelper.methodParamsList("t", "Yii", 5))
+                .withParent(YiiContibutorHelper.methodParamsList("t", StandardPatterns.string().oneOf("Yii", "YiiBase")))
                 .insideStarting(
                         PlatformPatterns.psiElement().withElementType(PhpElementTypes.PARAMETER_LIST)
                 )

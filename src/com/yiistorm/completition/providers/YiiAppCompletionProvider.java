@@ -8,7 +8,6 @@ import com.intellij.util.ProcessingContext;
 import com.yiistorm.YiiStormProjectComponent;
 import com.yiistorm.completition.lookups.ConfigComponentLookupElement;
 import com.yiistorm.elements.ConfigParser;
-import com.yiistorm.helpers.I18NHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -25,16 +24,12 @@ public class YiiAppCompletionProvider extends CompletionProvider {
 
         PsiFile currentFile = completionParameters.getPosition().getContainingFile();
         Project project = currentFile.getProject();
-        String lang = I18NHelper.getLang(project);
         ConfigParser config = YiiStormProjectComponent.getInstance(project).getYiiConfig();
         if (config != null) {
             HashMap<String, String> classMap = config.getComponentsClassMap();
             if (classMap != null && classMap.size() > 0) {
                 for (String componentName : classMap.keySet()) {
-                    ConfigComponentLookupElement cel = new ConfigComponentLookupElement(componentName, project);
-                    completionResultSet.consume(cel);
-
-                    //  completionResultSet.addElement();
+                    completionResultSet.addElement(new ConfigComponentLookupElement(componentName, project));
                 }
             }
         }

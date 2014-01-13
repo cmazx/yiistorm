@@ -31,8 +31,8 @@ public class I18CategoryCompletionProvider extends CompletionProvider {
         String lang = I18NHelper.getLang(project);
         if (currentFile.getOriginalFile().getVirtualFile() != null) {
 
-            String searchStringFull = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
-            String searchString = searchStringFull;
+            String searchString = CommonHelper.cleanCompleterSearchString(completionParameters.getPosition().getText());
+
             String subpathAlias = "";
             String path = CommonHelper.getFilePath(currentFile);
             String protectedPath = CommonHelper.searchCurrentProtected(path);
