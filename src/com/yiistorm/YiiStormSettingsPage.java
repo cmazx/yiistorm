@@ -92,7 +92,11 @@ public class YiiStormSettingsPage implements Configurable {
         langField = new JTextField(15);
         langLabel.setLabelFor(langField);
         langField.setMaximumSize(new Dimension(500, 20));
-        themePanellang.add(langLabel, BorderLayout.WEST);
+        JPanel themeLabelPanel1 = new JPanel();
+        themeLabelPanel1.setPreferredSize(new Dimension(135, 25));
+        themeLabelPanel1.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
+        themeLabelPanel1.add(langLabel);
+        themePanellang.add(themeLabelPanel1, BorderLayout.WEST);
         themePanellang.add(langField, BorderLayout.CENTER);
 
         panel.add(Box.createVerticalStrut(8));
@@ -105,11 +109,15 @@ public class YiiStormSettingsPage implements Configurable {
         themePanel.setMaximumSize(new Dimension(5000, 25));
 
         JLabel themeNameLabel = new JLabel("Project theme name:");
+        themeNameLabel.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         themeNameLabel.setSize(new Dimension(200, 20));
         themeNameField = new JTextField(15);
         themeNameLabel.setLabelFor(themeNameField);
         themeNameField.setMaximumSize(new Dimension(500, 20));
-        themePanel.add(themeNameLabel, BorderLayout.WEST);
+        JPanel themeLabelPanel = new JPanel();
+        themeLabelPanel.setPreferredSize(new Dimension(135, 25));
+        themeLabelPanel.add(themeNameLabel);
+        themePanel.add(themeLabelPanel, BorderLayout.WEST);
         themePanel.add(themeNameField, BorderLayout.CENTER);
 
         panel.add(Box.createVerticalStrut(8));
@@ -166,15 +174,18 @@ public class YiiStormSettingsPage implements Configurable {
         yiicPanel.setLayout(new BorderLayout());
         yiicPanel.setMaximumSize(new Dimension(5000, 25));
         JLabel label = new JLabel("YiiLite.php file path:");
+        label.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         label.setSize(new Dimension(200, 20));
         yiiLitePath = new JTextField(15);
         label.setLabelFor(yiiLitePath);
+
         yiiLitePath.setMaximumSize(new Dimension(500, 20));
         yiiLitePath.addKeyListener(toggleListener);
         JButton yiiLitePathSelect = new JButton("Select file");
 
         JPanel lpan = new JPanel();
-        lpan.add(label).setSize(200, 20);
+        lpan.setPreferredSize(new Dimension(130, 25));
+        lpan.add(label);
         yiicPanel.add(lpan, BorderLayout.WEST);
         yiicPanel.add(yiiLitePath, BorderLayout.CENTER);
         yiicPanel.add(yiiLitePathSelect, BorderLayout.EAST);
@@ -208,7 +219,9 @@ public class YiiStormSettingsPage implements Configurable {
         yiicConfigPanel.setLayout(new BorderLayout());
         yiicConfigPanel.setMaximumSize(new Dimension(5000, 25));
         JLabel ConfigLabel = new JLabel("Yii current config path:");
-        ConfigLabel.setSize(new Dimension(200, 20));
+        ConfigLabel.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
+
+
         yiiConfigPath = new JTextField(15);
         yiiConfigPath.addKeyListener(toggleListener);
         ConfigLabel.setLabelFor(yiiConfigPath);
@@ -216,7 +229,8 @@ public class YiiStormSettingsPage implements Configurable {
         JButton yiiConfigPathSelect = new JButton("Select file");
 
         JPanel ConfigLabelpan = new JPanel();
-        ConfigLabelpan.add(ConfigLabel).setSize(200, 20);
+        ConfigLabelpan.setPreferredSize(new Dimension(130, 25));
+        ConfigLabelpan.add(ConfigLabel);
         yiicConfigPanel.add(ConfigLabelpan, BorderLayout.WEST);
         yiicConfigPanel.add(yiiConfigPath, BorderLayout.CENTER);
         yiicConfigPanel.add(yiiConfigPathSelect, BorderLayout.EAST);
@@ -275,14 +289,18 @@ public class YiiStormSettingsPage implements Configurable {
         yiicPanel.setLayout(new BorderLayout());
         yiicPanel.setMaximumSize(new Dimension(5000, 25));
         JLabel yiicFileFieldLabel = new JLabel("Yiic.php path:");
+        yiicFileFieldLabel.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         yiicFileFieldLabel.setSize(new Dimension(200, 20));
+
         yiicFileField = new JTextField(15);
         yiicFileFieldLabel.setLabelFor(yiicFileField);
-        yiicFileField.setMaximumSize(new Dimension(500, 20));
+        JPanel labelPanel = new JPanel();
+        labelPanel.setPreferredSize(new Dimension(135, 25));
+        labelPanel.add(yiicFileFieldLabel);
+
         JButton yiicPathSelect = new JButton("Select file");
-
-
-        yiicPanel.add(yiicFileFieldLabel, BorderLayout.WEST);
+        yiicFileField.setMaximumSize(new Dimension(500, 20));
+        yiicPanel.add(labelPanel, BorderLayout.WEST);
         yiicPanel.add(yiicFileField, BorderLayout.CENTER);
         yiicPanel.add(yiicPathSelect, BorderLayout.EAST);
         panel.add(Box.createVerticalStrut(4));
