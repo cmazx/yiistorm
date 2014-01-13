@@ -47,11 +47,11 @@ public class ConfigParser {
             BufferedReader reader = execYiiLite("print YiiBase::getVersion();");
             try {
                 String readed = reader.readLine();
-                if (readed.matches("^\\d+?\\.\\d.+")) {
+                if (readed != null && readed.matches("^\\d+?\\.\\d.+")) {
                     return true;
                 }
-            } catch (IOException e) {
-                //
+            } catch (Exception e) {
+                return false;
             }
         }
         return false;
