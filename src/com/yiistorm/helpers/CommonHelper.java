@@ -16,9 +16,7 @@ import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
 import com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl;
 import com.yiistorm.completition.providers.ViewCompletionProvider;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -39,6 +37,8 @@ import java.util.regex.Pattern;
  * To change this template use File | Settings | File Templates.
  */
 public class CommonHelper {
+
+    private static int phpChecked = 0;
 
     /**
      * Detect windows OS
@@ -62,6 +62,35 @@ public class CommonHelper {
         } else {
             return "";
         }
+    }
+
+    public static boolean phpVersionCheck() {
+
+        if (phpChecked == 0) {
+            phpChecked = 2;
+            try {
+                Process p = Runtime.getRuntime().exec(CommonHelper.getCommandPrepend() + " php -v");
+                if (p != null) {
+                    String lineAll = "";
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String line = reader.readLine();
+                    while (line != null) {
+                        line = reader.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        lineAll += line + "\n";
+                    }
+                    if (lineAll.contains("The PHP Group")) {
+                        phpChecked = 1;
+                        return true;
+                    }
+                }
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
+        }
+        return phpChecked == 1;
     }
 
 

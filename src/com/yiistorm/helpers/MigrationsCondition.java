@@ -16,11 +16,13 @@ public class MigrationsCondition implements Condition {
     @Override
     public boolean value(Object o) {
         YiiStormProjectComponent component = YiiStormProjectComponent.getInstance((Project) o);
-        if (component.getBooleanProp("useYiiMigrations") && component.getProp("yiicFile") != null
-                && Yiic.yiicIsRunnable(component.getProp("yiicFile"))) {
+        if (component.getBooleanProp("useYiiMigrations")
+                && component.getProp("yiicFile") != null
+                && Yiic.yiicIsRunnable(component.getProp("yiicFile"))
+                && CommonHelper.phpVersionCheck()) {
             return true;
         }
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     public static boolean makeCondition(Project p) {

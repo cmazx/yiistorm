@@ -13,6 +13,7 @@ import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.yiistorm.elements.ConfigParser;
+import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.IdeHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +39,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     }
 
     public void loadConfigParser() {
-        if (getBooleanProp("useYiiCompleter")) {
+        if (getBooleanProp("useYiiCompleter") && CommonHelper.phpVersionCheck()) {
             yiiConfig = new ConfigParser(this);
         }
     }

@@ -5,6 +5,9 @@ import com.jetbrains.php.lang.documentation.phpdoc.psi.PhpDocComment;
 import com.jetbrains.php.lang.documentation.phpdoc.psi.tags.PhpDocReturnTag;
 import com.jetbrains.php.lang.psi.elements.impl.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Created with IntelliJ IDEA.
  * User: mazx
@@ -64,24 +67,42 @@ public class PsiPhpTypeHelper {
 
             VariableImpl psi = (VariableImpl) psiElement;
             type = psi.getType().toStringResolved();
-            if (type.matches("(?sim)#M#M#C\\\\[a-z_0-9]+?.model.find.+?\\|\\?")) {
-                VariableImpl vd = (VariableImpl) psi.resolve();
-                if (vd != null) {
-                    PsiElement findMetodCall = vd.getNextPsiSibling();
-                    if (findMetodCall != null) {
-                        MethodReferenceImpl modelStaticCall = (MethodReferenceImpl) findMetodCall.getFirstChild();
-                        if (modelStaticCall != null) {
-                            type = modelStaticCall.getText().replaceAll("(?sim)::.+", "");
+            if (type.matches("(?sim)^#M#M#C\\\\[a-z_0-9]+?.model.find.+?\\?")) {
+                try {
+                    VariableImpl vd = (VariableImpl) psi.resolve();
+                    if (type.matches(".+\\|[^\\?]+.*")) {
+                        String[] types = type.replaceAll("\\|\\?$", "").split("\\|");
+                        ArrayList<String> typeList = new ArrayList<String>();
+                        for (String typeName : types) {
+                            if (typeName.matches("(?sim)\\.model\\.find.*")) {
+                                typeList.add(typeName.replaceFirst("(?sim)^.+\\\\", "").replaceAll("(?sim)\\.model.+", ""));
+                            } else {
+                                typeList.add(typeName);
+                            }
+                        }
+                        if (typeList.size() > 0) {
+                            return Arrays.toString(typeList.toArray());
+                        }
+
+                        PsiElement findMetodCall = vd.getNextPsiSibling();
+                        if (findMetodCall != null) {
+                            MethodReferenceImpl modelStaticCall = (MethodReferenceImpl) findMetodCall.getFirstChild();
+                            if (modelStaticCall != null) {
+                                type = modelStaticCall.getText().replaceAll("(?sim)::.+", "");
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    type = "";
                 }
             } else if (type.startsWith("#F") || type.startsWith("#M")) {
-                VariableImpl vd = (VariableImpl) psi.resolve();
+                PsiElement vd = (PsiElement) psi.resolve();
                 if (vd != null) {
-                    PsiElement last = vd.getNextPsiSibling();
+                    PsiElement last = vd.getNextSibling();
                     type = PsiPhpTypeHelper.detectType(last);
                 }
             }
+
         }
         // Function call
         else if (psiElement.toString().equals("Function call")) {
