@@ -1,8 +1,10 @@
 package com.yiistorm.helpers;
 
+import com.intellij.patterns.PlatformPatterns;
+import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
-import com.magicento.helpers.PsiPhpHelper;
-import com.yiistorm.YiiPsiReferenceProvider;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
+import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
@@ -34,7 +36,7 @@ public class YiiRefsHelper {
                 Matcher regexMatcher = regex.matcher(path);
                 regexMatcher.matches();
                 regexMatcher.groupCount();
-                return regexMatcher.group(1).toString();
+                return regexMatcher.group(1);
             } catch (PatternSyntaxException ex) {
                 // Syntax error in the regular expression
             }
@@ -43,14 +45,10 @@ public class YiiRefsHelper {
     }
 
     /**
-     * @param path
-     * @return
+     * @param path Path
+     * @return int
      */
     public static int getYiiObjectType(String path, PsiElement el) {
-
-        if (isWidgetCall(el)) {
-            return YII_TYPE_WIDGET_CALL;
-        }
 
         if (isWidgetRenderView(path, el)) {
             return YII_TYPE_WIDGET_VIEW_RENDER;
@@ -58,10 +56,6 @@ public class YiiRefsHelper {
 
         if (isExtendCActiveRecord(el)) {
             return YII_TYPE_AR_RELATION;
-        }
-
-        if (isYiiViewToViewRenderCall(el)) {
-            return YII_TYPE_VIEW_TO_VIEW_RENDER;
         }
 
         if (isYiiControllerToViewRenderCall(path, el)) {
@@ -79,14 +73,62 @@ public class YiiRefsHelper {
         return YII_TYPE_UNKNOWN;
     }
 
+    public static boolean isYiiApplication(PsiElement el) {
+
+        //System.err.println(el.getText().toString());
+        return PlatformPatterns
+                .psiElement(PhpElementTypes.EXPRESSION)
+                        // .withParent(PlatformPatterns
+                        //         .psiElement(PhpElementTypes.METHOD_REFERENCE) )
+                .accepts(el);
+    }
+
     public static boolean isExtendCActiveRecord(PsiElement el) {
-        try {
-            PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
-            boolean extendsCActiveRecord = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CActiveRecord");
-            if (extendsCActiveRecord) {
-                return true;
+
+        class ParentsSearch {
+            PsiElementPattern.Capture lookupCapture;
+
+            public ParentsSearch(PsiElementPattern.Capture lc) {
+                this.lookupCapture = lc;
             }
-        } catch (Exception ex) {
+
+            public boolean lookupParent(PsiElement el) {
+                if (el == null) {
+                    return false;
+                }
+                if (lookupCapture.accepts(el)) {
+                    return true;
+                }
+                return this.lookupParent(el.getParent());
+            }
+        }
+        PsiElementPattern.Capture ARClass = PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS);
+        PsiElementPattern.Capture p = PlatformPatterns.psiElement().withElementType(PhpElementTypes.STRING)
+                .withSuperParent(6,
+                        PlatformPatterns.psiElement()
+                                .withElementType(PhpElementTypes.RETURN))
+                .withSuperParent(8,
+                        PlatformPatterns.psiElement()
+                                .withElementType(PhpElementTypes.CLASS_METHOD)
+                                .withName("relations")
+                );
+
+
+        ParentsSearch ps = new ParentsSearch(PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD));
+        if (p.accepts(el) && el.getParent().getParent().getChildren()[0].getText()
+                .matches(".*(BELONGS_TO|HAS_MANY|HAS_ONE){1}.*")) {
+            PsiElement[] elc = el.getContainingFile().getChildren();
+            if (elc.length > 0 && elc[0] != null && elc[0].getChildren().length > 0) {
+                for (PsiElement element : elc[0].getChildren()) {
+                    if (ARClass.accepts(element)) {
+                        boolean extend = PsiPhpHelper.isExtendsSuperclass(element, "CActiveRecord");
+                        if (extend && ps.lookupParent(el)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
         }
         return false;
     }
@@ -103,6 +145,7 @@ public class YiiRefsHelper {
                 }
             }
         } catch (Exception ex) {
+            //
         }
         return false;
     }
@@ -110,33 +153,27 @@ public class YiiRefsHelper {
 
     public static boolean isWidgetRenderView(String path, PsiElement el) {
         if (!path.contains("Controller.php")) {
-            PsiElement PsiClass = PsiPhpHelper.getClassElement(el);
-            if (PsiClass != null) {
-                boolean extendsWidget = PsiPhpHelper.isExtendsSuperclass(PsiClass, "CWidget");
-                if (!extendsWidget) {
-                    return false;
-                }
-                PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-                String methodName = PsiPhpHelper.getMethodName(method);
-                if (methodName.matches("^(renderPartial|render)$")) {
-                    return true;
+            PsiElementPattern.Capture p = PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS)
+                    .withSuperParent(5, PlatformPatterns.psiElement().withName("CWidget"));
+
+            PsiElementPattern.Capture renderMethod = PlatformPatterns.psiElement().withParent(
+                    YiiContibutorHelper.paramListInMethodWithName("render")
+            );
+            PsiElementPattern.Capture renderPartialMethod = PlatformPatterns.psiElement().withParent(
+                    YiiContibutorHelper.paramListInMethodWithName("renderPartial")
+            );
+            PsiElement[] elc = el.getContainingFile().getChildren();
+            if (elc.length > 0 && elc[0] != null && elc[0].getChildren().length > 0) {
+                for (PsiElement element : elc[0].getChildren()) {
+                    if (p.accepts(element) && (renderMethod.accepts(el) || renderPartialMethod.accepts(el))) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
 
-    public static boolean isWidgetCall(PsiElement el) {
-
-        PsiElement method = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-        if (method != null) {
-            String methodName = PsiPhpHelper.getMethodName(method);
-            if (methodName.matches("^widget$")) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public static boolean isYiiControllerToViewRenderCall(String path, PsiElement el) {
         if (path.contains("Controller.php")) {
@@ -168,20 +205,6 @@ public class YiiRefsHelper {
                 }
             }
         }
-        return false;
-    }
-
-    public static boolean isYiiViewToViewRenderCall(PsiElement el) {
-        if (PsiPhpHelper.getClassElement(el) == null) {
-            PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-            if (parameter_list != null) {
-                String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
-                if (mrefchild.matches("^(renderPartial|render)$")) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 
@@ -253,7 +276,7 @@ public class YiiRefsHelper {
                                     Matcher m = pattern.matcher(className);
                                     m.matches();
                                     m.groupCount();
-                                    return m.group(1).toString();
+                                    return m.group(1);
                                 }
                             } else {
                             /*

@@ -5,43 +5,45 @@
         <br/>
         <b>Provides:</b>
         <ul>
-        <li>CController::render() call references to view file (renderPartial supported).</li>
-        <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction (renderPartial supported).</li>
-        <li>CController::widget('path.to.widget') references to Widget class in current basepath.</li>
-        <li>References to related AR Class in CActiveRecord::relations() (support namespaces).</li>
+        <li>References to view file from render method.</li>
+        <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction.</li>
+        <li>Reference to widget from widget-call.</li>
+        <li>References to related model in relations().</li>
+        <li>Qick creating view files by select autocompleter variant + auto-phpdoc.</li>
+        <li>Yii::t('category','line') autocomplete and quick-create.</li>
+        <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.5b</version>
-    <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx.ru</vendor>
-    <idea-version since-build="8000"/>
-
-    <application-components>
-        <!-- Add your application components here -->
-    </application-components>
-
+    <version>0.9.15</version>
+    <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
+    <idea-version since-build="133.000"/>
     <project-components>
-        <!-- Add your project components here -->
         <component>
             <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>
         </component>
     </project-components>
 
-    <actions>
-        <!-- Add your actions here -->
-        <action id="YiiStormConfigAction" class="com.yiistorm.actions.YiiStormConfigAction" text="YiiStorm theme name"
-                description="YiiStorm config">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="alt Y"/>
-        </action>
-    </actions>
 
+    <depends>com.jetbrains.php</depends>
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor implementation="com.yiistorm.MyPsiReferenceContributor"/>
-        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage">
-            <loadForDefaultProject/>
-        </projectConfigurable>
-        <!-- Add your extensions here -->
+
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.yiistorm.references.referenceContributors.YiiReferenceContributor"/>
+        <psi.referenceContributor language="PHP"
+                                  implementation="com.yiistorm.references.referenceContributors.I18nReferenceContributor"/>
+        <projectConfigurable implementation="com.yiistorm.YiiStormSettingsPage"/>
+        <toolWindow id="Migrations" secondary="true" icon="/com/yiistorm/images/migrations.png" anchor="bottom"
+                    conditionClass="com.yiistorm.helpers.MigrationsCondition"
+                    factoryClass="com.yiistorm.elements.MigrationsToolWindow"/>
+
+        <completion.contributor language="PHP" order="FIRST"
+                                implementationClass="com.yiistorm.completition.contributors.YiiAppCompletionContributor"/>
+        <completion.contributor language="PHP" order="FIRST"
+                                implementationClass="com.yiistorm.completition.contributors.I18CompletionContributor"/>
+        <completion.contributor language="PHP"
+                                implementationClass="com.yiistorm.completition.contributors.ViewCompletionContributor"/>
+
     </extensions>
 </idea-plugin>

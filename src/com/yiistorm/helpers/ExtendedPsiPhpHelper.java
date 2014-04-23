@@ -1,7 +1,6 @@
 package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
-import com.magicento.helpers.PsiPhpHelper;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,15 +32,19 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
     }
 
     public static boolean isNamespace(PsiElement element) {
-        return (element.toString() == "Namespace" && element.getFirstChild() != null);
+        return (element.toString().equals("Namespace") && element.getFirstChild() != null);
     }
 
     public static boolean parentMethodNameMatch(PsiElement el, String regexp) {
         PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
         if (parameter_list != null) {
             String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
-            if (mrefchild.matches(regexp)) {
-                return true;
+            try {
+                if (mrefchild.matches(regexp)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                return false;
             }
         }
         return false;

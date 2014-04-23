@@ -2,7 +2,7 @@ package com.yiistorm.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.yiistorm.forms.ThemePathForm;
+import com.yiistorm.forms.ConfigForm;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +16,7 @@ public class YiiStormConfigAction extends YiiStormActionAbstract {
 
     @Override
     public void executeAction() {
-        ThemePathForm form = new ThemePathForm(this);
+        ConfigForm form = new ConfigForm(this);
         form.setVisible(true);
     }
 

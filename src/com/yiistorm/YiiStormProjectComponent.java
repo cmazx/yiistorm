@@ -8,10 +8,13 @@ package com.yiistorm;
  * To change this template use File | Settings | File Templates.
  */
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.magicento.helpers.IdeHelper;
+import com.yiistorm.elements.ConfigParser;
+import com.yiistorm.helpers.CommonHelper;
+import com.yiistorm.helpers.IdeHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -22,9 +25,39 @@ public class YiiStormProjectComponent implements ProjectComponent {
     private Project _project;
     private boolean _isCacheConfigXmlUpdated = false;
     private boolean _isCacheLayoutXmlUpdated = false;
+    PropertiesComponent properties;
+    private ConfigParser yiiConfig;
 
     public YiiStormProjectComponent(Project project) {
         _project = project;
+        properties = PropertiesComponent.getInstance(project);
+        //TODO: loadConfigParser();
+    }
+
+    public ConfigParser getYiiConfig() {
+        return yiiConfig;
+    }
+
+    public void loadConfigParser() {
+        if (getBooleanProp("useYiiCompleter") && CommonHelper.phpVersionCheck()) {
+            yiiConfig = new ConfigParser(this);
+        }
+    }
+
+    public void clearConfigParser() {
+        yiiConfig = null;
+    }
+
+    public String getProp(String name) {
+        return properties.getValue(name);
+    }
+
+    public boolean getBooleanProp(String name) {
+        return properties.getBoolean(name, false);
+    }
+
+    public void setProp(String name, String value) {
+        properties.setValue(name, value);
     }
 
     public static YiiStormProjectComponent getInstance(Project project) {
@@ -32,7 +65,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     }
 
     public void initComponent() {
-        //init
+
     }
 
 
