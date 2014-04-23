@@ -9,7 +9,6 @@
         <li>CAction $this->getController()->render('view') references to CController::render() wich use what CAction.</li>
         <li>Reference to widget from widget-call.</li>
         <li>References to related model in relations().</li>
-        <li>Autocomplete views names and application components.</li>
         <li>Qick creating view files by select autocompleter variant + auto-phpdoc.</li>
         <li>Yii::t('category','line') autocomplete and quick-create.</li>
         <li>Migrations manager.</li>
