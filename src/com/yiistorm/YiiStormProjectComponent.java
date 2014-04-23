@@ -31,7 +31,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     public YiiStormProjectComponent(Project project) {
         _project = project;
         properties = PropertiesComponent.getInstance(project);
-        loadConfigParser();
+        //TODO: loadConfigParser();
     }
 
     public ConfigParser getYiiConfig() {

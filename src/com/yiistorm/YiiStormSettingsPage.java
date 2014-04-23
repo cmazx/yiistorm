@@ -9,10 +9,12 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.JBColor;
 import com.yiistorm.elements.ConfigParser;
+import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.helpers.MigrationsCondition;
 import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -130,7 +132,7 @@ public class YiiStormSettingsPage implements Configurable {
 
 
         initYiicPath();
-        initYiiAppPanel();
+        //initYiiAppPanel();
 
         panel.add(Box.createVerticalGlue());
         return panel;
@@ -318,6 +320,15 @@ public class YiiStormSettingsPage implements Configurable {
                 VirtualFile baseDir = project.getBaseDir();
                 if (baseDir != null) {
                     fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
+                    FileNameExtensionFilter fn;
+                    if (CommonHelper.isWindows()) {
+                        fileChooser.setFileFilter(new FileNameExtensionFilter("Yiic.bat file", "bat"));
+                        fileChooser.setName("yiic.bat");
+                    } else {
+                        fileChooser.setFileFilter(new FileNameExtensionFilter("Yiic.php file", "php"));
+                        fileChooser.setName("yiic.php");
+                    }
+                    fileChooser.setAcceptAllFileFilterUsed(false);
                     int ret = fileChooser.showDialog(null, "Открыть файл");
                     if (ret == JFileChooser.APPROVE_OPTION) {
                         yiicFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
@@ -357,21 +368,21 @@ public class YiiStormSettingsPage implements Configurable {
         properties.setValue("themeName", themeNameField.getText());
         properties.setValue("langName", langField.getText());
         properties.setValue("yiicFile", yiicFileField.getText());
-        properties.setValue("yiiConfigPath", yiiConfigPath.getText());
-        properties.setValue("yiiLitePath", yiiLitePath.getText());
-        properties.setValue("useYiiCompleter", String.valueOf(useYiiCompleter.isSelected()));
-        properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
+        // properties.setValue("yiiConfigPath", yiiConfigPath.getText());
+        // properties.setValue("yiiLitePath", yiiLitePath.getText());
+        // properties.setValue("useYiiCompleter", String.valueOf(useYiiCompleter.isSelected()));
+        // properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
 
         final ToolWindowManager manager = ToolWindowManager.getInstance(project);
         final ToolWindow tw = manager.getToolWindow("Migrations");
         if (tw != null) {
             tw.setAvailable(MigrationsCondition.makeCondition(project), null);
         }
-        if (properties.getBoolean("useYiiCompleter", false)) {
+       /* if (properties.getBoolean("useYiiCompleter", false)) {
             YiiStormProjectComponent.getInstance(project).loadConfigParser();
         } else {
             YiiStormProjectComponent.getInstance(project).clearConfigParser();
-        }
+        } */
 
     }
 

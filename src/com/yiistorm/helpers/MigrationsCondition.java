@@ -1,5 +1,9 @@
 package com.yiistorm.helpers;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.yiistorm.YiiStormProjectComponent;
@@ -16,11 +20,25 @@ public class MigrationsCondition implements Condition {
     @Override
     public boolean value(Object o) {
         YiiStormProjectComponent component = YiiStormProjectComponent.getInstance((Project) o);
-        if (component.getBooleanProp("useYiiMigrations")
-                && component.getProp("yiicFile") != null
-                && Yiic.yiicIsRunnable(component.getProp("yiicFile"))
-                && CommonHelper.phpVersionCheck()) {
-            return true;
+
+        Notifications.Bus.register("yiicnotfound", NotificationDisplayType.BALLOON);
+        if (component.getBooleanProp("useYiiMigrations")) {
+            boolean phpOk = CommonHelper.phpVersionCheck();
+            if (component.getProp("yiicFile").length() < 1) {
+                Notifications.Bus.notify(new Notification("yiistormMigration",
+                        "YiiStorm migrations",
+                        "Yiic not selected ",
+                        NotificationType.WARNING));
+                return false;
+            }
+            if (component.getProp("yiicFile") != null && phpOk && Yiic.yiicIsRunnable(component.getProp("yiicFile"))) {
+                return true;
+            } else {
+                Notifications.Bus.notify(new Notification("yiistormMigration",
+                        "YiiStorm migrations",
+                        phpOk ? "Yiic file not configured." : "Can't run php. Check your system configuration. ",
+                        NotificationType.WARNING));
+            }
         }
         return false;
     }

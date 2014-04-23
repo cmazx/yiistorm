@@ -60,7 +60,7 @@ public class CommonHelper {
         if (isWindows()) {
             return "cmd /c ";
         } else {
-            return "";
+            return "php ";
         }
     }
 
@@ -69,7 +69,8 @@ public class CommonHelper {
         if (phpChecked == 0) {
             phpChecked = 2;
             try {
-                Process p = Runtime.getRuntime().exec(CommonHelper.getCommandPrepend() + " php -v");
+                String php = isWindows() ? " php.exe " : "";
+                Process p = Runtime.getRuntime().exec(CommonHelper.getCommandPrepend() + php + " -v");
                 if (p != null) {
                     String lineAll = "";
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
