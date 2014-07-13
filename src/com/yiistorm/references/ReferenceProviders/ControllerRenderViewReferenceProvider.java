@@ -27,12 +27,13 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
     public static String projectPath;
     public static Project project;
     public static PropertiesComponent properties;
+    public VirtualFile baseDir;
 
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull final ProcessingContext context) {
         project = element.getProject();
         String elname = element.getClass().getName();
         properties = PropertiesComponent.getInstance(project);
-        VirtualFile baseDir = project.getBaseDir();
+        baseDir = project.getBaseDir();
         projectPath = baseDir.getCanonicalPath();
         if (elname.endsWith("StringLiteralExpressionImpl")) {
 
@@ -70,11 +71,9 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
 
                         if (controllerName != null) {
                             if (baseDir != null) {
-                                String inThemeFullPath = viewPathTheme + controllerName + "/" + uri
-                                        + (uri.endsWith(".tpl") ? "" : ".php");
-                                if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {
-                                    viewPath = viewPathTheme;
-                                }
+
+                                viewPath = getThemedPath(viewPathTheme, controllerName, uri, viewPath);
+
                                 VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
                                 VirtualFile protectedPathDir = (!protectedPath.equals("")) ?
                                         baseDir.findFileByRelativePath(protectedPath) : null;
@@ -84,8 +83,10 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                                     return new PsiReference[]{ref};
                                 }
                             }
+
                             return PsiReference.EMPTY_ARRAY;
                         }
+
                     }
                 }
             } catch (Exception e) {
@@ -94,4 +95,15 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
         }
         return PsiReference.EMPTY_ARRAY;
     }
+
+    private String getThemedPath(String viewPathTheme, String controllerName, String uri, String viewPath) {
+        String inThemeFullPath = viewPathTheme + controllerName + "/" + uri
+                + (uri.endsWith(".tpl") ? "" : ".php");
+        if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {
+            return viewPathTheme;
+        }
+        return viewPath;
+    }
+
+
 }
