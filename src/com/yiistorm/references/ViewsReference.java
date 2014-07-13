@@ -10,6 +10,9 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ViewsReference implements PsiReference {
     protected PsiElement element;
     protected TextRange textRange;
@@ -50,8 +53,8 @@ public class ViewsReference implements PsiReference {
     }
 
     public PsiElement bindToElement(@NotNull PsiElement element) throws IncorrectOperationException {
-        // TODO: Implement this method
-        throw new IncorrectOperationException();
+
+        return element;
     }
 
     public boolean isReferenceTo(PsiElement element) {
@@ -79,14 +82,35 @@ public class ViewsReference implements PsiReference {
         } else if (path.matches("^/.+")) {
             targetFile = appDir.findFileByRelativePath((path.endsWith(".tpl") ? path : path + ".php"));
         } else {
-            path = controllerName + "/" + (path.endsWith(".tpl") ? path : path + ".php");
-            targetFile = appDir.findFileByRelativePath(path);
+
+            targetFile = appDir.findFileByRelativePath(controllerName + "/" + (path.endsWith(".tpl")
+                    ? path
+                    : path + ".php"));
+            if (targetFile == null) {
+                if (controllerName.matches(".+[A-Z].*")) {
+                    controllerName = convertYii2ViewPath(controllerName);
+                }
+                targetFile = appDir.findFileByRelativePath(controllerName + "/" + (path.endsWith(".tpl")
+                        ? path
+                        : path + ".php"));
+            }
         }
 
         if (targetFile != null) {
             return PsiManager.getInstance(project).findFile(targetFile);
         }
         return null;
+    }
+
+    private String convertYii2ViewPath(String controllerName) {
+        Pattern p = Pattern.compile("(.)([A-Z])");
+        Matcher m = p.matcher(controllerName);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, m.group(1) + "-" + m.group(2).toLowerCase());
+        }
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     @NotNull
