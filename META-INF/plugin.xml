@@ -16,7 +16,7 @@
     ]]></description>
     <version>0.9.16</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
-    <idea-version since-build="138.000"/>
+    <idea-version since-build="133.000" until-build="135.000"/>
     <project-components>
         <component>
             <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>
