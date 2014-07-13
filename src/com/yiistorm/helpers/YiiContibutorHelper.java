@@ -7,7 +7,6 @@ import com.intellij.patterns.StringPattern;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
-import com.jetbrains.php.lang.patterns.PhpElementPattern;
 import com.jetbrains.php.lang.patterns.PhpPatterns;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 
@@ -34,8 +33,8 @@ public class YiiContibutorHelper {
 
     }
 
-    public static PhpElementPattern.Capture<StringLiteralExpression> methodLiteralExpression(String methodName,
-                                                                                             StringPattern className) {
+    public static com.jetbrains.php.injection.PhpElementPattern.Capture<StringLiteralExpression>
+    methodLiteralExpression(String methodName, StringPattern className) {
         return PhpPatterns.phpLiteralExpression()
                 .withParent(
                         methodParamsList(methodName, className)
