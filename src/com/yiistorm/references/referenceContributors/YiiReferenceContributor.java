@@ -24,13 +24,13 @@ public class YiiReferenceContributor extends PsiReferenceContributor {
         //View-to-view
         registrar.registerReferenceProvider(
                 PlatformPatterns.psiElement(PhpPsiElement.class)
-                        .withParent(isParamListInMethodWithName(".+?render(Partial)*\\(.+"))
+                        .withParent(isParamListInMethodWithName(".+?render(Partial|Ajax)*\\(.+"))
                         .andNot(inFile(PlatformPatterns.string().endsWith("Controller.php")))
                 , new ViewRenderViewReferenceProvider());
         //Controller-to-view
         registrar.registerReferenceProvider(
                 PlatformPatterns.psiElement(PhpPsiElement.class)
-                        .withParent(isParamListInMethodWithName("(?sim).+?render(Partial)*\\(.+"))
+                        .withParent(isParamListInMethodWithName("(?sim).+?render(Partial|Ajax)*\\(.+"))
                         .and(inFile(PlatformPatterns.string().endsWith("Controller.php")))
                 , new ControllerRenderViewReferenceProvider());
     }

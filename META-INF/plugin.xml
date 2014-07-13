@@ -14,9 +14,9 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.9.15</version>
+    <version>0.9.16</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
-    <idea-version since-build="133.000"/>
+    <idea-version since-build="138.000"/>
     <project-components>
         <component>
             <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>

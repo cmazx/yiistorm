@@ -41,6 +41,16 @@ public class ViewCompletionContributor extends CompletionContributor {
                                                                         .withText(StandardPatterns.string().contains("render("))
                                                         )
 
+                                        ),
+
+                                PlatformPatterns.psiElement(StringLiteralExpression.class)
+                                        .withParent(
+                                                PlatformPatterns.psiElement(PhpElementTypes.PARAMETER_LIST)
+                                                        .withParent(
+                                                                PlatformPatterns.psiElement(PhpElementTypes.METHOD_REFERENCE)
+                                                                        .withText(StandardPatterns.string().contains("renderAjax("))
+                                                        )
+
                                         )
                         )
                 )

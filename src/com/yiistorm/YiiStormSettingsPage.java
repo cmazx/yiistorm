@@ -368,10 +368,11 @@ public class YiiStormSettingsPage implements Configurable {
         properties.setValue("themeName", themeNameField.getText());
         properties.setValue("langName", langField.getText());
         properties.setValue("yiicFile", yiicFileField.getText());
+        properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
         // properties.setValue("yiiConfigPath", yiiConfigPath.getText());
         // properties.setValue("yiiLitePath", yiiLitePath.getText());
         // properties.setValue("useYiiCompleter", String.valueOf(useYiiCompleter.isSelected()));
-        // properties.setValue("useYiiMigrations", String.valueOf(useMigrationsCheckbox.isSelected()));
+        //
 
         final ToolWindowManager manager = ToolWindowManager.getInstance(project);
         final ToolWindow tw = manager.getToolWindow("Migrations");
