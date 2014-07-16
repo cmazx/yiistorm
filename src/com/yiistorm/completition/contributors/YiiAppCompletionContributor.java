@@ -22,17 +22,17 @@ public class YiiAppCompletionContributor extends CompletionContributor {
     public static PsiElementPattern.Capture appFieldPattern() {
         return PlatformPatterns.psiElement()
                 .withParent(PlatformPatterns.psiElement().withElementType(PhpElementTypes.FIELD_REFERENCE)
-                        .withChild(
-                                PlatformPatterns.psiElement().withElementType(PhpElementTypes.METHOD_REFERENCE)
-                                        .referencing(
-                                                PhpPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD)
-                                                        .withName("app").withParent(
-                                                        PhpPatterns.psiElement()
-                                                                .withElementType(PhpElementTypes.CLASS)
-                                                                .withName(StandardPatterns.string().oneOf("Yii", "YiiBase"))
+                                .withChild(
+                                        PlatformPatterns.psiElement().withElementType(PhpElementTypes.METHOD_REFERENCE)
+                                                .referencing(
+                                                        PhpPatterns.psiElement().withElementType(PhpElementTypes.CLASS_METHOD)
+                                                                .withName("app").withParent(
+                                                                PhpPatterns.psiElement()
+                                                                        .withElementType(PhpElementTypes.CLASS)
+                                                                        .withName(StandardPatterns.string().oneOfIgnoreCase("Yii", "YiiBase"))
+                                                        )
                                                 )
-                                        )
-                        )
+                                )
                 ).withLanguage(PhpLanguage.INSTANCE);
 
     }

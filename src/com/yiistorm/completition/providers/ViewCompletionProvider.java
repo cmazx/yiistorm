@@ -34,7 +34,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     public static final int MODULE_RELATIVE_LINK = 3;
 
     public ArrayList<String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
-        PsiElement pEl = c.getLookup().getPsiElement();
+        PsiElement pEl = c.getPosition();
 
         ArrayList<String> names = new ArrayList<String>();
         String creatorClassName = PsiPhpHelper.getClassName(pEl);

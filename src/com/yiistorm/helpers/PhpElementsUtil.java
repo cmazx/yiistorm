@@ -111,7 +111,7 @@ public class PhpElementsUtil {
         ArrayHashElement translationArrayHashElement = PsiElementUtils.getChildrenOfType(arrayCreationExpression, PlatformPatterns.psiElement(ArrayHashElement.class)
                 .withFirstChild(
                         PlatformPatterns.psiElement(PhpElementTypes.ARRAY_KEY).withText(
-                                PlatformPatterns.string().oneOf("'" + keyName + "'", "\"" + keyName + "\"")
+                                PlatformPatterns.string().oneOfIgnoreCase("'" + keyName + "'", "\"" + keyName + "\"")
                         )
                 )
         );

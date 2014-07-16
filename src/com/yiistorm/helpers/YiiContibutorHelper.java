@@ -82,10 +82,10 @@ public class YiiContibutorHelper {
 
 
     public static PsiElementPattern.Capture firstStringInYiiMethod(String methodName) {
-        return firstStringInMethod(methodName, StandardPatterns.string().oneOf("Yii", "YiiBase"));
+        return firstStringInMethod(methodName, StandardPatterns.string().oneOfIgnoreCase("Yii", "YiiBase"));
     }
 
     public static PsiElementPattern.Capture stringInYiiMethod(String methodName) {
-        return stringInMethod(methodName, StandardPatterns.string().oneOf("Yii", "YiiBase"));
+        return stringInMethod(methodName, StandardPatterns.string().oneOfIgnoreCase("Yii", "YiiBase"));
     }
 }
