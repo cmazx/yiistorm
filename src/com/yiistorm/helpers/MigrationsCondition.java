@@ -9,13 +9,6 @@ import com.intellij.openapi.util.Condition;
 import com.yiistorm.YiiStormProjectComponent;
 import com.yiistorm.elements.Yiic;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.04.13
- * Time: 19:09
- * To change this template use File | Settings | File Templates.
- */
 public class MigrationsCondition implements Condition {
     @Override
     public boolean value(Object o) {

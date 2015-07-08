@@ -14,13 +14,6 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 01.10.13
- * Time: 2:51
- * To change this template use File | Settings | File Templates.
- */
 public class ConfigParser {
     public HashMap<String, String> aliases = new HashMap<String, String>();
     public HashMap<String, Map.Entry<String, JsonElement>> components = new HashMap<String, Map.Entry<String, JsonElement>>();

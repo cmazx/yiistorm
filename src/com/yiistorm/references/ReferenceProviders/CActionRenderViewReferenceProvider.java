@@ -15,13 +15,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.02.13
- * Time: 18:43
- * To change this template use File | Settings | File Templates.
- */
 public class CActionRenderViewReferenceProvider {
 
     public static Hashtable<String, VirtualFile> cacheFiles = new Hashtable<String, VirtualFile>();

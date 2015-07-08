@@ -9,13 +9,6 @@ import com.yiistorm.references.FileReference;
 import com.yiistorm.references.YiiPsiReferenceProvider;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.02.13
- * Time: 18:43
- * To change this template use File | Settings | File Templates.
- */
 public class ControlleActionsClassReferenceProvider {
     public static PsiReference[] getReference(String path, @NotNull PsiElement element) {
         try {

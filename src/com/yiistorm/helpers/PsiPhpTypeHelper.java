@@ -8,13 +8,6 @@ import com.jetbrains.php.lang.psi.elements.impl.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 24.09.13
- * Time: 0:21
- * To change this template use File | Settings | File Templates.
- */
 public class PsiPhpTypeHelper {
     public static String detectType(PsiElement psiElement) {
         String type = "";

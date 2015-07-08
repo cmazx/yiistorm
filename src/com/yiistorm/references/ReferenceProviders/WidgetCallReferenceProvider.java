@@ -13,13 +13,6 @@ import com.yiistorm.helpers.CommonHelper;
 import com.yiistorm.references.FileReference;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.02.13
- * Time: 18:43
- * To change this template use File | Settings | File Templates.
- */
 public class WidgetCallReferenceProvider extends PsiReferenceProvider {
 
     public static final PsiReferenceProvider[] EMPTY_ARRAY = new PsiReferenceProvider[0];

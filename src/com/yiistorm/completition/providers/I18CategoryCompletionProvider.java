@@ -16,10 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-/**
- *
- *
- */
 public class I18CategoryCompletionProvider extends CompletionProvider {
 
     protected void addCompletions(@NotNull com.intellij.codeInsight.completion.CompletionParameters completionParameters,

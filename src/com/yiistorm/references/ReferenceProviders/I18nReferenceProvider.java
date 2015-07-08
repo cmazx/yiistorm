@@ -13,9 +13,6 @@ import com.yiistorm.helpers.I18NHelper;
 import com.yiistorm.references.I18nFileReference;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @autor mazx
- */
 public class I18nReferenceProvider extends PsiReferenceProvider {
     public static final PsiReferenceProvider[] EMPTY_ARRAY = new PsiReferenceProvider[0];
     public static Project project;

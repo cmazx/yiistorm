@@ -5,13 +5,6 @@ import com.yiistorm.helpers.CommonHelper;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.04.13
- * Time: 19:24
- * To change this template use File | Settings | File Templates.
- */
 public class Yiic {
 
     static public boolean yiicIsRunnable(String yiiFile) {
