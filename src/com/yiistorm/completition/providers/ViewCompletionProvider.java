@@ -21,13 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 19.07.13
- * Time: 2:33
- * To change this template use File | Settings | File Templates.
- */
 public class ViewCompletionProvider<CompletionParameters> extends CompletionProvider {
     public static final int ABSOLUTE_LINK = 1;
     public static final int RELATIVE_LINK = 2;

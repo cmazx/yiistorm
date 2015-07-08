@@ -1,13 +1,5 @@
 package com.yiistorm;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 22.02.13
- * Time: 20:17
- * To change this template use File | Settings | File Templates.
- */
-
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;

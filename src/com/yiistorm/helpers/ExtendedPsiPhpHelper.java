@@ -2,13 +2,6 @@ package com.yiistorm.helpers;
 
 import com.intellij.psi.PsiElement;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 15.02.13
- * Time: 19:10
- * To change this template use File | Settings | File Templates.
- */
 public class ExtendedPsiPhpHelper extends PsiPhpHelper {
 
     public static PsiElement getNamespaceElement(PsiElement classElement) {

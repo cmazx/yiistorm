@@ -11,9 +11,6 @@ import com.jetbrains.php.lang.patterns.PhpElementPattern;
 import com.jetbrains.php.lang.patterns.PhpPatterns;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 
-/**
- * Created by mazx on 05.01.14.
- */
 public class YiiContibutorHelper {
     public static PsiElementPattern.Capture stringInMethod(String methodName, StringPattern className) {
         return PlatformPatterns.psiElement(PsiElement.class)

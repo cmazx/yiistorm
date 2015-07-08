@@ -1,7 +1,7 @@
 YiiStorm
 ========
 
-YiiStorm is a plugin for PhpStorm that is adding code navigation enahancements
+YiiStorm is PhpStorm plugin that is adding various enhancements
 for [Yii framework](http://www.yiiframework.com/) based projects.
 
 Features

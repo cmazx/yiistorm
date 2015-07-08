@@ -12,10 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-/**
- *
- *
- */
 public class YiiAppCompletionProvider extends CompletionProvider {
 
     protected void addCompletions(@NotNull com.intellij.codeInsight.completion.CompletionParameters completionParameters,

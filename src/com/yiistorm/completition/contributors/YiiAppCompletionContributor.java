@@ -10,9 +10,6 @@ import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.patterns.PhpPatterns;
 import com.yiistorm.completition.providers.YiiAppCompletionProvider;
 
-/**
- * Created by mazx on 07.01.14.
- */
 public class YiiAppCompletionContributor extends CompletionContributor {
     public YiiAppCompletionContributor() {
         extend(CompletionType.BASIC, appFieldPattern(), new YiiAppCompletionProvider());

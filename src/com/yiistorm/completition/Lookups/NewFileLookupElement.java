@@ -105,7 +105,7 @@ public class NewFileLookupElement extends LookupElement {
             output.write(fileContent);
             output.close();
         } catch (IOException e) {
-            System.out.println("File create failed");
+            System.out.println("Creating file failed");
         }
     }
 

@@ -31,15 +31,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 25.03.13
- * Time: 22:48
- * To change this template use File | Settings | File Templates.
- */
-
-
 public class MigrationsToolWindow implements ToolWindowFactory {
     private Yiic yiic;
     static final public int ADD_MENUS_BACKGROUND_ACTION = 0;
@@ -82,7 +73,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
 
             if (yiiFile == null) {
-                return "Please select path to yiic in YiiStorm config.";
+                return "Please select yiic path in YiiStorm config.";
             }
 
             prependPath += yiiFile;
@@ -126,7 +117,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     public void updateNewMigrations(boolean writeLog, boolean openFirst) {
         String text;
         if (yiiFile == null) {
-            text = "Please select path to yiic in YiiStorm config.";
+            text = "Please select yiic path in YiiStorm config.";
         } else {
             text = this.runCommand("migrate new");
             try {

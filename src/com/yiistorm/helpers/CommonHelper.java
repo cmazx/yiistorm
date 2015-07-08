@@ -29,13 +29,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 15.02.13
- * Time: 18:55
- * To change this template use File | Settings | File Templates.
- */
 public class CommonHelper {
 
     private static int phpChecked = 0;

@@ -15,9 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-/**
- * Created by mazx on 05.01.14.
- */
 public class I18TitleCompletionProvider extends CompletionProvider {
 
     protected void addCompletions(@NotNull com.intellij.codeInsight.completion.CompletionParameters completionParameters,

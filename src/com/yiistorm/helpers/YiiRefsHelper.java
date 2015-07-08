@@ -11,13 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 05.02.13
- * Time: 18:44
- * To change this template use File | Settings | File Templates.
- */
 public class YiiRefsHelper {
     public final static int YII_TYPE_UNKNOWN = -1;
     public final static int YII_TYPE_CONTROLLER_TO_VIEW_RENDER = 1;

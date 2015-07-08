@@ -11,13 +11,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 
-/**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 22.02.13
- * Time: 20:48
- * To change this template use File | Settings | File Templates.
- */
 abstract public class YiiStormActionAbstract extends AnAction implements IAction {
     protected String _code;
     protected int _cursorOffset = -1;
