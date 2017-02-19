@@ -6,6 +6,8 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.tree.IElementType;
+import com.jetbrains.php.lang.PhpLanguage;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import org.apache.commons.lang.ArrayUtils;
@@ -46,6 +48,9 @@ public class PsiPhpHelper {
     public static final String EXTENDS_LIST = "Extends list";
     public static final String CLASS_REFERENCE = "Class reference";
 
+    public static IElementType type(String name) {
+        return new IElementType(name, PhpLanguage.INSTANCE);
+    }
 
     @NotNull
     private static String getElementType(PsiElement psiElement) {
@@ -380,9 +385,6 @@ public class PsiPhpHelper {
     /**
      * this returns a list because could be more than one class with the same name
      *
-     * @param className
-     * @param project
-     * @return
      */
     @NotNull
     public static List<PsiElement> getPsiElementsFromClassName(String className, Project project) {
@@ -394,9 +396,6 @@ public class PsiPhpHelper {
     /**
      * useful for go to declaration using only the class name
      *
-     * @param classes
-     * @param project
-     * @return
      */
     @NotNull
     public static List<PsiElement> getPsiElementsFromClassesNames(List<String> classes, Project project) {
@@ -405,7 +404,7 @@ public class PsiPhpHelper {
             GotoClassModel2 model = new GotoClassModel2(project);
             for (String className : classes) {
                 Object[] elements = model.getElementsByName(className, true, className);
-                if (elements != null && elements.length > 0) {
+                if (elements.length > 0) {
                     for (Object element : elements) {
                         if (element instanceof PsiElement) {
                             psiElements.add((PsiElement) element);
@@ -572,8 +571,6 @@ public class PsiPhpHelper {
     /**
      * returns the first class element (is possible to have more than one psiClass for the same class name but this only returns the first)
      *
-     * @param child
-     * @return
      */
     public static PsiElement getExtendsClassElement(PsiElement child) {
         String extendsClassName = getExtendsClassName(child);
@@ -674,12 +671,6 @@ public class PsiPhpHelper {
             for (PsiElement parameter : parameters) {
                 if (isElementType(parameter, PARAMETER)) {
                     params.add(parameter);
-//                    PsiElement[] parameterChildren = parameter.getChildren();
-//                    for(PsiElement child : parameterChildren){
-//                        if(isElementType(child, VARIABLE)){
-//                            params.add(child.getText());
-//                        }
-//                    }
                 }
             }
         }

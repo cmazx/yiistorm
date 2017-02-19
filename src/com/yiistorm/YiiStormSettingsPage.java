@@ -261,7 +261,12 @@ public class YiiStormSettingsPage implements Configurable {
         });
         boolean empty = properties.getValue("yiiLitePath") == null || properties.getValue("yiiConfigPath") == null;
         if (!empty) {
-            empty = properties.getValue("yiiLitePath").isEmpty() || properties.getValue("yiiConfigPath").isEmpty();
+            String yiiLitePath = properties.getValue("yiiLitePath");
+            empty = yiiLitePath == null || yiiLitePath.isEmpty();
+            if (!empty) {
+                String yiiConfigPath = properties.getValue("yiiConfigPath");
+                empty = yiiConfigPath == null || yiiConfigPath.isEmpty();
+            }
         }
         if (empty) {
             useYiiCompleter.setEnabled(false);
@@ -290,7 +295,7 @@ public class YiiStormSettingsPage implements Configurable {
         JPanel yiicPanel = new JPanel();
         yiicPanel.setLayout(new BorderLayout());
         yiicPanel.setMaximumSize(new Dimension(5000, 25));
-        JLabel yiicFileFieldLabel = new JLabel("Yiic.php path:");
+        JLabel yiicFileFieldLabel = new JLabel("Yii console path:");
         yiicFileFieldLabel.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         yiicFileFieldLabel.setSize(new Dimension(200, 20));
 
@@ -322,11 +327,11 @@ public class YiiStormSettingsPage implements Configurable {
                     fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
                     FileNameExtensionFilter fn;
                     if (CommonHelper.isWindows()) {
-                        fileChooser.setFileFilter(new FileNameExtensionFilter("Yiic.bat file", "bat"));
-                        fileChooser.setName("yiic.bat");
+                        fileChooser.setFileFilter(new FileNameExtensionFilter("*.bat", "bat"));
+                        fileChooser.setName("*.bat");
                     } else {
-                        fileChooser.setFileFilter(new FileNameExtensionFilter("Yiic.php file", "php"));
-                        fileChooser.setName("yiic.php");
+                        fileChooser.setFileFilter(new FileNameExtensionFilter("*.php", "php"));
+                        fileChooser.setName("*.php");
                     }
                     fileChooser.setAcceptAllFileFilterUsed(false);
                     int ret = fileChooser.showDialog(null, "Открыть файл");

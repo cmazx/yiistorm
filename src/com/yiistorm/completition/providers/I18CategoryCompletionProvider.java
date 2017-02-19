@@ -62,7 +62,7 @@ public class I18CategoryCompletionProvider extends CompletionProvider {
             VirtualFile fv = project.getBaseDir().findFileByRelativePath(path);
             if (fv != null) {
 
-                String[] files = CompleterHelper.searchFiles(fv.getCanonicalPath(), searchString);
+                ArrayList<String> files = CompleterHelper.searchFiles(fv.getCanonicalPath(), searchString);
 
                 for (String file : files) {
                     String file_name = file.replace(".php", "");

@@ -11,7 +11,7 @@ import com.jetbrains.php.lang.patterns.PhpPatterns;
 import com.yiistorm.completition.providers.YiiAppCompletionProvider;
 
 /**
- * Created by mazx on 07.01.14.
+ *
  */
 public class YiiAppCompletionContributor extends CompletionContributor {
     public YiiAppCompletionContributor() {
@@ -19,7 +19,7 @@ public class YiiAppCompletionContributor extends CompletionContributor {
     }
 
 
-    public static PsiElementPattern.Capture appFieldPattern() {
+    private static PsiElementPattern.Capture appFieldPattern() {
         return PlatformPatterns.psiElement()
                 .withParent(PlatformPatterns.psiElement().withElementType(PhpElementTypes.FIELD_REFERENCE)
                                 .withChild(

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 /**
- * Created by mazx on 05.01.14.
+ *
  */
 public class I18TitleCompletionProvider extends CompletionProvider {
 
@@ -66,7 +66,7 @@ public class I18TitleCompletionProvider extends CompletionProvider {
             }
             HashMap<String, String> map = CommonHelper.parsePhpArrayConfig(project, file.getCanonicalPath());
 
-            completionResultSet.caseInsensitive();
+            completionResultSet = completionResultSet.caseInsensitive();
             if (map.size() > 0) {
                 for (String key : map.keySet()) {
                     if (key.equals(searchString)) {

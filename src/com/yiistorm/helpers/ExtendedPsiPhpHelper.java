@@ -25,13 +25,12 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
         if (isNamespace(namespaceElement)) {
             elementName = PsiPhpHelper.findNextSiblingOfType(namespaceElement.getFirstChild(), "NSReference").getText();
             elementName += PsiPhpHelper.findNextSiblingOfType(namespaceElement.getFirstChild(), "identifier").getText();
-        } else {
-
         }
+
         return elementName;
     }
 
-    public static boolean isNamespace(PsiElement element) {
+    private static boolean isNamespace(PsiElement element) {
         return (element.toString().equals("Namespace") && element.getFirstChild() != null);
     }
 
@@ -40,7 +39,7 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
         if (parameter_list != null) {
             String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
             try {
-                if (mrefchild.matches(regexp)) {
+                if (mrefchild != null && mrefchild.matches(regexp)) {
                     return true;
                 }
             } catch (Exception e) {
@@ -52,10 +51,7 @@ public class ExtendedPsiPhpHelper extends PsiPhpHelper {
 
     public static boolean parentClassNameMatch(PsiElement el, String regexp) {
         PsiElement classEl = PsiPhpHelper.getClassElement(el);
-        if (classEl.toString().matches(regexp)) {
-            return true;
-        }
-        return false;
+        return classEl != null && classEl.toString().matches(regexp);
     }
 
 

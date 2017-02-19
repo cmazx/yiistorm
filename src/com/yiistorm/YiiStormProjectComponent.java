@@ -1,11 +1,7 @@
 package com.yiistorm;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 22.02.13
- * Time: 20:17
- * To change this template use File | Settings | File Templates.
+ *
  */
 
 import com.intellij.ide.util.PropertiesComponent;
@@ -25,7 +21,7 @@ public class YiiStormProjectComponent implements ProjectComponent {
     private Project _project;
     private boolean _isCacheConfigXmlUpdated = false;
     private boolean _isCacheLayoutXmlUpdated = false;
-    PropertiesComponent properties;
+    private PropertiesComponent properties;
     private ConfigParser yiiConfig;
 
     public YiiStormProjectComponent(Project project) {

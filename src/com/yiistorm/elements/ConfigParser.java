@@ -3,9 +3,7 @@ package com.yiistorm.elements;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonStreamParser;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.yiistorm.YiiStormProjectComponent;
-import com.yiistorm.references.YiiPsiReferenceProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,11 +22,11 @@ import java.util.Map;
 public class ConfigParser {
     public HashMap<String, String> aliases = new HashMap<String, String>();
     public HashMap<String, Map.Entry<String, JsonElement>> components = new HashMap<String, Map.Entry<String, JsonElement>>();
-    HashMap<String, String> componentsMap;
     public HashMap<String, Map.Entry<String, JsonElement>> params = new HashMap<String, Map.Entry<String, JsonElement>>();
     public HashMap<String, Map.Entry<String, JsonElement>> modules = new HashMap<String, Map.Entry<String, JsonElement>>();
-    String yiiConfigPath;
-    String yiiLitePath;
+    private HashMap<String, String> componentsMap;
+    private String yiiConfigPath;
+    private String yiiLitePath;
 
     public ConfigParser(YiiStormProjectComponent projectComponent) {
         yiiConfigPath = projectComponent.getProp("yiiConfigPath");
@@ -46,6 +44,9 @@ public class ConfigParser {
             yiiLitePath = yiiLitePathNew;
             BufferedReader reader = execYiiLite("print YiiBase::getVersion();");
             try {
+                if (reader == null) {
+                    return false;
+                }
                 String readed = reader.readLine();
                 if (readed != null && readed.matches("^\\d+?\\.\\d.+")) {
                     return true;
@@ -63,6 +64,9 @@ public class ConfigParser {
         }
         if (new File(yiiConfigPathNew).exists()) {
             BufferedReader reader = execYiiLite("print_r(require('" + yiiConfigPathNew + "'));");
+            if (reader == null) {
+                return false;
+            }
             try {
                 String readed = reader.readLine();
                 if (readed != null && readed.matches("^Array")) {
@@ -75,7 +79,7 @@ public class ConfigParser {
         return false;
     }
 
-    public BufferedReader execYiiLite(String phpCode) {
+    private BufferedReader execYiiLite(String phpCode) {
         phpCode = "php -r \"error_reporting(0);require('" + yiiLitePath + "');" + phpCode + "\"";
 
         try {
@@ -89,7 +93,7 @@ public class ConfigParser {
         return null;
     }
 
-    public void parseConfig() {
+    private void parseConfig() {
         if (yiiConfigPath == null) {
             return;
         }
@@ -149,20 +153,5 @@ public class ConfigParser {
             }
         }
         return componentsMap;
-    }
-
-    public String checkAlias(String path) {
-        String ret = "";
-        if (path.contains(".")) {
-            String alias = path.split("\\.")[0];
-            if (aliases.containsKey(alias)) {
-                ret = aliases.get(alias).replace("\\\\", "\\").replace("\"", "");
-
-                VirtualFile baseDir = YiiPsiReferenceProvider.project.getBaseDir();
-                String basePath = baseDir.getPath().replace("/", "\\");
-                ret = ret.replace(basePath, "");
-            }
-        }
-        return ret;
     }
 }

@@ -9,31 +9,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Daniel Espendiller <daniel@espendiller.net>
+ *
  */
 public class ParameterReference extends PsiReferenceBase<PsiElement> implements PsiPolyVariantReference {
 
-    private String parameterName;
-
-    private boolean wrapPercent = false;
-
-    public ParameterReference(@NotNull PsiElement element, String ParameterName) {
-        super(element);
-        parameterName = ParameterName;
-    }
 
     public ParameterReference(@NotNull StringLiteralExpression element) {
         super(element);
 
-        parameterName = element.getText().substring(
+        String parameterName = element.getText().substring(
                 element.getValueRange().getStartOffset(),
                 element.getValueRange().getEndOffset()
-        ); // Remove quotes
-    }
-
-    public ParameterReference wrapVariantsWithPercent(boolean WrapPercent) {
-        this.wrapPercent = WrapPercent;
-        return this;
+        );
     }
 
 

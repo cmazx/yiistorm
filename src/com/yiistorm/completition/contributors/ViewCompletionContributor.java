@@ -18,8 +18,9 @@ public class ViewCompletionContributor extends CompletionContributor {
     }
 
 
-    public static PsiElementPattern.Capture viewsPattern() {
-        PsiElementPattern.Capture<PsiElement> $patterns = PlatformPatterns
+    private static PsiElementPattern.Capture<PsiElement> viewsPattern() {
+
+        return PlatformPatterns
                 .psiElement(PsiElement.class)
                 .withParent(
                         PlatformPatterns.or(
@@ -55,7 +56,6 @@ public class ViewCompletionContributor extends CompletionContributor {
                         )
                 )
                 .withLanguage(PhpLanguage.INSTANCE);
-        return $patterns;
     }
 
 

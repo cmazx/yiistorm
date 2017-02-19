@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,7 +32,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     public static final int RELATIVE_LINK = 2;
     public static final int MODULE_RELATIVE_LINK = 3;
 
-    public ArrayList<String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
+    private ArrayList<String> getRenderParams(com.intellij.codeInsight.completion.CompletionParameters c) {
         PsiElement pEl = c.getPosition();
 
         ArrayList<String> names = new ArrayList<String>();
@@ -41,50 +40,49 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
         if (creatorClassName != null && !creatorClassName.isEmpty()) {
             names.add("@var " + creatorClassName + " $this");
         }
-        if (pEl != null) {
-            PsiElement pString = pEl.getParent();
-            if (pString != null) {
-                PsiElement nextSibling = pString.getNextSibling();
 
-                while ((nextSibling != null && !nextSibling.getClass().getSimpleName().contains("ArrayCreationExpressionImpl"))) {
-                    nextSibling = nextSibling.getNextSibling();
-                }
-                if (nextSibling != null) {
-                    PsiElement[] list = nextSibling.getChildren();
-                    for (PsiElement el : list) {
+        PsiElement pString = pEl.getParent();
+        if (pString != null) {
+            PsiElement nextSibling = pString.getNextSibling();
 
-                        PsiElement[] keyValueList = el.getChildren();
-                        if (keyValueList.length == 2) {
-                            String keyText = "";
-                            String valueType;
-                            for (PsiElement keyValueEl : keyValueList) {
+            while ((nextSibling != null && !nextSibling.getClass().getSimpleName().contains("ArrayCreationExpressionImpl"))) {
+                nextSibling = nextSibling.getNextSibling();
+            }
+            if (nextSibling != null) {
+                PsiElement[] list = nextSibling.getChildren();
+                for (PsiElement el : list) {
 
-                                valueType = "";
-                                PhpPsiElement kv = (PhpPsiElement) keyValueEl;
+                    PsiElement[] keyValueList = el.getChildren();
+                    if (keyValueList.length == 2) {
+                        String keyText = "";
+                        String valueType;
+                        for (PsiElement keyValueEl : keyValueList) {
 
-                                if (kv.toString().equals("Array key")) {
-                                    keyText = keyValueEl.getText().replace("'", "");
-                                }
+                            valueType = "";
+                            PhpPsiElement kv = (PhpPsiElement) keyValueEl;
 
-                                if (kv.toString().equals("Array value")) {
-                                    for (PsiElement psiElement : kv.getChildren()) {
-                                        valueType = PsiPhpTypeHelper.detectType(psiElement);
-                                    }
-                                    //Standartize some types
-                                    if (keyText != null && !valueType.equals("")) {
-
-                                        names.add("@var " + valueType + " $" + keyText);
-                                    }
-                                    keyText = null;
-                                }
-
+                            if (kv.toString().equals("Array key")) {
+                                keyText = keyValueEl.getText().replace("'", "");
                             }
 
+                            if (kv.toString().equals("Array value")) {
+                                for (PsiElement psiElement : kv.getChildren()) {
+                                    valueType = PsiPhpTypeHelper.detectType(psiElement);
+                                }
+                                //Standartize some types
+                                if (keyText != null && !valueType.equals("")) {
+
+                                    names.add("@var " + valueType + " $" + keyText);
+                                }
+                                keyText = null;
+                            }
 
                         }
-                    }
 
+
+                    }
                 }
+
             }
         }
 
@@ -111,6 +109,9 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
             String resultAppend = ""; // prefix part for results
             if (!controllerName.isEmpty()) {   //from controller
                 path = CommonHelper.getViewsPathFromControllerFile(psiContainingFile, linkType);
+                if (path == null) {
+                    return;
+                }
                 if (linkType != RELATIVE_LINK) {
                     resultAppend = cleanText.replaceAll("(?si)/[a-z0-9_]+$", "/");
                     path = path.replaceAll("/$", "") + "/";   // fullpath to view folder
@@ -154,7 +155,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
             if (new File(path).exists()) {
 
 
-                String[] files = CompleterHelper.searchFiles(path, searchString);
+                ArrayList<String> files = CompleterHelper.searchFiles(path, searchString);
                 Boolean identMatch = false;
 
                 for (String file : files) {
@@ -171,8 +172,7 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
 
                 //FOLDERS
                 if (!identMatch) {
-
-                    String[] folders = CompleterHelper.searchFolders(path, searchString);
+                    ArrayList<String> folders = CompleterHelper.searchFolders(path, searchString);
                     for (String folder : folders) {
                         if ((resultAppend + folder).equals(resultAppend + searchString)) {
                             identMatch = true;
@@ -210,19 +210,11 @@ public class ViewCompletionProvider<CompletionParameters> extends CompletionProv
     }
 
     private static int _getLinkType(String path) {
-        try {
-            if (path.matches("(?im)^//.+")) {
-                return ABSOLUTE_LINK;
-            }
-        } catch (PatternSyntaxException x) {
-            //
+        if (path.startsWith("//")) {
+            return ABSOLUTE_LINK;
         }
-        try {
-            if (path.matches("(?im)^/.+")) {
-                return MODULE_RELATIVE_LINK;
-            }
-        } catch (PatternSyntaxException ex) {
-            //
+        if (path.startsWith("/")) {
+            return MODULE_RELATIVE_LINK;
         }
 
         return RELATIVE_LINK;

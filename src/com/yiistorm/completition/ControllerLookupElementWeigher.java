@@ -6,11 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 20.07.13
- * Time: 3:14
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class ControllerLookupElementWeigher extends LookupElementWeigher {
     public ControllerLookupElementWeigher(String id, boolean negated, boolean dependsOnPrefix) {

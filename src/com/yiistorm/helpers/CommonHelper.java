@@ -120,11 +120,17 @@ public class CommonHelper {
                     String relativePath = path.replaceAll("(?im)/[^/]+?Controller\\.php$", "");
                     String controllerViewsParent = relativePath.replaceAll("(?im)controllers(/.+)*$", "");
                     //IF absoluteLink from modules
-                    if (linkType == ViewCompletionProvider.ABSOLUTE_LINK && relativePath.contains("modules")) {
-                        controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
+                    String controllerSubCat = "";
+                    if (linkType == ViewCompletionProvider.ABSOLUTE_LINK) {
+                        if (relativePath.contains("modules")) {
+                            controllerViewsParent = relativePath.replaceAll("(?im)modules(/.+)*$", "");
+                        }
+
+                    } else {
+                        controllerSubCat = relativePath.replaceAll("(?im).+controllers(/)*", "");
                     }
 
-                    String controllerSubCat = relativePath.replaceAll("(?im).+controllers(/)*", "");
+
                     return controllerViewsParent + "views/" + controllerSubCat;
                 }
             }
@@ -337,15 +343,23 @@ public class CommonHelper {
                         if (pl2.length > 0 && pl2[0].toString().equals("Array creation expression")) {
                             ArrayCreationExpressionImpl ar = (ArrayCreationExpressionImpl) pl2[0];
                             if (ar.getChildren().length > 0) {
-                                for (ArrayHashElement he : ar.getHashElements()) {
-                                    String val = he.getValue().getText();
-                                    String key = he.getKey().getText();
-                                    hashx.put(CommonHelper.rmQuotes(
-                                            key.substring(0, key.length() > 40 ? 40 : key.length())
-                                    ),
-                                            CommonHelper.rmQuotes(
-                                                    val.substring(0, val.length() > 40 ? 40 : val.length()))
-                                    );
+                                PsiElement[] els = ar.getChildren();
+                                for (int i = 0; i < ar.getChildren().length; i++) {
+                                    try {
+                                        ArrayHashElement he = (ArrayHashElement) els[i];
+                                        if (he.getValue() != null && he.getKey() != null) {
+                                            String val = he.getValue().getText();
+                                            String key = he.getKey().getText();
+                                            hashx.put(CommonHelper.rmQuotes(
+                                                    key.substring(0, key.length() > 40 ? 40 : key.length())
+                                                    ),
+                                                    CommonHelper.rmQuotes(
+                                                            val.substring(0, val.length() > 40 ? 40 : val.length()))
+                                            );
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         }

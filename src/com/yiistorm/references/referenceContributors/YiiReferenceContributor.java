@@ -7,14 +7,15 @@ import com.intellij.patterns.StringPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
-import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
+import com.yiistorm.helpers.PsiPhpHelper;
 import com.yiistorm.references.ReferenceProviders.ControllerRenderViewReferenceProvider;
 import com.yiistorm.references.ReferenceProviders.ViewRenderViewReferenceProvider;
 import com.yiistorm.references.ReferenceProviders.WidgetCallReferenceProvider;
 import com.yiistorm.references.YiiPsiReferenceProvider;
 
 public class YiiReferenceContributor extends PsiReferenceContributor {
+
     @Override
     public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
         registrar.registerReferenceProvider(StandardPatterns.instanceOf(PhpPsiElement.class), new YiiPsiReferenceProvider());
@@ -37,23 +38,18 @@ public class YiiReferenceContributor extends PsiReferenceContributor {
 
     /**
      * Check element is param is parameterList in method reference
-     *
-     * @param name
-     * @return
      */
     private PsiElementPattern.Capture<PsiElement> isParamListInMethodWithName(String name) {
-        return PlatformPatterns.psiElement(PhpElementTypes.PARAMETER_LIST)
+
+        return PlatformPatterns.psiElement(PsiPhpHelper.type(PsiPhpHelper.PARAMETER_LIST))
                 .withParent(
-                        PlatformPatterns.psiElement(PhpElementTypes.METHOD_REFERENCE)
+                        PlatformPatterns.psiElement(PsiPhpHelper.type(PsiPhpHelper.METHOD_REFERENCE))
                                 .withText(StandardPatterns.string().matches(name))
                 );
     }
 
     /**
      * Check file name
-     *
-     * @param namePattern
-     * @return
      */
     private PsiElementPattern.Capture<PsiElement> inFile(StringPattern namePattern) {
         return PlatformPatterns.psiElement(PsiElement.class).inFile(PlatformPatterns.psiFile().withName(namePattern));

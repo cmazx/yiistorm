@@ -15,12 +15,12 @@ public class I18CompletionContributor extends CompletionContributor {
     }
 
 
-    public static PsiElementPattern.Capture categoryPattern() {
+    private static PsiElementPattern.Capture categoryPattern() {
         return YiiContibutorHelper.firstStringInYiiMethod("t");
 
     }
 
-    public static PsiElementPattern.Capture titlePattern() {
+    private static PsiElementPattern.Capture titlePattern() {
         return PlatformPatterns.psiElement()
                 .and(YiiContibutorHelper.stringInYiiMethod("t"))
                 .andNot(YiiContibutorHelper.firstStringInYiiMethod("t"));

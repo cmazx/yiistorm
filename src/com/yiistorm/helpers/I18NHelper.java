@@ -8,7 +8,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Created by mazx on 07.01.14.
+ *
  */
 public class I18NHelper {
     public static String[] findMessageSource(String category, String protectedPath, Project project) {

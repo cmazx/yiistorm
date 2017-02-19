@@ -1,6 +1,7 @@
 package com.yiistorm.helpers;
 
-import org.apache.tools.ant.DirectoryScanner;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,27 +11,52 @@ import org.apache.tools.ant.DirectoryScanner;
  * To change this template use File | Settings | File Templates.
  */
 public class CompleterHelper {
-    public static String[] searchFiles(String searchPath, String searchString) {
+    public static ArrayList<String> searchFiles(String searchPath, String searchString) {
+        File folder = new File(searchPath);
+        File[] listOfFiles = folder.listFiles();
 
-        DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes(new String[]{searchString + "*.php"});
-
-        scanner.setBasedir(searchPath);
-        scanner.setCaseSensitive(false);
-        scanner.scan();
-        return scanner.getIncludedFiles();
-
+        searchString = searchString.toLowerCase();
+        ArrayList<String> files = new ArrayList<String>();
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.isFile() && !file.getName().isEmpty()) {
+                    String name = file.getName().toLowerCase();
+                    if (name.startsWith(searchString) && getExtension(name).equals("php")) {
+                        files.add(name);
+                    }
+                }
+            }
+        }
+        return files;
     }
 
-    public static String[] searchFolders(String searchPath, String searchString) {
-        DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes(new String[]{searchString + "*"});
-        scanner.setExcludes(new String[]{searchString + "*.php"});
+    public static ArrayList<String> searchFolders(String searchPath, String searchString) {
+        File folder = new File(searchPath);
+        File[] listOfFiles = folder.listFiles();
 
-        scanner.setBasedir(searchPath);
-        scanner.setCaseSensitive(false);
-        scanner.scan();
-        return scanner.getIncludedDirectories();
+        searchString = searchString.toLowerCase();
+        ArrayList<String> files = new ArrayList<String>();
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.isDirectory() && !file.getName().isEmpty()) {
+                    String name = file.getName().toLowerCase();
+                    if (name.startsWith(searchString) && getExtension(name).equals("php")) {
+                        files.add(name);
+                    }
+                }
+            }
+        }
+        return files;
+    }
+
+    private static String getExtension(String fileName) {
+        String extension = "";
+
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+        }
+        return extension;
     }
 
 

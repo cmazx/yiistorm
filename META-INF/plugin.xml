@@ -14,9 +14,9 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.9.16.2</version>
+    <version>0.9.17</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
-    <idea-version since-build="138.000"/>
+    <idea-version since-build="163"/>
     <project-components>
         <component>
             <implementation-class>com.yiistorm.YiiStormProjectComponent</implementation-class>
@@ -28,7 +28,6 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-
         <psi.referenceContributor language="PHP"
                                   implementation="com.yiistorm.references.referenceContributors.YiiReferenceContributor"/>
         <psi.referenceContributor language="PHP"

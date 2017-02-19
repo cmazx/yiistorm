@@ -18,7 +18,7 @@ public class I18nReferenceContributor extends PsiReferenceContributor {
 
     }
 
-    public PsiElementPattern.Capture categoryPattern() {
+    private PsiElementPattern.Capture categoryPattern() {
         return PlatformPatterns.psiElement(PsiElement.class)
                 .withElementType(PhpElementTypes.STRING)
                 .withParent(YiiContibutorHelper.methodParamsList("t", StandardPatterns.string().oneOfIgnoreCase("Yii", "YiiBase")))

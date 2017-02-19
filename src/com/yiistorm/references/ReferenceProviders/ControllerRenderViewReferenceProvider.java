@@ -13,8 +13,6 @@ import com.yiistorm.helpers.YiiRefsHelper;
 import com.yiistorm.references.ViewsReference;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
-
 /**
  * Created with IntelliJ IDEA.
  * User: mazx
@@ -44,9 +42,11 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                     String path = vfile.getPath();
                     String basePath = project.getBasePath();
                     if (basePath != null) {
-
                         String themeName = properties.getValue("themeName");
-                        Class elementClass = element.getClass();
+                        String uri = element.getText();
+                        int start = 0;
+                        int len = uri.length();
+                        uri = uri.substring(1, len - 1);
                         String protectedPath = YiiRefsHelper.getCurrentProtected(path);
                         path = path.replace(projectPath, "");
 
@@ -56,24 +56,17 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                         protectedPath = protectedPath.replace(projectPath, "")
                                 .replaceAll("/controllers/[a-zA-Z0-9_]+?.(php|tpl)+", "");
 
-                        Method method = elementClass.getMethod("getValueRange");
-                        Object obj = method.invoke(element);
-                        TextRange textRange = (TextRange) obj;
-                        Class _PhpPsiElement = elementClass.getSuperclass().getSuperclass().getSuperclass();
-                        Method phpPsiElementGetText = _PhpPsiElement.getMethod("getText");
-                        Object obj2 = phpPsiElementGetText.invoke(element);
-                        String str = obj2.toString();
-                        String uri = str.substring(textRange.getStartOffset(), textRange.getEndOffset());
-                        int start = textRange.getStartOffset();
-                        int len = textRange.getLength();
                         String controllerName = YiiRefsHelper.getControllerClassName(path);
-
-
                         if (controllerName != null) {
                             if (baseDir != null) {
-
+                                if (uri.startsWith("//")) {
+                                    controllerName = "";
+                                    uri = uri.replace("//", "");
+                                    if (viewPathTheme.contains("/modules/")) {
+                                        viewPathTheme = "/protected/views";
+                                    }
+                                }
                                 viewPath = getThemedPath(viewPathTheme, controllerName, uri, viewPath);
-
                                 VirtualFile appDir = baseDir.findFileByRelativePath(viewPath);
                                 VirtualFile protectedPathDir = (!protectedPath.equals("")) ?
                                         baseDir.findFileByRelativePath(protectedPath) : null;
@@ -83,20 +76,21 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                                     return new PsiReference[]{ref};
                                 }
                             }
-
                             return PsiReference.EMPTY_ARRAY;
                         }
-
                     }
                 }
             } catch (Exception e) {
-                System.err.println("error" + e.getMessage());
+                StackTraceElement[] t = e.getStackTrace();
+                System.err.println(e.getMessage());
             }
         }
         return PsiReference.EMPTY_ARRAY;
     }
 
     private String getThemedPath(String viewPathTheme, String controllerName, String uri, String viewPath) {
+
+
         String inThemeFullPath = viewPathTheme + controllerName + "/" + uri
                 + (uri.endsWith(".tpl") ? "" : ".php");
         if (baseDir.findFileByRelativePath(inThemeFullPath) != null) {

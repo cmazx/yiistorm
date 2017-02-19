@@ -6,13 +6,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.progress.util.ProgressIndicatorBase;
-import com.intellij.openapi.project.DumbModeAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.openapi.wm.ex.ProgressIndicatorEx;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -32,41 +30,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created with IntelliJ IDEA.
- * User: mazx
- * Date: 25.03.13
- * Time: 22:48
- * To change this template use File | Settings | File Templates.
+ *
  */
-
-
 public class MigrationsToolWindow implements ToolWindowFactory {
-    private Yiic yiic;
-    static final public int ADD_MENUS_BACKGROUND_ACTION = 0;
-    static final public int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
+    private static final int ADD_MENUS_BACKGROUND_ACTION = 0;
+    private static final int UPDATE_MIGRAITIONS_MENUS_BACKGROUND_ACTION = 1;
     static final public int CREATE_MIGRATION_BACKGROUND_ACTION = 2;
     static final public int APPLY_MIGRATIONS_BACKGROUND_ACTION = 3;
     static final public int MIGRATE_DOWN_BACKGROUND_ACTION = 4;
-    public static MigrationsToolWindow toolw;
-    private JPanel contentPane;
+    private static MigrationsToolWindow toolw;
     private JTextArea migrateLog;
     private JBScrollPane scrollpane;
-    private JTextField createMigrationName;
     private JMenuBar actionMenuBar;
-    private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
-    private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-    private static String OS = System.getProperty("os.name").toLowerCase();
     private Project _project;
     private String yiiFile;
-    private boolean useMigrations;
     private String yiiProtected;
     private ArrayList<String> newMigrationsList = new ArrayList<String>();
     public boolean NewFormDisplayed = false;
-    final JMenuItem createMenu = new JMenuItem();
-    final JMenuItem migrateDown = new JMenuItem();
-    JMenu actionMenu = new JMenu();
-    NewMigrationForm newMigrationDialog;
-    JPanel buttonsPanel = new JPanel();
+    private JMenu actionMenu = new JMenu();
+    private NewMigrationForm newMigrationDialog;
+    private JPanel buttonsPanel = new JPanel();
     private boolean MenusAdded = false;
 
     public Project getProject() {
@@ -74,7 +57,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     }
 
 
-    public String runCommand(String migrateCommand) {
+    private String runCommand(String migrateCommand) {
         try {
 
             Process p;
@@ -110,20 +93,15 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
     /**
      * Update new migrations list
-     *
-     * @param writeLog
      */
-    public void updateNewMigrations(boolean writeLog) {
+    private void updateNewMigrations(boolean writeLog) {
         updateNewMigrations(writeLog, false);
     }
 
     /**
      * Update new migrations list
-     *
-     * @param writeLog
-     * @param openFirst
      */
-    public void updateNewMigrations(boolean writeLog, boolean openFirst) {
+    private void updateNewMigrations(boolean writeLog, boolean openFirst) {
         String text;
         if (yiiFile == null) {
             text = "Please select path to yiic in YiiStorm config.";
@@ -156,18 +134,18 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
 
     @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 
         _project = project;
         toolw = this;
-        yiic = new Yiic();
+        Yiic yiic = new Yiic();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
         yiiFile = properties.getValue("yiicFile");
-        useMigrations = properties.getBoolean("useYiiMigrations", false);
+        boolean useMigrations = properties.getBoolean("useYiiMigrations", false);
         setMigrateLogText("");
 
-        contentPane = new JPanel();
+        JPanel contentPane = new JPanel();
         contentPane.setLayout(new BorderLayout());
 
         scrollpane = new JBScrollPane();
@@ -183,7 +161,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         layout.setAlignment(FlowLayout.LEFT);
         buttonsPanel.setLayout(layout);
         actionMenuBar = new JMenuBar();
-        actionMenuBar.setBackground(new Color(0, 0, 0, 0));
+        actionMenuBar.setBackground(new JBColor(new Color(0, 0, 0, 0), new Color(0, 0, 0, 0)));
         actionMenuBar.setLayout(layout);
         actionMenuBar.setBorderPainted(false);
         buttonsPanel.add(actionMenuBar);
@@ -195,9 +173,9 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
-        if (yiiFile != null && yiic.yiicIsRunnable(yiiFile)) {
+        if (yiiFile != null && Yiic.yiicIsRunnable(yiiFile)) {
             yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
-            runBackgroundTask(this.ADD_MENUS_BACKGROUND_ACTION, project);
+            runBackgroundTask(ADD_MENUS_BACKGROUND_ACTION, project);
         } else {
             setMigrateLogText("Set path to yiic in project settings -> YiiStorm");
         }
@@ -213,19 +191,9 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                 return "Yii migrations";
             }
 
-            @Override
-            public DumbModeAction getDumbModeAction() {
-                return DumbModeAction.CANCEL;
-            }
-
             public void run(@NotNull final ProgressIndicator indicator) {
                 final Task.Backgroundable this_task = this;
-                ((ProgressIndicatorEx) indicator).addStateDelegate(new ProgressIndicatorBase() {
-                    @Override
-                    public void cancel() {
-                        this_task.onCancel();
-                    }
-                });
+
                 switch (Action) {
                     case MigrationsToolWindow.MIGRATE_DOWN_BACKGROUND_ACTION:
                         indicator.setText("Migrating 1 down");
@@ -287,11 +255,11 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         task.setCancelText("Stop processing").queue();
     }
 
-    public void createMigrationByName(String name) {
+    private void createMigrationByName(String name) {
         setMigrateLogText(this.runCommand("migrate create " + name));
     }
 
-    public void setMigrateLogText(final String text) {
+    private void setMigrateLogText(final String text) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -300,11 +268,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         });
     }
 
-    public ArrayList<String> getMigrationsList() {
-        return newMigrationsList;
-    }
-
-    public void fillActionMenu() {
+    private void fillActionMenu() {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -334,12 +298,12 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         });
     }
 
-    public void applyMigrations() {
+    private void applyMigrations() {
         String text = this.runCommand("migrate");
         setMigrateLogText(text);
     }
 
-    public void migrateDown() {
+    private void migrateDown() {
         String text = this.runCommand("migrate down 1");
         setMigrateLogText(text);
     }
@@ -347,7 +311,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     /**
      * Add menu to contentPane
      */
-    public void addMenus() {
+    private void addMenus() {
         if (MenusAdded) {
             return;
         }
@@ -431,7 +395,7 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         }
     }
 
-    public void showCreateForm() {
+    private void showCreateForm() {
         final MigrationsToolWindow migrForm = this;
         if (!NewFormDisplayed) {
             newMigrationDialog = new NewMigrationForm(migrForm);
@@ -441,17 +405,20 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         }
     }
 
-    public void openMigrationFile(final String name) {
+    private void openMigrationFile(final String name) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
+                if (_project.getBasePath() == null) {
+                    return;
+                }
                 String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
                 VirtualFile baseDir = _project.getBaseDir();
                 if (baseDir != null) {
                     VirtualFile migrationsFolder = baseDir.findFileByRelativePath(migrationPath + "migrations/");
                     if (migrationsFolder != null) {
                         migrationsFolder.refresh(false, true);
-                        VirtualFile migrationFile = migrationsFolder.findFileByRelativePath(name + ".php"); //migrationPath + "migrations/" +
+                        VirtualFile migrationFile = migrationsFolder.findFileByRelativePath(name + ".php");
                         if (migrationFile != null) {
                             OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
                             if (of.canNavigate()) {
