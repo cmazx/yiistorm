@@ -27,11 +27,17 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
     public static PropertiesComponent properties;
     public VirtualFile baseDir;
 
+    @NotNull
     public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull final ProcessingContext context) {
         project = element.getProject();
         String elname = element.getClass().getName();
         properties = PropertiesComponent.getInstance(project);
         baseDir = project.getBaseDir();
+
+        if (baseDir == null) {
+            return PsiReference.EMPTY_ARRAY;
+        }
+
         projectPath = baseDir.getCanonicalPath();
         if (elname.endsWith("StringLiteralExpressionImpl")) {
 
@@ -53,6 +59,9 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                         String viewPathTheme = YiiRefsHelper.getRenderViewPath(path, themeName);
                         String viewPath = YiiRefsHelper.getRenderViewPath(path, null);
 
+                        if (protectedPath == null) {
+                            return PsiReference.EMPTY_ARRAY;
+                        }
                         protectedPath = protectedPath.replace(projectPath, "")
                                 .replaceAll("/controllers/[a-zA-Z0-9_]+?.(php|tpl)+", "");
 
@@ -62,6 +71,11 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                                 if (uri.startsWith("//")) {
                                     controllerName = "";
                                     uri = uri.replace("//", "");
+
+                                    if (viewPathTheme == null) {
+                                        return PsiReference.EMPTY_ARRAY;
+                                    }
+
                                     if (viewPathTheme.contains("/modules/")) {
                                         viewPathTheme = "/protected/views";
                                     }
@@ -85,6 +99,7 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
                 System.err.println(e.getMessage());
             }
         }
+
         return PsiReference.EMPTY_ARRAY;
     }
 

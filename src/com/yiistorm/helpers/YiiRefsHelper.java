@@ -20,13 +20,10 @@ import java.util.regex.PatternSyntaxException;
  */
 public class YiiRefsHelper {
     public final static int YII_TYPE_UNKNOWN = -1;
-    public final static int YII_TYPE_CONTROLLER_TO_VIEW_RENDER = 1;
-    public final static int YII_TYPE_AR_RELATION = 2;
-    public final static int YII_TYPE_VIEW_TO_VIEW_RENDER = 3;
-    public final static int YII_TYPE_WIDGET_CALL = 4;
-    public final static int YII_TYPE_CACTION_TO_VIEW_RENDER = 5;
-    public final static int YII_TYPE_WIDGET_VIEW_RENDER = 6;
-    public final static int YII_TYPE_CONTROLLER_ACTIONS_CACTION = 7;
+    public final static int YII_TYPE_AR_RELATION = 1;
+    public final static int YII_TYPE_CACTION_TO_VIEW_RENDER = 2;
+    public final static int YII_TYPE_WIDGET_VIEW_RENDER = 3;
+    public final static int YII_TYPE_CONTROLLER_ACTIONS_CACTION = 4;
 
 
     public static String getCurrentProtected(String path) {
@@ -34,13 +31,15 @@ public class YiiRefsHelper {
             try {
                 Pattern regex = Pattern.compile("(.+?/)modules.+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
                 Matcher regexMatcher = regex.matcher(path);
-                regexMatcher.matches();
-                regexMatcher.groupCount();
+                if (regexMatcher.matches()) {
+                    return null;
+                }
                 return regexMatcher.group(1);
             } catch (PatternSyntaxException ex) {
                 // Syntax error in the regular expression
             }
         }
+
         return path;
     }
 
@@ -58,10 +57,6 @@ public class YiiRefsHelper {
             return YII_TYPE_AR_RELATION;
         }
 
-        if (isYiiControllerToViewRenderCall(path, el)) {
-            return YII_TYPE_CONTROLLER_TO_VIEW_RENDER;
-        }
-
         if (isYiiControllerCActionClassName(path, el)) {
             return YII_TYPE_CONTROLLER_ACTIONS_CACTION;
         }
@@ -74,25 +69,21 @@ public class YiiRefsHelper {
     }
 
     public static boolean isYiiApplication(PsiElement el) {
-
-        //System.err.println(el.getText().toString());
         return PlatformPatterns
                 .psiElement(PhpElementTypes.EXPRESSION)
-                        // .withParent(PlatformPatterns
-                        //         .psiElement(PhpElementTypes.METHOD_REFERENCE) )
                 .accepts(el);
     }
 
     public static boolean isExtendCActiveRecord(PsiElement el) {
 
         class ParentsSearch {
-            PsiElementPattern.Capture lookupCapture;
+            private PsiElementPattern.Capture lookupCapture;
 
-            public ParentsSearch(PsiElementPattern.Capture lc) {
+            private ParentsSearch(PsiElementPattern.Capture lc) {
                 this.lookupCapture = lc;
             }
 
-            public boolean lookupParent(PsiElement el) {
+            private boolean lookupParent(PsiElement el) {
                 if (el == null) {
                     return false;
                 }
@@ -102,6 +93,7 @@ public class YiiRefsHelper {
                 return this.lookupParent(el.getParent());
             }
         }
+
         PsiElementPattern.Capture ARClass = PlatformPatterns.psiElement().withElementType(PhpElementTypes.CLASS);
         PsiElementPattern.Capture p = PlatformPatterns.psiElement().withElementType(PhpElementTypes.STRING)
                 .withSuperParent(6,
@@ -174,26 +166,12 @@ public class YiiRefsHelper {
         return false;
     }
 
-
-    public static boolean isYiiControllerToViewRenderCall(String path, PsiElement el) {
-        if (path.contains("Controller.php")) {
-            PsiElement classEl = PsiPhpHelper.getClassElement(el);
-            if (classEl.toString().contains("Controller")) {
-                PsiElement parameter_list = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.METHOD_REFERENCE);
-                if (parameter_list != null) {
-                    String mrefchild = PsiPhpHelper.getMethodName(parameter_list);
-                    if (mrefchild.matches("^(renderPartial|render)$")) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean isYiiControllerCActionClassName(String path, PsiElement el) {
         if (path.contains("Controller.php")) {
             PsiElement classEl = PsiPhpHelper.getClassElement(el);
+            if (classEl == null) {
+                return false;
+            }
             if (classEl.toString().contains("Controller")) {
                 PsiElement group_state = PsiPhpHelper.findFirstParentOfType(el, PsiPhpHelper.GROUP_STATEMENT);
                 PsiElement method_identifier = PsiPhpHelper.findPrevSiblingOfType(group_state, PsiPhpHelper.IDENTIFIER);
@@ -212,8 +190,9 @@ public class YiiRefsHelper {
         try {
             Pattern regex = Pattern.compile("(.+views)/.+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher regexMatcher = regex.matcher(path);
-            regexMatcher.matches();
-            regexMatcher.groupCount();
+            if (!regexMatcher.matches()) {
+                return null;
+            }
             return regexMatcher.group(1);
         } catch (PatternSyntaxException ex) {
             System.err.println(ex.getMessage());
@@ -226,12 +205,14 @@ public class YiiRefsHelper {
         try {
             Pattern regex = Pattern.compile("(.+?)controllers/(.+?)Controller\\.php", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher regexMatcher = regex.matcher(path);
-            regexMatcher.matches();
-            regexMatcher.groupCount();
-            if (themeName == null) {
-                themeName = "";
-            } else {
+            if (!regexMatcher.matches()) {
+                return null;
+            }
+
+            if (themeName != null) {
                 themeName = "themes/" + themeName.replaceAll("^/", "").replaceAll("/$", "").trim() + "/";
+            } else {
+                themeName = "";
             }
 
             return regexMatcher.group(1) + themeName + "views/";
@@ -239,6 +220,7 @@ public class YiiRefsHelper {
             System.err.println(ex.getMessage());
             // Syntax error in the regular expression
         }
+
         return "";
     }
 
@@ -274,24 +256,17 @@ public class YiiRefsHelper {
                                 if (className.startsWith("phpclass") && className.matches(".+?controller")) {
                                     Pattern pattern = Pattern.compile(".+? (.+?)controller");
                                     Matcher m = pattern.matcher(className);
-                                    m.matches();
-                                    m.groupCount();
+                                    if (!m.matches()) {
+                                        return null;
+                                    }
                                     return m.group(1);
                                 }
-                            } else {
-                            /*
-                                Static
-                             */
                             }
                         }
                     } catch (Exception ex) {
                         System.err.println("prevEl error:" + ex.getMessage());
                     }
-                } else {
-                    //System.err.println("prevEl not MethodReferenceImpl!!!" );
                 }
-            } else {
-                // System.err.println("prevEl IS NULL!!!!" );
             }
         }
         return "";
@@ -302,16 +277,18 @@ public class YiiRefsHelper {
         try {
             Pattern regex = Pattern.compile(".+controllers/(.+?)Controller.php", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             Matcher regexMatcher = regex.matcher(path);
-            regexMatcher.matches();
-            regexMatcher.groupCount();
+            if (!regexMatcher.matches()) {
+                return null;
+            }
             String name = regexMatcher.group(1);
             if (name.contains("/")) {//insubfolder
                 name = regexMatcher.group(1);
                 try {
                     Pattern regex2 = Pattern.compile("(.+/)*([a-zA-Z0-9_]+)$", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
                     Matcher regexMatcher2 = regex2.matcher(name);
-                    regexMatcher2.matches();
-                    regexMatcher2.groupCount();
+                    if (!regexMatcher2.matches()) {
+                        return null;
+                    }
                     String subname = regexMatcher2.group(2);
                     name = regexMatcher2.group(1) + subname.substring(0, 1).toLowerCase() + subname.substring(1);
                 } catch (PatternSyntaxException ex) {

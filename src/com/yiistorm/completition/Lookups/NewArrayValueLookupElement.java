@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementPresentation;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -27,7 +28,7 @@ public class NewArrayValueLookupElement extends LookupElement {
     private String insertString, filePath, fileName;
     private PsiElement psiElement = null;
     private Project project = null;
-    public String createTitle = "create array value";
+    private String createTitle = "create array value";
 
     @Nullable
     private InsertHandler<LookupElement> insertHandler = null;
@@ -52,7 +53,9 @@ public class NewArrayValueLookupElement extends LookupElement {
     }
 
     public void insertIntoArrayConfig(String string, String openFilePath) {
-
+        if (null == project.getBasePath()) {
+            return;
+        }
         String relpath = openFilePath.replace(project.getBasePath(), "").substring(1).replace("\\", "/");
         VirtualFile vf = project.getBaseDir().findFileByRelativePath(relpath);
 
@@ -62,10 +65,13 @@ public class NewArrayValueLookupElement extends LookupElement {
         PsiFile pf = PsiManager.getInstance(project).findFile(vf);
 
         String lineSeparator = " " + ProjectCodeStyleSettingsManager.getSettings(project).getLineSeparator();
-        if (vf != null) {
-
+        if (pf != null) {
             PsiElement groupStatement = pf.getFirstChild();
             if (groupStatement != null) {
+                Document document = pf.getViewProvider().getDocument();
+                if (document == null) {
+                    return;
+                }
                 PsiDocumentManager.getInstance(project).commitDocument(pf.getViewProvider().getDocument());
 
                 pf.getManager().reloadFromDisk(pf);
@@ -104,7 +110,6 @@ public class NewArrayValueLookupElement extends LookupElement {
             final VirtualFile viewsPath = base.findFileByRelativePath(relativePath);
 
             if (viewsPath != null) {
-                //context.getEditor().getDocument().insertString(1000,"test");
                 insertIntoArrayConfig("test", f.getPath());
                 if (this.insertHandler != null) {
                     this.insertHandler.handleInsert(context, this);

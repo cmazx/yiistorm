@@ -42,6 +42,10 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
 
             try {
                 PsiFile file = element.getContainingFile();
+                if (file == null) {
+                    return PsiReference.EMPTY_ARRAY;
+                }
+
                 VirtualFile vfile = file.getVirtualFile();
                 if (vfile != null) {
                     String path = vfile.getPath();
@@ -65,6 +69,7 @@ public class YiiPsiReferenceProvider extends PsiReferenceProvider {
                 //System.err.println("error" + e.getMessage());
             }
         }
+
         return PsiReference.EMPTY_ARRAY;
     }
 

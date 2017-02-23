@@ -1,14 +1,11 @@
 package com.yiistorm.references.referenceContributors;
 
-import com.intellij.patterns.PlatformPatterns;
-import com.intellij.patterns.PsiElementPattern;
-import com.intellij.patterns.StandardPatterns;
-import com.intellij.patterns.StringPattern;
+import com.intellij.patterns.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceContributor;
 import com.intellij.psi.PsiReferenceRegistrar;
-import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
-import com.yiistorm.helpers.PsiPhpHelper;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
+import com.jetbrains.php.lang.patterns.PhpPatterns;
 import com.yiistorm.references.ReferenceProviders.ControllerRenderViewReferenceProvider;
 import com.yiistorm.references.ReferenceProviders.ViewRenderViewReferenceProvider;
 import com.yiistorm.references.ReferenceProviders.WidgetCallReferenceProvider;
@@ -18,32 +15,45 @@ public class YiiReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(StandardPatterns.instanceOf(PhpPsiElement.class), new YiiPsiReferenceProvider());
         registrar.registerReferenceProvider(
-                PlatformPatterns.psiElement(PsiElement.class).withParent(isParamListInMethodWithName(".+?widget\\(.+"))
-                , new WidgetCallReferenceProvider());
+                PhpPatterns.phpElement()
+                        .withElementType(PhpElementTypes.STRING),
+                new YiiPsiReferenceProvider()
+        );
+        registrar.registerReferenceProvider(
+                PhpPatterns.phpElement()
+                        .withElementType(PhpElementTypes.STRING)
+                        .withParent(isParamListInMethodWithName(".+?widget\\(.+"))
+                        .and(inFile(PlatformPatterns.string().endsWith("Controller.php"))),
+                new WidgetCallReferenceProvider()
+        );
         //View-to-view
         registrar.registerReferenceProvider(
-                PlatformPatterns.psiElement(PhpPsiElement.class)
+                PhpPatterns.phpElement()
+                        .withElementType(PhpElementTypes.STRING)
                         .withParent(isParamListInMethodWithName(".+?render(Partial|Ajax)*\\(.+"))
-                        .andNot(inFile(PlatformPatterns.string().endsWith("Controller.php")))
-                , new ViewRenderViewReferenceProvider());
+                        .andNot(inFile(PlatformPatterns.string().endsWith("Controller.php"))),
+                new ViewRenderViewReferenceProvider()
+        );
         //Controller-to-view
         registrar.registerReferenceProvider(
-                PlatformPatterns.psiElement(PhpPsiElement.class)
-                        .withParent(isParamListInMethodWithName("(?sim).+?render(Partial|Ajax)*\\(.+"))
-                        .and(inFile(PlatformPatterns.string().endsWith("Controller.php")))
-                , new ControllerRenderViewReferenceProvider());
+                PhpPatterns.phpElement()
+                        .withElementType(PhpElementTypes.STRING)
+                        .withTreeParent(isParamListInMethodWithName("(?sim).+?render(Partial|Ajax)*\\(.+")),
+                new ControllerRenderViewReferenceProvider()
+        );
     }
 
     /**
      * Check element is param is parameterList in method reference
      */
-    private PsiElementPattern.Capture<PsiElement> isParamListInMethodWithName(String name) {
+    private TreeElementPattern isParamListInMethodWithName(String name) {
 
-        return PlatformPatterns.psiElement(PsiPhpHelper.type(PsiPhpHelper.PARAMETER_LIST))
-                .withParent(
-                        PlatformPatterns.psiElement(PsiPhpHelper.type(PsiPhpHelper.METHOD_REFERENCE))
+        return PhpPatterns.phpElement()
+                .withElementType(PhpElementTypes.PARAMETER_LIST)
+                .withTreeParent(
+                        PhpPatterns.phpElement()
+                                .withElementType(PhpElementTypes.METHOD_REFERENCE)
                                 .withText(StandardPatterns.string().matches(name))
                 );
     }
