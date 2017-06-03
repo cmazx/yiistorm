@@ -15,15 +15,12 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.yiistorm.forms.NewMigrationForm;
-import com.yiistorm.helpers.CommonHelper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -44,51 +41,17 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     private JMenuBar actionMenuBar;
     private Project _project;
     private String yiiFile;
-    private String yiiProtected;
+    private String yiiPath;
     private ArrayList<String> newMigrationsList = new ArrayList<String>();
     public boolean NewFormDisplayed = false;
     private JMenu actionMenu = new JMenu();
     private NewMigrationForm newMigrationDialog;
     private JPanel buttonsPanel = new JPanel();
     private boolean MenusAdded = false;
+    private Yii yii;
 
     public Project getProject() {
         return _project;
-    }
-
-
-    private String runCommand(String migrateCommand) {
-        try {
-
-            Process p;
-            String prependPath = CommonHelper.getCommandPrepend();
-
-
-            if (yiiFile == null) {
-                return "Please select path to yiic in YiiStorm config.";
-            }
-
-            prependPath += yiiFile;
-            p = Runtime.getRuntime().exec(prependPath + " " + migrateCommand + " --interactive=0");   //+ "D:\\webservers\\home\\www.rest.lcl\\www\\protected\\"
-
-            String lineAll = "";
-            if (p != null) {
-                //p.waitFor();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = reader.readLine();
-                while (line != null) {
-                    line = reader.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    lineAll += line + "\n";
-                }
-            }
-            return lineAll;
-        } catch (Exception e1) {
-            return "Error! " + e1.getMessage();
-        }
-
     }
 
     /**
@@ -103,10 +66,10 @@ public class MigrationsToolWindow implements ToolWindowFactory {
      */
     private void updateNewMigrations(boolean writeLog, boolean openFirst) {
         String text;
-        if (yiiFile == null) {
-            text = "Please select path to yiic in YiiStorm config.";
+        if (yii == null) {
+            text = "Please select path to yii console in YiiStorm config.";
         } else {
-            text = this.runCommand("migrate new");
+            text = yii.migrateHistory();
             try {
                 Pattern regex = Pattern.compile("\\s+(m\\d+?_.+?)(?:\n|$)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.MULTILINE);
                 Matcher regexMatcher = regex.matcher(text);
@@ -138,11 +101,17 @@ public class MigrationsToolWindow implements ToolWindowFactory {
 
         _project = project;
         toolw = this;
-        Yiic yiic = new Yiic();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(getProject());
-        yiiFile = properties.getValue("yiicFile");
-        boolean useMigrations = properties.getBoolean("useYiiMigrations", false);
+
+        if (properties.getBoolean("useYiiMigrations", false)) {
+            String yiiFile = properties.getValue("yiicFile");
+            if (yiiFile != null) {
+                yii = Yii.getInstance(yiiFile);
+                yiiPath = yiiFile.replaceAll("yii[c]*.(bat|php)$", "");
+            }
+        }
+
         setMigrateLogText("");
 
         JPanel contentPane = new JPanel();
@@ -173,11 +142,11 @@ public class MigrationsToolWindow implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(contentPane, "", false);
         toolWindow.getContentManager().addContent(content);
-        if (yiiFile != null && Yiic.yiicIsRunnable(yiiFile)) {
-            yiiProtected = yiiFile.replaceAll("yiic.(bat|php)$", "");
+
+        if (yii != null) {
             runBackgroundTask(ADD_MENUS_BACKGROUND_ACTION, project);
         } else {
-            setMigrateLogText("Set path to yiic in project settings -> YiiStorm");
+            setMigrateLogText("Set path to yii in project settings -> YiiStorm");
         }
 
     }
@@ -192,7 +161,6 @@ public class MigrationsToolWindow implements ToolWindowFactory {
             }
 
             public void run(@NotNull final ProgressIndicator indicator) {
-                final Task.Backgroundable this_task = this;
 
                 switch (Action) {
                     case MigrationsToolWindow.MIGRATE_DOWN_BACKGROUND_ACTION:
@@ -256,7 +224,8 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     }
 
     private void createMigrationByName(String name) {
-        setMigrateLogText(this.runCommand("migrate create " + name));
+
+        setMigrateLogText(yii.migrateCreate(name));
     }
 
     private void setMigrateLogText(final String text) {
@@ -299,13 +268,11 @@ public class MigrationsToolWindow implements ToolWindowFactory {
     }
 
     private void applyMigrations() {
-        String text = this.runCommand("migrate");
-        setMigrateLogText(text);
+        setMigrateLogText(yii.migrateUp());
     }
 
     private void migrateDown() {
-        String text = this.runCommand("migrate down 1");
-        setMigrateLogText(text);
+        setMigrateLogText(yii.migrateDown());
     }
 
     /**
@@ -412,24 +379,31 @@ public class MigrationsToolWindow implements ToolWindowFactory {
                 if (_project.getBasePath() == null) {
                     return;
                 }
-                String migrationPath = yiiProtected.replace(_project.getBasePath(), "").replace("\\", "/");
+                String migrationFilename = name;
                 VirtualFile baseDir = _project.getBaseDir();
-                if (baseDir != null) {
-                    VirtualFile migrationsFolder = baseDir.findFileByRelativePath(migrationPath + "migrations/");
-                    if (migrationsFolder != null) {
-                        migrationsFolder.refresh(false, true);
-                        VirtualFile migrationFile = migrationsFolder.findFileByRelativePath(name + ".php");
-                        if (migrationFile != null) {
-                            OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
-                            if (of.canNavigate()) {
-                                of.navigate(true);
-                            }
-                        } else {
-                            PluginManager.getLogger().error("Migrations file not founded");
+                String basePath = baseDir.getPath();
+                String migrationPath = yiiPath.replace("\\", "/").replace(basePath, "");
+                if (migrationFilename.contains("(")) {
+                    migrationFilename = migrationFilename.replaceFirst(" \\(.+$", "");
+                }
+
+                VirtualFile migrationsFolder = baseDir.findFileByRelativePath(migrationPath + "migrations/");
+                if (migrationsFolder == null) {
+                    migrationsFolder = baseDir.findFileByRelativePath(migrationPath + "console/migrations");
+                }
+                if (migrationsFolder != null) {
+                    migrationsFolder.refresh(false, true);
+                    VirtualFile migrationFile = migrationsFolder.findFileByRelativePath(migrationFilename + ".php");
+                    if (migrationFile != null) {
+                        OpenFileDescriptor of = new OpenFileDescriptor(_project, migrationFile);
+                        if (of.canNavigate()) {
+                            of.navigate(true);
                         }
                     } else {
-                        PluginManager.getLogger().error("Migrations folder not founded");
+                        PluginManager.getLogger().error("Migrations file not founded");
                     }
+                } else {
+                    PluginManager.getLogger().error("Migrations folder not founded");
                 }
             }
         });

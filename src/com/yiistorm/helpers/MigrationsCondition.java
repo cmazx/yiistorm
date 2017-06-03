@@ -7,7 +7,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.yiistorm.YiiStormProjectComponent;
-import com.yiistorm.elements.Yiic;
+import com.yiistorm.elements.Yii;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,16 +27,18 @@ public class MigrationsCondition implements Condition {
             if (component.getProp("yiicFile").length() < 1) {
                 Notifications.Bus.notify(new Notification("yiistormMigration",
                         "YiiStorm migrations",
-                        "Yiic not selected ",
+                        "Yii not selected ",
                         NotificationType.WARNING));
                 return false;
             }
-            if (component.getProp("yiicFile") != null && phpOk && Yiic.yiicIsRunnable(component.getProp("yiicFile"))) {
+            String yiiConsolePath = component.getProp("yiicFile");
+            Boolean yiiReady = yiiConsolePath != null && phpOk;
+            if (yiiReady && Yii.getInstance(yiiConsolePath) != null) {
                 return true;
             } else {
                 Notifications.Bus.notify(new Notification("yiistormMigration",
                         "YiiStorm migrations",
-                        phpOk ? "Yiic file not configured." : "Can't run php. Check your system configuration. ",
+                        phpOk ? "Yii file not configured." : "Can't run php. Check your system configuration. ",
                         NotificationType.WARNING));
             }
         }

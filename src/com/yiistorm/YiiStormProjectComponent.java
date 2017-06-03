@@ -19,8 +19,6 @@ import javax.swing.*;
 public class YiiStormProjectComponent implements ProjectComponent {
 
     private Project _project;
-    private boolean _isCacheConfigXmlUpdated = false;
-    private boolean _isCacheLayoutXmlUpdated = false;
     private PropertiesComponent properties;
     private ConfigParser yiiConfig;
 

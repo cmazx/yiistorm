@@ -104,7 +104,7 @@
                   <text value="Yiic manager path"/>
                 </properties>
               </component>
-              <component id="26643" class="javax.swing.JTextField" binding="yiicFileField">
+              <component id="26643" class="javax.swing.JTextField" binding="yiiFileField">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -112,7 +112,7 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="1bb44" class="javax.swing.JButton" binding="yiicPathSelect">
+              <component id="1bb44" class="javax.swing.JButton" binding="yiiPathSelect">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
@@ -125,7 +125,7 @@
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Please select yiic.bat in Windows, or yiic.php in Linux"/>
+                  <text value="Please select yii.bat in Windows, or yii.php in Linux"/>
                 </properties>
               </component>
             </children>

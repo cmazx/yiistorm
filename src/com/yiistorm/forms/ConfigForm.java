@@ -14,8 +14,8 @@ public class ConfigForm extends JDialog {
     private JButton buttonCancel;
     private JTextField themeNameField;
     private JPanel fileChooserPanel;
-    private JTextField yiicFileField;
-    private JButton yiicPathSelect;
+    private JTextField yiiFileField;
+    private JButton yiiPathSelect;
     private JFileChooser fileChooser;
     private static boolean showed = false;
     private YiiStormActionAbstract currentAction;
@@ -34,12 +34,12 @@ public class ConfigForm extends JDialog {
             themeNameField.setText(themeName);
         }
 
-        String yiicFile = properties.getValue("yiicFile");
-        if (yiicFile != null) {
-            yiicFileField.setText(yiicFile);
+        String yiiFile = properties.getValue("yiiсFile");
+        if (yiiFile != null) {
+            yiiFileField.setText(yiiFile);
         }
 
-        yiicPathSelect.addActionListener(new ActionListener() {
+        yiiPathSelect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
                 VirtualFile baseDir = currentAction.getProject().getBaseDir();
@@ -47,7 +47,7 @@ public class ConfigForm extends JDialog {
                     fileChooser.setCurrentDirectory(new File(baseDir.getPath()));
                     int ret = fileChooser.showDialog(null, "Открыть файл");
                     if (ret == JFileChooser.APPROVE_OPTION) {
-                        yiicFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                        yiiFileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                     }
                 }
             }
@@ -94,7 +94,7 @@ public class ConfigForm extends JDialog {
             properties.setValue("themeName", themeName);
         }
 
-        String selectedFile = yiicFileField.getText();
+        String selectedFile = yiiFileField.getText();
         if (selectedFile != null) {
             properties.setValue("yiicFile", selectedFile);
         }
