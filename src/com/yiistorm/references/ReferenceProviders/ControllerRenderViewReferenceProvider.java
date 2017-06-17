@@ -11,6 +11,7 @@ import com.intellij.psi.PsiReferenceProvider;
 import com.intellij.util.ProcessingContext;
 import com.yiistorm.helpers.YiiRefsHelper;
 import com.yiistorm.references.ViewsReference;
+import com.yiistorm.references.YiiPsiReferenceProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -39,6 +40,7 @@ public class ControllerRenderViewReferenceProvider extends PsiReferenceProvider 
         }
 
         projectPath = baseDir.getCanonicalPath();
+        YiiPsiReferenceProvider.projectPath = projectPath;
         if (elname.endsWith("StringLiteralExpressionImpl")) {
 
             try {

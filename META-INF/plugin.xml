@@ -14,7 +14,7 @@
         <li>Migrations manager.</li>
         </ul>
     ]]></description>
-    <version>0.9.18</version>
+    <version>0.9.19</version>
     <vendor url="http://mazx.ru/" email="mazx@ya.ru">mazx</vendor>
     <idea-version since-build="163"/>
     <project-components>

@@ -15,10 +15,14 @@ public class YiiReferenceContributor extends PsiReferenceContributor {
 
     @Override
     public void registerReferenceProviders(PsiReferenceRegistrar registrar) {
+
+        //Controller-to-view
         registrar.registerReferenceProvider(
                 PhpPatterns.phpElement()
-                        .withElementType(PhpElementTypes.STRING),
-                new YiiPsiReferenceProvider()
+                        .withElementType(PhpElementTypes.STRING)
+                        .withTreeParent(isParamListInMethodWithName("(?sim).+?render(Partial|Ajax)*\\(.+"))
+                        .and(inFile(PlatformPatterns.string().endsWith("Controller.php"))),
+                new ControllerRenderViewReferenceProvider()
         );
         registrar.registerReferenceProvider(
                 PhpPatterns.phpElement()
@@ -35,12 +39,10 @@ public class YiiReferenceContributor extends PsiReferenceContributor {
                         .andNot(inFile(PlatformPatterns.string().endsWith("Controller.php"))),
                 new ViewRenderViewReferenceProvider()
         );
-        //Controller-to-view
         registrar.registerReferenceProvider(
                 PhpPatterns.phpElement()
-                        .withElementType(PhpElementTypes.STRING)
-                        .withTreeParent(isParamListInMethodWithName("(?sim).+?render(Partial|Ajax)*\\(.+")),
-                new ControllerRenderViewReferenceProvider()
+                        .withElementType(PhpElementTypes.STRING),
+                new YiiPsiReferenceProvider()
         );
     }
 
